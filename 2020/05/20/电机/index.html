@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.lug.ustc.edu.cn/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="电机的基本认识这里呢，平衡小车最常用到的是直流编码有刷电机，直流的意思是使用直流电，给引脚通的是恒定电流；编码指的是电机自带编码盘，上面有两个相位正交的编码器，可以利用四倍频技术实现对电机位置和转速的精确追踪；有刷指的是电机内部自带换向器，电机转子每旋转180度，线圈中的电流即自动换向，不需要软件或者硬件驱动的控制。 这种电机通常有6个引脚：电源引脚：5V、GND，PWM输入引脚：IN1、IN2，">
+<meta property="og:type" content="article">
+<meta property="og:title" content="减速直流有刷电机">
+<meta property="og:url" content="http://yoursite.com/2020/05/20/%E7%94%B5%E6%9C%BA/index.html">
+<meta property="og:site_name" content="Silicon4">
+<meta property="og:description" content="电机的基本认识这里呢，平衡小车最常用到的是直流编码有刷电机，直流的意思是使用直流电，给引脚通的是恒定电流；编码指的是电机自带编码盘，上面有两个相位正交的编码器，可以利用四倍频技术实现对电机位置和转速的精确追踪；有刷指的是电机内部自带换向器，电机转子每旋转180度，线圈中的电流即自动换向，不需要软件或者硬件驱动的控制。 这种电机通常有6个引脚：电源引脚：5V、GND，PWM输入引脚：IN1、IN2，">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAAEsCAMAAABOo35HAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAC9UExURVlZWdPT07KysmRkZIWFhfT09JmZmWZmZm9vb39/fxkZGUxMTDMzM3p6epCQkKamppubm729venp6cjIyN7e3tbW1s/Pz8LCwnx8fLS0tFZWVoiIiI+Pj6GhoeTk5Glpabu7u93d3evr66CgoJSUlKqqqsnJyeDg4Hd3d8PDw+Xl5bi4uNHR0dvb26Ojo6urq+fn51hYWDg4OCgoKHBwcK2traenp0FBQe7u7vHx8U5OTre3t8zMzHV1df///7GrnpQAAAA/dFJOU///////////////////////////////////////////////////////////////////////////////////AI4mfBcAAAUGSURBVHja7NoJb6M4GMZxY0NCD64kve/pMZ2d3Z297+X7f6zFNmBAMUXa6URl/q9UJSWPUPzrizFWRUlNLgEBWGCBBRZYYEEAFlhggQUWWBCABRZYYIEFFgRggQUWWGCBBQFYYIEFFlhgQQAWWGCBBRZYEIAFFlhggQUWBGCBBRZYYIEFAVhggQUWWGBBABZYYIEFFlgQgAUWWGCBBRYEYIEFFlhggQUBWGCBBRZYYEEAFlhggQUWWBCABRZYYIEFFgRggQUWWGCBBQFYYIEFFlhgQQAWWGCBBRZYEIAFFlhggQUWBGCBBRZYn6cCIcRXgvX/h9qcIVBqDdbEM8RCxGCB9QqXYRwHYDHBgwXWl8eKZKiESHI3Ba1kWs3fKixcaJUl1YyeBm7Ocq+yLItUiVBGnXxenSHJolIKEcwHq6ikbOX1YGVzQCTN8LPmSLreghUl9sN4Uw7yajMrLC0TZ1ImzqY6FEop0+pIaEN5HaoOxVuwEqFyc4I46uSlzOLqgxlh6UaR9l3VYWl9Fdoxb1Q90KJtu41pwwFW/WHhTtW8i7TafLCqRsk6bsGw63L9qurXRmuIlbT9lDQnlXU+nBFW1Q2qnZbDprWa2tjR90LZFqx1/+Td/HpGWLlrLDvIwTcx6dQ1Vrntbig68cDms3JwbA5Y1azs1ger6sNV/bbIw1jU81MvNAGrl58RVn8ozW+btF08iGFoAlYvP3csfVur1gJBEIA1uBmue5dhZDOyO2epbmgCVi8/I6x0MMHH9pjsTfBhNzQBq5uPZoQlB0uH3DZG4EZqQ26fL3sZq5uf09Ih6qw3i/pm6BZO0qZX7rrUS68Xsbr5ZE4rePMk08pk9aUZugfqppvs6AM1Acvlo/StP+6EbW06z8hJqxbYp2BZPQUnFsLsKuhQdaHqn5ewbF7KXIn0jWO5MqOQ7RaNLPtbNMmmhimj0GUmYLl8Gs0Lq4wyPbTu1l2QKqHSouzs3OlDIslW5SQsnY/NXmFplyNvEuuLV/Tau9BzwiraDUSwXmysztYWWNtL1psXeumgIrDGaqXvBfUuvtqUYI3V2t1wk1e2msFluJJm6zDJXv/fIfjPP7DAAgsssCiwwAILLLDAosACCyywwAKLAgsssMACC6zt9fDz/v75tyOB+98PD2+ORgKffjw4OP1uJPDxl+Xy8v1I4MPF3t7VNyOB4/vF4uzdzrG+39f1kz/w66Guv/yBvw90KX/gZKkr8Qf+2dOV+gNHC12/7RxrabD2/a31bLAO/a11YbAO/K21MFhLf2s9Gqw9f2vdGqzFu11jnVusE2/gxmI9eQOnFuvYG7i0WH7uK4t15w2cWazrXWP9a7H8f/bQYvm/6IPF+sF/pVssf19Ii/WH/0K2WH/uGuvEWC39gSdj9Twy+Rqri5EZx1gt/IE7Y/XoD1wbq9vd3w1PlufnD2OBp+ebm/uxwPHF6emnscDR4vLy41jg7vHq6sNY4Pr27OyYdRaLUrDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssL6u+k+AAQCR9eHtLKvLfwAAAABJRU5ErkJggg==">
+<meta property="article:published_time" content="2020-05-20T11:45:11.000Z">
+<meta property="article:modified_time" content="2020-05-26T07:01:01.122Z">
+<meta property="article:author" content="Silicon4">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAAEsCAMAAABOo35HAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAC9UExURVlZWdPT07KysmRkZIWFhfT09JmZmWZmZm9vb39/fxkZGUxMTDMzM3p6epCQkKamppubm729venp6cjIyN7e3tbW1s/Pz8LCwnx8fLS0tFZWVoiIiI+Pj6GhoeTk5Glpabu7u93d3evr66CgoJSUlKqqqsnJyeDg4Hd3d8PDw+Xl5bi4uNHR0dvb26Ojo6urq+fn51hYWDg4OCgoKHBwcK2traenp0FBQe7u7vHx8U5OTre3t8zMzHV1df///7GrnpQAAAA/dFJOU///////////////////////////////////////////////////////////////////////////////////AI4mfBcAAAUGSURBVHja7NoJb6M4GMZxY0NCD64kve/pMZ2d3Z297+X7f6zFNmBAMUXa6URl/q9UJSWPUPzrizFWRUlNLgEBWGCBBRZYYEEAFlhggQUWWBCABRZYYIEFFgRggQUWWGCBBQFYYIEFFlhgQQAWWGCBBRZYEIAFFlhggQUWBGCBBRZYYIEFAVhggQUWWGBBABZYYIEFFlgQgAUWWGCBBRYEYIEFFlhggQUBWGCBBRZYYEEAFlhggQUWWBCABRZYYIEFFgRggQUWWGCBBQFYYIEFFlhgQQAWWGCBBRZYEIAFFlhggQUWBGCBBRZYn6cCIcRXgvX/h9qcIVBqDdbEM8RCxGCB9QqXYRwHYDHBgwXWl8eKZKiESHI3Ba1kWs3fKixcaJUl1YyeBm7Ocq+yLItUiVBGnXxenSHJolIKEcwHq6ikbOX1YGVzQCTN8LPmSLreghUl9sN4Uw7yajMrLC0TZ1ImzqY6FEop0+pIaEN5HaoOxVuwEqFyc4I46uSlzOLqgxlh6UaR9l3VYWl9Fdoxb1Q90KJtu41pwwFW/WHhTtW8i7TafLCqRsk6bsGw63L9qurXRmuIlbT9lDQnlXU+nBFW1Q2qnZbDprWa2tjR90LZFqx1/+Td/HpGWLlrLDvIwTcx6dQ1Vrntbig68cDms3JwbA5Y1azs1ger6sNV/bbIw1jU81MvNAGrl58RVn8ozW+btF08iGFoAlYvP3csfVur1gJBEIA1uBmue5dhZDOyO2epbmgCVi8/I6x0MMHH9pjsTfBhNzQBq5uPZoQlB0uH3DZG4EZqQ26fL3sZq5uf09Ih6qw3i/pm6BZO0qZX7rrUS68Xsbr5ZE4rePMk08pk9aUZugfqppvs6AM1Acvlo/StP+6EbW06z8hJqxbYp2BZPQUnFsLsKuhQdaHqn5ewbF7KXIn0jWO5MqOQ7RaNLPtbNMmmhimj0GUmYLl8Gs0Lq4wyPbTu1l2QKqHSouzs3OlDIslW5SQsnY/NXmFplyNvEuuLV/Tau9BzwiraDUSwXmysztYWWNtL1psXeumgIrDGaqXvBfUuvtqUYI3V2t1wk1e2msFluJJm6zDJXv/fIfjPP7DAAgsssCiwwAILLLDAosACCyywwAKLAgsssMACC6zt9fDz/v75tyOB+98PD2+ORgKffjw4OP1uJPDxl+Xy8v1I4MPF3t7VNyOB4/vF4uzdzrG+39f1kz/w66Guv/yBvw90KX/gZKkr8Qf+2dOV+gNHC12/7RxrabD2/a31bLAO/a11YbAO/K21MFhLf2s9Gqw9f2vdGqzFu11jnVusE2/gxmI9eQOnFuvYG7i0WH7uK4t15w2cWazrXWP9a7H8f/bQYvm/6IPF+sF/pVssf19Ii/WH/0K2WH/uGuvEWC39gSdj9Twy+Rqri5EZx1gt/IE7Y/XoD1wbq9vd3w1PlufnD2OBp+ebm/uxwPHF6emnscDR4vLy41jg7vHq6sNY4Pr27OyYdRaLUrDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssL6u+k+AAQCR9eHtLKvLfwAAAABJRU5ErkJggg==">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2020/05/20/电机/"/>
+
+
+
+
+
+  <title>减速直流有刷电机 | Silicon4</title>
+  
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Silicon4</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">科学，就是“偶尔能解答，常常在疑惑，总是在探寻”</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/05/20/%E7%94%B5%E6%9C%BA/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Silicon4">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="https://img-blog.csdnimg.cn/20200419121558948.jpg?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0NhcmJvbjY=,size_16,color_FFFFFF,t_70">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Silicon4">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">减速直流有刷电机</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2020-05-20T19:45:11+08:00">
+                2020-05-20
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/STM32%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95/" itemprop="url" rel="index">
+                    <span itemprop="name">STM32学习记录</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="电机的基本认识"><a href="#电机的基本认识" class="headerlink" title="电机的基本认识"></a>电机的基本认识</h2><p>这里呢，平衡小车最常用到的是<strong>直流编码有刷电机</strong>，<strong>直流</strong>的意思是使用直流电，给引脚通的是恒定电流；<strong>编码</strong>指的是电机自带编码盘，上面有两个相位正交的编码器，可以利用四倍频技术实现对电机位置和转速的精确追踪；<strong>有刷</strong>指的是电机内部自带换向器，电机转子每旋转180度，线圈中的电流即自动换向，不需要软件或者硬件驱动的控制。</p>
+<p>这种电机通常有6个引脚：电源引脚：5V、GND，PWM输入引脚：IN1、IN2，编码器输出引脚：OUT1、OUT2。</p>
+<p>PCB走线时要注意只有编码器引脚是信号线，可以走细一些，其他线建议走粗一些（30mil以上）。</p>
+<h2 id="电机驱动：TB6612"><a href="#电机驱动：TB6612" class="headerlink" title="电机驱动：TB6612"></a>电机驱动：TB6612</h2><p>由于STM32的引脚只能提供3.3V电压，且功率输出能力很弱，因此需要功率放大器件对电机进行控制，并且为了保持控制的实时性，以及精准性，需要高速的功率控制器件，这就需要一款专用的电机驱动芯片。</p>
+<p>这里使用体积较小，同时有较大驱动能力的TB6612驱动芯片，可以同时驱动两路电机，利用其内部的高速H桥，向电机输出PWM波，控制其正传，反转，制动，自由转动（不加动力也不加阻尼力），以及转速的调节。</p>
+<p>驱动芯片除了电源引脚以及使能引脚之外，还有各两组，两种功能的引脚：</p>
+<ul>
+<li><p>来自MCU的3个引脚：1个PWM输入引脚，用于控制转速，2个控制引脚，用于控制正反，制动，空挡（不施加力）。</p>
+</li>
+<li><p>输出给电机的2个引脚：OUT1，OUT2，通过输出PWM波控制电机的全部功能，搭载较大电流。</p>
+</li>
+</ul>
+<h2 id="驱动编写"><a href="#驱动编写" class="headerlink" title="驱动编写"></a>驱动编写</h2><p>通过对电机以及电机驱动的功能分析，我们知道了控制<strong>1个电机</strong>，需要<strong>3个引脚</strong>，1个<strong>输出PWM波</strong>用于控制速度，2个<strong>高速推挽输出</strong>，通过切换高低电平，即可实现对电机的驱动状态控制。</p>
+<p>平衡车有2个电机需要控制，因此用于驱动电机的引脚有6个，2个是定时器的PWM功能映射的引脚。</p>
+<p>这里我为了节省定时器资源，使用一个定时器TIM1，该定时器的1、4通道（分别对应PA8，PA11引脚），来输出两路频率相同，但是占空比互不影响，独立可调的PWM信号，然后另外找4个普通IO口，用于对电机状态进行控制。</p>
+<p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAAEsCAMAAABOo35HAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAC9UExURVlZWdPT07KysmRkZIWFhfT09JmZmWZmZm9vb39/fxkZGUxMTDMzM3p6epCQkKamppubm729venp6cjIyN7e3tbW1s/Pz8LCwnx8fLS0tFZWVoiIiI+Pj6GhoeTk5Glpabu7u93d3evr66CgoJSUlKqqqsnJyeDg4Hd3d8PDw+Xl5bi4uNHR0dvb26Ojo6urq+fn51hYWDg4OCgoKHBwcK2traenp0FBQe7u7vHx8U5OTre3t8zMzHV1df///7GrnpQAAAA/dFJOU///////////////////////////////////////////////////////////////////////////////////AI4mfBcAAAUGSURBVHja7NoJb6M4GMZxY0NCD64kve/pMZ2d3Z297+X7f6zFNmBAMUXa6URl/q9UJSWPUPzrizFWRUlNLgEBWGCBBRZYYEEAFlhggQUWWBCABRZYYIEFFgRggQUWWGCBBQFYYIEFFlhgQQAWWGCBBRZYEIAFFlhggQUWBGCBBRZYYIEFAVhggQUWWGBBABZYYIEFFlgQgAUWWGCBBRYEYIEFFlhggQUBWGCBBRZYYEEAFlhggQUWWBCABRZYYIEFFgRggQUWWGCBBQFYYIEFFlhgQQAWWGCBBRZYEIAFFlhggQUWBGCBBRZYn6cCIcRXgvX/h9qcIVBqDdbEM8RCxGCB9QqXYRwHYDHBgwXWl8eKZKiESHI3Ba1kWs3fKixcaJUl1YyeBm7Ocq+yLItUiVBGnXxenSHJolIKEcwHq6ikbOX1YGVzQCTN8LPmSLreghUl9sN4Uw7yajMrLC0TZ1ImzqY6FEop0+pIaEN5HaoOxVuwEqFyc4I46uSlzOLqgxlh6UaR9l3VYWl9Fdoxb1Q90KJtu41pwwFW/WHhTtW8i7TafLCqRsk6bsGw63L9qurXRmuIlbT9lDQnlXU+nBFW1Q2qnZbDprWa2tjR90LZFqx1/+Td/HpGWLlrLDvIwTcx6dQ1Vrntbig68cDms3JwbA5Y1azs1ger6sNV/bbIw1jU81MvNAGrl58RVn8ozW+btF08iGFoAlYvP3csfVur1gJBEIA1uBmue5dhZDOyO2epbmgCVi8/I6x0MMHH9pjsTfBhNzQBq5uPZoQlB0uH3DZG4EZqQ26fL3sZq5uf09Ih6qw3i/pm6BZO0qZX7rrUS68Xsbr5ZE4rePMk08pk9aUZugfqppvs6AM1Acvlo/StP+6EbW06z8hJqxbYp2BZPQUnFsLsKuhQdaHqn5ewbF7KXIn0jWO5MqOQ7RaNLPtbNMmmhimj0GUmYLl8Gs0Lq4wyPbTu1l2QKqHSouzs3OlDIslW5SQsnY/NXmFplyNvEuuLV/Tau9BzwiraDUSwXmysztYWWNtL1psXeumgIrDGaqXvBfUuvtqUYI3V2t1wk1e2msFluJJm6zDJXv/fIfjPP7DAAgsssCiwwAILLLDAosACCyywwAKLAgsssMACC6zt9fDz/v75tyOB+98PD2+ORgKffjw4OP1uJPDxl+Xy8v1I4MPF3t7VNyOB4/vF4uzdzrG+39f1kz/w66Guv/yBvw90KX/gZKkr8Qf+2dOV+gNHC12/7RxrabD2/a31bLAO/a11YbAO/K21MFhLf2s9Gqw9f2vdGqzFu11jnVusE2/gxmI9eQOnFuvYG7i0WH7uK4t15w2cWazrXWP9a7H8f/bQYvm/6IPF+sF/pVssf19Ii/WH/0K2WH/uGuvEWC39gSdj9Twy+Rqri5EZx1gt/IE7Y/XoD1wbq9vd3w1PlufnD2OBp+ebm/uxwPHF6emnscDR4vLy41jg7vHq6sNY4Pr27OyYdRaLUrDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssL6u+k+AAQCR9eHtLKvLfwAAAABJRU5ErkJggg==" data-original="https://img-blog.csdnimg.cn/20200522171503509.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0NhcmJvbjY=,size_16,color_FFFFFF,t_70" alt="TIM1映射"></p>
+<h3 id="电机驱动"><a href="#电机驱动" class="headerlink" title="电机驱动"></a>电机驱动</h3><h4 id="MOTOR-h"><a href="#MOTOR-h" class="headerlink" title="MOTOR.h"></a>MOTOR.h</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">ifndef</span> __MOTOR_H</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> __MOTOR_H</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys.h&gt;			//包含引脚转换的宏函数，便于编写代码</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> PWMA   TIM1-&gt;CCR1  <span class="comment">//用于控制A电机的PWM占空比调节</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> AIN2   PBout(15)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> AIN1   PBout(14)</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> PWMB   TIM1-&gt;CCR4  <span class="comment">//用于控制B电机的PWM占空比调节</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> BIN1   PBout(13)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> BIN2   PBout(12)</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">MiniBalance_PWM_Init</span><span class="params">(u16 arr,u16 psc)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">MiniBalance_Motor_Init</span><span class="params">(<span class="keyword">void</span>)</span></span>;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br></pre></td></tr></table></figure>
+<p>这里干了几件事：</p>
+<ul>
+<li><p>电机控制引脚宏定义</p>
+</li>
+<li><p>PWM占空比改变宏定义</p>
+</li>
+<li>两个初始化函数宏定义</li>
+</ul>
+<h4 id="MOTOR-c"><a href="#MOTOR-c" class="headerlink" title="MOTOR.c"></a>MOTOR.c</h4><p>首先是对4个控制引脚的初始化，高速下拉推挽输出：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"MOTOR.h"</span></span></span><br><span class="line"></span><br><span class="line">TIM_HandleTypeDef 	TIM1_Handler = &#123;<span class="number">0</span>&#125;;	  	<span class="comment">//定时器1句柄 </span></span><br><span class="line">TIM_OC_InitTypeDef 	TIM1_CH14Handler = &#123;<span class="number">0</span>&#125;;	<span class="comment">//定时器1通道14句柄</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">MiniBalance_Motor_Init</span><span class="params">(<span class="keyword">void</span>)</span>		<span class="comment">//完成4个控制引脚的初始化</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	GPIO_InitTypeDef GPIO_Initure = &#123;<span class="number">0</span>&#125;;	<span class="comment">//声明初始化结构体</span></span><br><span class="line">	__HAL_RCC_GPIOB_CLK_ENABLE();			<span class="comment">//开启GPIOB时钟</span></span><br><span class="line"></span><br><span class="line">	GPIO_Initure.Pin = GPIO_PIN_12|GPIO_PIN_13|GPIO_PIN_14|GPIO_PIN_15;	<span class="comment">//端口配置</span></span><br><span class="line">	GPIO_Initure.Pull = GPIO_NOPULL;</span><br><span class="line">	GPIO_Initure.Mode = GPIO_MODE_OUTPUT_PP;	  						<span class="comment">//推挽输出</span></span><br><span class="line">	GPIO_Initure.Speed = GPIO_SPEED_FREQ_HIGH;					 <span class="comment">//50M</span></span><br><span class="line">	</span><br><span class="line">	HAL_GPIO_Init(GPIOB, &amp;GPIO_Initure);				  <span class="comment">//根据设定参数初始化GPIOB </span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>然后是对PWM外设的<strong>初始化</strong>，这里<strong>用定时器1的1、4通道</strong>，映射到PA8和PA11两个引脚用来控制两个电机的转速：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//TIM1 PWM初始化 </span></span><br><span class="line"><span class="comment">//arr：自动重装值。</span></span><br><span class="line"><span class="comment">//psc：时钟预分频数</span></span><br><span class="line"><span class="comment">//定时器溢出时间计算方法:Tout=((arr+1)*(psc+1))/Ft us.</span></span><br><span class="line"><span class="comment">//Ft=定时器工作频率,单位:Mhz</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">MiniBalance_PWM_Init</span><span class="params">(u16 arr,u16 psc)</span>		<span class="comment">//完成两个PWM输出引脚的初始化</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	TIM1_Handler.Instance=TIM1;							<span class="comment">//定时器1</span></span><br><span class="line">	TIM1_Handler.Init.Prescaler=psc;					<span class="comment">//定时器分频</span></span><br><span class="line">	TIM1_Handler.Init.CounterMode=TIM_COUNTERMODE_UP;	<span class="comment">//向上计数模式</span></span><br><span class="line">	TIM1_Handler.Init.Period=arr;		 				<span class="comment">//自动重装载值</span></span><br><span class="line">	TIM1_Handler.Init.ClockDivision=TIM_CLOCKDIVISION_DIV1;</span><br><span class="line">	HAL_TIM_PWM_Init(&amp;TIM1_Handler);	  			 <span class="comment">//初始化PWM</span></span><br><span class="line">	</span><br><span class="line">	TIM1_CH14Handler.OCMode=TIM_OCMODE_PWM1;		 	<span class="comment">//模式选择PWM1</span></span><br><span class="line">	TIM1_CH14Handler.Pulse= <span class="number">0</span>;						<span class="comment">//设置比较值,初始占空比设为0</span></span><br><span class="line">	TIM1_CH14Handler.OCPolarity=TIM_OCPOLARITY_HIGH; 	<span class="comment">//输出极性 高电平有效 </span></span><br><span class="line">	HAL_TIM_PWM_ConfigChannel(&amp;TIM1_Handler,&amp;TIM1_CH14Handler,TIM_CHANNEL_1);<span class="comment">//初始化TIM1，PWM通道1、4</span></span><br><span class="line">	HAL_TIM_PWM_ConfigChannel(&amp;TIM1_Handler,&amp;TIM1_CH14Handler,TIM_CHANNEL_4);<span class="comment">//初始化TIM1，PWM通道1、4</span></span><br><span class="line">	</span><br><span class="line">	HAL_TIM_PWM_Start(&amp;TIM1_Handler,TIM_CHANNEL_1);	<span class="comment">//开启PWM通道1、4</span></span><br><span class="line">	HAL_TIM_PWM_Start(&amp;TIM1_Handler,TIM_CHANNEL_4);	<span class="comment">//开启PWM通道1、4</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在HAL_TIM_PWM_Init()中会调用端口初始化<strong>MSP函数</strong>，需要用户重定义覆盖HAL库的若定义函数：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//定时器底层驱动，时钟使能，引脚配置</span></span><br><span class="line"><span class="comment">//此函数会被HAL_TIM_PWM_Init()调用</span></span><br><span class="line"><span class="comment">//htim:定时器句柄</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">HAL_TIM_PWM_MspInit</span><span class="params">(TIM_HandleTypeDef *htim)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	GPIO_InitTypeDef GPIO_Initure;</span><br><span class="line">	</span><br><span class="line">    <span class="keyword">if</span>(htim-&gt;Instance==TIM1)</span><br><span class="line">	&#123;</span><br><span class="line">		__HAL_RCC_TIM1_CLK_ENABLE();			<span class="comment">//使能TIM1时钟</span></span><br><span class="line">		__HAL_AFIO_REMAP_TIM1_PARTIAL();		<span class="comment">//TIM1通道引脚部分重映射使能</span></span><br><span class="line">		__HAL_RCC_GPIOA_CLK_ENABLE();			<span class="comment">//开启GPIOA时钟</span></span><br><span class="line">		</span><br><span class="line">		GPIO_Initure.Pin=GPIO_PIN_8|GPIO_PIN_11;           	<span class="comment">//PA8 PA11</span></span><br><span class="line">		GPIO_Initure.Mode=GPIO_MODE_AF_PP;  	<span class="comment">//复用推挽输出,用于输出PWM</span></span><br><span class="line">		GPIO_Initure.Pull=GPIO_PULLDOWN;          <span class="comment">//下拉</span></span><br><span class="line">		GPIO_Initure.Speed=GPIO_SPEED_FREQ_HIGH;<span class="comment">//高速</span></span><br><span class="line">		HAL_GPIO_Init(GPIOA,&amp;GPIO_Initure); 	</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>然后是中断服务函数，等等，我们设置了自动重装填，不需要中断控制，OK结束。</p>
+<h2 id="如何使用电机：实践"><a href="#如何使用电机：实践" class="headerlink" title="如何使用电机：实践"></a>如何使用电机：实践</h2><h3 id="控制集成封装"><a href="#控制集成封装" class="headerlink" title="控制集成封装"></a>控制集成封装</h3><p>这里集成了控制小车所需的代码，现在只添加电机控制这一模块</p>
+<h4 id="CONTROL-h"><a href="#CONTROL-h" class="headerlink" title="CONTROL.h"></a>CONTROL.h</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">ifndef</span> __CONTROL_H</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> __CONTROL_H</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"sys.h"</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Set_Pwm</span><span class="params">(<span class="keyword">int</span> moto1,<span class="keyword">int</span> moto2)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">myabs</span><span class="params">(<span class="keyword">int</span> a)</span></span>;					<span class="comment">//绝对值函数</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br></pre></td></tr></table></figure>
+<p>两个函数，核心是第一个，设置PWM的重装填阈值，相当于控制了占空比，这样就实现了调速的功能。</p>
+<h4 id="CONTROL-c"><a href="#CONTROL-c" class="headerlink" title="CONTROL.c"></a>CONTROL.c</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"CONTROL.h"</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">/**************************************************************************</span></span><br><span class="line"><span class="comment">函数功能：赋值给PWM寄存器</span></span><br><span class="line"><span class="comment">入口参数：左轮PWM、右轮PWM</span></span><br><span class="line"><span class="comment">返回  值：无</span></span><br><span class="line"><span class="comment">**************************************************************************/</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Set_Pwm</span><span class="params">(<span class="keyword">int</span> moto1,<span class="keyword">int</span> moto2)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">   <span class="keyword">int</span> siqu=<span class="number">500</span>;<span class="comment">//死区补偿,防止数值过小无法驱动</span></span><br><span class="line">			<span class="keyword">if</span>(moto1&lt;<span class="number">0</span>)			BIN2=<span class="number">0</span>,			BIN1=<span class="number">1</span>;		<span class="comment">//正转</span></span><br><span class="line">			<span class="keyword">else</span> 	          BIN2=<span class="number">1</span>,			BIN1=<span class="number">0</span>;		<span class="comment">//反转</span></span><br><span class="line">			PWMB=myabs(moto1)+siqu;</span><br><span class="line">		  <span class="keyword">if</span>(moto2&lt;<span class="number">0</span>)	AIN1=<span class="number">0</span>,			AIN2=<span class="number">1</span>;				<span class="comment">//正转</span></span><br><span class="line">			<span class="keyword">else</span>        AIN1=<span class="number">1</span>,			AIN2=<span class="number">0</span>;				<span class="comment">//反转</span></span><br><span class="line">			PWMA=myabs(moto2)+siqu;	</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**************************************************************************</span></span><br><span class="line"><span class="comment">函数功能：绝对值函数</span></span><br><span class="line"><span class="comment">入口参数：int</span></span><br><span class="line"><span class="comment">返回  值：unsigned int</span></span><br><span class="line"><span class="comment">**************************************************************************/</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">myabs</span><span class="params">(<span class="keyword">int</span> a)</span></span></span><br><span class="line"><span class="function"></span>&#123; 		   </span><br><span class="line">	  <span class="keyword">int</span> temp;</span><br><span class="line">		<span class="keyword">if</span>(a&lt;<span class="number">0</span>)  temp=-a;  </span><br><span class="line">	  <span class="keyword">else</span> temp=a;</span><br><span class="line">	  <span class="keyword">return</span> temp;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>上面这个是实现功能的函数，Set_pwm函数是根据TB6612电机驱动芯片的真值表来计算的，通过直接访问TIM1的CCR寄存器，注意考虑两个电机的中心对称分布，所以写的时候将一个反向，实现输入两个正数，两个电机的转动都使小车向前走即可。</p>
+<h3 id="mian函数："><a href="#mian函数：" class="headerlink" title="mian函数："></a>mian函数：</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//头文件略去</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	HAL_Init();</span><br><span class="line">	Stm32_Clock_Init(RCC_CFGR_PLLMULL9);</span><br><span class="line">	JTAG_Set(SWD_ENABLE);</span><br><span class="line">	<span class="comment">//uart_init(115200);</span></span><br><span class="line">	delay_init(<span class="number">72</span>);</span><br><span class="line">	KEY_Init();</span><br><span class="line">	MiniBalance_Motor_Init();</span><br><span class="line">	MiniBalance_PWM_Init(<span class="number">7199</span>,<span class="number">0</span>);   <span class="comment">//PWM输出，溢出值7200，不分频，10KHz频率，100um周期</span></span><br><span class="line">	<span class="keyword">while</span>(<span class="number">1</span>)</span><br><span class="line">	&#123;</span><br><span class="line">		Set_Pwm(<span class="number">3000</span>, <span class="number">3000</span>);</span><br><span class="line">		delay_ms(<span class="number">1000</span>);</span><br><span class="line">		Set_Pwm(<span class="number">-3000</span>, <span class="number">-3000</span>);</span><br><span class="line">		delay_ms(<span class="number">1000</span>);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里放了一个最简单的一秒正转，一秒反转，因为还没有研究PID的原理，后面会结合MPU6050触发中断来进行数据处理，反馈给电机，来进行最基本的控制。网上找不到HAL库的历程，就搞来FW3.5标准库来研究，慢慢摸索终于把这电机弄转起来了，实现了多轮运动嘿嘿。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/05/20/%E5%AE%9A%E6%97%B6%E5%99%A8/" rel="next" title="STM32——外设Timer定时器">
+                <i class="fa fa-chevron-left"></i> STM32——外设Timer定时器
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2020/06/04/%E5%B9%B3%E8%A1%A1%E8%BD%A6PID/" rel="prev" title="平衡车PID分析">
+                平衡车PID分析 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="https://img-blog.csdnimg.cn/20200419121558948.jpg?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0NhcmJvbjY=,size_16,color_FFFFFF,t_70"
+                alt="Silicon4" />
+            
+              <p class="site-author-name" itemprop="name">Silicon4</p>
+              <p class="site-description motion-element" itemprop="description">Silicon4的个人博客</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives">
+              
+                  <span class="site-state-item-count">19</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">4</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/yourname" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:yourname@gmail.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://twitter.com/yourname" target="_blank" title="Twitter">
+                      
+                        <i class="fa fa-fw fa-twitter"></i>Twitter</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="skype:yourname?call|chat" target="_blank" title="Skype">
+                      
+                        <i class="fa fa-fw fa-skype"></i>Skype</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#电机的基本认识"><span class="nav-number">1.</span> <span class="nav-text">电机的基本认识</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#电机驱动：TB6612"><span class="nav-number">2.</span> <span class="nav-text">电机驱动：TB6612</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#驱动编写"><span class="nav-number">3.</span> <span class="nav-text">驱动编写</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#电机驱动"><span class="nav-number">3.1.</span> <span class="nav-text">电机驱动</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#MOTOR-h"><span class="nav-number">3.1.1.</span> <span class="nav-text">MOTOR.h</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#MOTOR-c"><span class="nav-number">3.1.2.</span> <span class="nav-text">MOTOR.c</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#如何使用电机：实践"><span class="nav-number">4.</span> <span class="nav-text">如何使用电机：实践</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#控制集成封装"><span class="nav-number">4.1.</span> <span class="nav-text">控制集成封装</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#CONTROL-h"><span class="nav-number">4.1.1.</span> <span class="nav-text">CONTROL.h</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#CONTROL-c"><span class="nav-number">4.1.2.</span> <span class="nav-text">CONTROL.c</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#mian函数："><span class="nav-number">4.2.</span> <span class="nav-text">mian函数：</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Silicon4</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/three/three.min.js"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/three/canvas_lines.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+
+
+  
+
+  
+
+<script>!function(e){var c=Array.prototype.slice.call(document.querySelectorAll("img[data-original]"));function i(){for(var r=0;r<c.length;r++)t=c[r],0<=(n=t.getBoundingClientRect()).bottom&&0<=n.left&&n.top<=(e.innerHeight||document.documentElement.clientHeight)&&function(){var t,n,e,i,o=c[r];t=o,n=function(){c=c.filter(function(t){return o!==t})},e=new Image,i=t.getAttribute("data-original"),e.onload=function(){t.src=i,n&&n()},e.src=i}();var t,n}i(),e.addEventListener("scroll",function(){var t,n;t=i,n=e,clearTimeout(t.tId),t.tId=setTimeout(function(){t.call(n)},500)})}(this);</script><script>window.addEventListener("load",function(){var t=/\.(gif|jpg|jpeg|tiff|png)$/i,r=/^data:image\/[a-z]+;base64,/;Array.prototype.slice.call(document.querySelectorAll("img[data-original]")).forEach(function(a){var e=a.parentNode;"A"===e.tagName&&(e.href.match(t)||e.href.match(r))&&(e.href=a.dataset.original)})});</script></body>
+</html>

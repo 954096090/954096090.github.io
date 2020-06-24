@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.lug.ustc.edu.cn/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="初步认识PID对于我这个非控制院的学生来说，这方面的理论知识本来就不足，加上以前基本上干的都是点灯的事，没有涉及控制算法的编写，所以写PID的程序是很懵逼的，因此首先要明白究竟什么是PID。 首先，要明白什么情况下要用到PID控制：用户设定一个期望值，我们希望控制一个受控物体，通常是一个物理量，能够尽可能快的达到一个值，并且能够稳定住。那么这个控制器就需要一个或多个输入值，一个是用户的期望值，其他">
+<meta property="og:type" content="article">
+<meta property="og:title" content="平衡车PID分析">
+<meta property="og:url" content="http://yoursite.com/2020/06/04/%E5%B9%B3%E8%A1%A1%E8%BD%A6PID/index.html">
+<meta property="og:site_name" content="Silicon4">
+<meta property="og:description" content="初步认识PID对于我这个非控制院的学生来说，这方面的理论知识本来就不足，加上以前基本上干的都是点灯的事，没有涉及控制算法的编写，所以写PID的程序是很懵逼的，因此首先要明白究竟什么是PID。 首先，要明白什么情况下要用到PID控制：用户设定一个期望值，我们希望控制一个受控物体，通常是一个物理量，能够尽可能快的达到一个值，并且能够稳定住。那么这个控制器就需要一个或多个输入值，一个是用户的期望值，其他">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAAEsCAMAAABOo35HAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAC9UExURVlZWdPT07KysmRkZIWFhfT09JmZmWZmZm9vb39/fxkZGUxMTDMzM3p6epCQkKamppubm729venp6cjIyN7e3tbW1s/Pz8LCwnx8fLS0tFZWVoiIiI+Pj6GhoeTk5Glpabu7u93d3evr66CgoJSUlKqqqsnJyeDg4Hd3d8PDw+Xl5bi4uNHR0dvb26Ojo6urq+fn51hYWDg4OCgoKHBwcK2traenp0FBQe7u7vHx8U5OTre3t8zMzHV1df///7GrnpQAAAA/dFJOU///////////////////////////////////////////////////////////////////////////////////AI4mfBcAAAUGSURBVHja7NoJb6M4GMZxY0NCD64kve/pMZ2d3Z297+X7f6zFNmBAMUXa6URl/q9UJSWPUPzrizFWRUlNLgEBWGCBBRZYYEEAFlhggQUWWBCABRZYYIEFFgRggQUWWGCBBQFYYIEFFlhgQQAWWGCBBRZYEIAFFlhggQUWBGCBBRZYYIEFAVhggQUWWGBBABZYYIEFFlgQgAUWWGCBBRYEYIEFFlhggQUBWGCBBRZYYEEAFlhggQUWWBCABRZYYIEFFgRggQUWWGCBBQFYYIEFFlhgQQAWWGCBBRZYEIAFFlhggQUWBGCBBRZYn6cCIcRXgvX/h9qcIVBqDdbEM8RCxGCB9QqXYRwHYDHBgwXWl8eKZKiESHI3Ba1kWs3fKixcaJUl1YyeBm7Ocq+yLItUiVBGnXxenSHJolIKEcwHq6ikbOX1YGVzQCTN8LPmSLreghUl9sN4Uw7yajMrLC0TZ1ImzqY6FEop0+pIaEN5HaoOxVuwEqFyc4I46uSlzOLqgxlh6UaR9l3VYWl9Fdoxb1Q90KJtu41pwwFW/WHhTtW8i7TafLCqRsk6bsGw63L9qurXRmuIlbT9lDQnlXU+nBFW1Q2qnZbDprWa2tjR90LZFqx1/+Td/HpGWLlrLDvIwTcx6dQ1Vrntbig68cDms3JwbA5Y1azs1ger6sNV/bbIw1jU81MvNAGrl58RVn8ozW+btF08iGFoAlYvP3csfVur1gJBEIA1uBmue5dhZDOyO2epbmgCVi8/I6x0MMHH9pjsTfBhNzQBq5uPZoQlB0uH3DZG4EZqQ26fL3sZq5uf09Ih6qw3i/pm6BZO0qZX7rrUS68Xsbr5ZE4rePMk08pk9aUZugfqppvs6AM1Acvlo/StP+6EbW06z8hJqxbYp2BZPQUnFsLsKuhQdaHqn5ewbF7KXIn0jWO5MqOQ7RaNLPtbNMmmhimj0GUmYLl8Gs0Lq4wyPbTu1l2QKqHSouzs3OlDIslW5SQsnY/NXmFplyNvEuuLV/Tau9BzwiraDUSwXmysztYWWNtL1psXeumgIrDGaqXvBfUuvtqUYI3V2t1wk1e2msFluJJm6zDJXv/fIfjPP7DAAgsssCiwwAILLLDAosACCyywwAKLAgsssMACC6zt9fDz/v75tyOB+98PD2+ORgKffjw4OP1uJPDxl+Xy8v1I4MPF3t7VNyOB4/vF4uzdzrG+39f1kz/w66Guv/yBvw90KX/gZKkr8Qf+2dOV+gNHC12/7RxrabD2/a31bLAO/a11YbAO/K21MFhLf2s9Gqw9f2vdGqzFu11jnVusE2/gxmI9eQOnFuvYG7i0WH7uK4t15w2cWazrXWP9a7H8f/bQYvm/6IPF+sF/pVssf19Ii/WH/0K2WH/uGuvEWC39gSdj9Twy+Rqri5EZx1gt/IE7Y/XoD1wbq9vd3w1PlufnD2OBp+ebm/uxwPHF6emnscDR4vLy41jg7vHq6sNY4Pr27OyYdRaLUrDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssL6u+k+AAQCR9eHtLKvLfwAAAABJRU5ErkJggg==">
+<meta property="article:published_time" content="2020-06-04T12:46:21.000Z">
+<meta property="article:modified_time" content="2020-06-05T13:58:46.869Z">
+<meta property="article:author" content="Silicon4">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAAEsCAMAAABOo35HAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAC9UExURVlZWdPT07KysmRkZIWFhfT09JmZmWZmZm9vb39/fxkZGUxMTDMzM3p6epCQkKamppubm729venp6cjIyN7e3tbW1s/Pz8LCwnx8fLS0tFZWVoiIiI+Pj6GhoeTk5Glpabu7u93d3evr66CgoJSUlKqqqsnJyeDg4Hd3d8PDw+Xl5bi4uNHR0dvb26Ojo6urq+fn51hYWDg4OCgoKHBwcK2traenp0FBQe7u7vHx8U5OTre3t8zMzHV1df///7GrnpQAAAA/dFJOU///////////////////////////////////////////////////////////////////////////////////AI4mfBcAAAUGSURBVHja7NoJb6M4GMZxY0NCD64kve/pMZ2d3Z297+X7f6zFNmBAMUXa6URl/q9UJSWPUPzrizFWRUlNLgEBWGCBBRZYYEEAFlhggQUWWBCABRZYYIEFFgRggQUWWGCBBQFYYIEFFlhgQQAWWGCBBRZYEIAFFlhggQUWBGCBBRZYYIEFAVhggQUWWGBBABZYYIEFFlgQgAUWWGCBBRYEYIEFFlhggQUBWGCBBRZYYEEAFlhggQUWWBCABRZYYIEFFgRggQUWWGCBBQFYYIEFFlhgQQAWWGCBBRZYEIAFFlhggQUWBGCBBRZYn6cCIcRXgvX/h9qcIVBqDdbEM8RCxGCB9QqXYRwHYDHBgwXWl8eKZKiESHI3Ba1kWs3fKixcaJUl1YyeBm7Ocq+yLItUiVBGnXxenSHJolIKEcwHq6ikbOX1YGVzQCTN8LPmSLreghUl9sN4Uw7yajMrLC0TZ1ImzqY6FEop0+pIaEN5HaoOxVuwEqFyc4I46uSlzOLqgxlh6UaR9l3VYWl9Fdoxb1Q90KJtu41pwwFW/WHhTtW8i7TafLCqRsk6bsGw63L9qurXRmuIlbT9lDQnlXU+nBFW1Q2qnZbDprWa2tjR90LZFqx1/+Td/HpGWLlrLDvIwTcx6dQ1Vrntbig68cDms3JwbA5Y1azs1ger6sNV/bbIw1jU81MvNAGrl58RVn8ozW+btF08iGFoAlYvP3csfVur1gJBEIA1uBmue5dhZDOyO2epbmgCVi8/I6x0MMHH9pjsTfBhNzQBq5uPZoQlB0uH3DZG4EZqQ26fL3sZq5uf09Ih6qw3i/pm6BZO0qZX7rrUS68Xsbr5ZE4rePMk08pk9aUZugfqppvs6AM1Acvlo/StP+6EbW06z8hJqxbYp2BZPQUnFsLsKuhQdaHqn5ewbF7KXIn0jWO5MqOQ7RaNLPtbNMmmhimj0GUmYLl8Gs0Lq4wyPbTu1l2QKqHSouzs3OlDIslW5SQsnY/NXmFplyNvEuuLV/Tau9BzwiraDUSwXmysztYWWNtL1psXeumgIrDGaqXvBfUuvtqUYI3V2t1wk1e2msFluJJm6zDJXv/fIfjPP7DAAgsssCiwwAILLLDAosACCyywwAKLAgsssMACC6zt9fDz/v75tyOB+98PD2+ORgKffjw4OP1uJPDxl+Xy8v1I4MPF3t7VNyOB4/vF4uzdzrG+39f1kz/w66Guv/yBvw90KX/gZKkr8Qf+2dOV+gNHC12/7RxrabD2/a31bLAO/a11YbAO/K21MFhLf2s9Gqw9f2vdGqzFu11jnVusE2/gxmI9eQOnFuvYG7i0WH7uK4t15w2cWazrXWP9a7H8f/bQYvm/6IPF+sF/pVssf19Ii/WH/0K2WH/uGuvEWC39gSdj9Twy+Rqri5EZx1gt/IE7Y/XoD1wbq9vd3w1PlufnD2OBp+ebm/uxwPHF6emnscDR4vLy41jg7vHq6sNY4Pr27OyYdRaLUrDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssL6u+k+AAQCR9eHtLKvLfwAAAABJRU5ErkJggg==">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2020/06/04/平衡车PID/"/>
+
+
+
+
+
+  <title>平衡车PID分析 | Silicon4</title>
+  
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Silicon4</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">科学，就是“偶尔能解答，常常在疑惑，总是在探寻”</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/06/04/%E5%B9%B3%E8%A1%A1%E8%BD%A6PID/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Silicon4">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="https://img-blog.csdnimg.cn/20200419121558948.jpg?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0NhcmJvbjY=,size_16,color_FFFFFF,t_70">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Silicon4">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">平衡车PID分析</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2020-06-04T20:46:21+08:00">
+                2020-06-04
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/STM32%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95/" itemprop="url" rel="index">
+                    <span itemprop="name">STM32学习记录</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="初步认识PID"><a href="#初步认识PID" class="headerlink" title="初步认识PID"></a>初步认识PID</h2><p>对于我这个非控制院的学生来说，这方面的理论知识本来就不足，加上以前基本上干的都是点灯的事，没有涉及控制算法的编写，所以写PID的程序是很懵逼的，因此首先要明白究竟什么是PID。</p>
+<p>首先，要明白什么情况下要用到PID控制：用户设定一个期望值，我们希望控制一个受控物体，通常是一个物理量，能够尽可能快的达到一个值，并且能够稳定住。那么这个控制器就需要一个或多个输入值，一个是用户的期望值，其他则是测量物理量的传感器的值。</p>
+<p>P：proportion，比例，就是用户期望值，与传感器返回值的<strong>差值</strong>，<strong>偏差</strong>。</p>
+<p>I：integral，积分，记录了从某一时刻开始，所有的<strong>偏差的累积</strong>。</p>
+<p>D：derivative，微分，是偏差的偏差，相当于<strong>偏差的导数</strong>，<strong>偏差变化的速率</strong>。</p>
+<p>在实际的运用中，我们不一定要用这里面的所有，但是一定是基于P的控制，积分和微分都是在数据上对偏差进行处理，可以有PI控制，可以有PD控制，也存在PID控制。</p>
+<h2 id="结合平衡车，深度理解PID"><a href="#结合平衡车，深度理解PID" class="headerlink" title="结合平衡车，深度理解PID"></a>结合平衡车，深度理解PID</h2><h3 id="比例控制：把握当下"><a href="#比例控制：把握当下" class="headerlink" title="比例控制：把握当下"></a>比例控制：把握当下</h3><p>那么，究竟什么时候用PI，什么时候用PD呢？这就要从原理说起。</p>
+<p>比如我做一个平衡车，希望通过一种控制算法来实现平衡，最容易想到的方法就是<strong>比例控制</strong>：</p>
+<p>1、我希望平衡车稳定达到平衡状态（用户期望值）是平衡车的机械平衡角度（目标物理量），以及受控物体的角度，MPU6050传感器的DMP度数，</p>
+<p>2、两个数据的<strong>偏差</strong>，<strong>作为输入</strong>控制器的值，在控制器中乘上一个<strong>增益</strong>，经过输出<strong>限幅</strong>，然后<strong>输出给执行器件</strong>：电机，</p>
+<p>3、电机的工作状态，反过来又会影响平衡车的角度，角度又会被传感器收集，重新计算偏差，输入控制器。</p>
+<p>于是，这样一个偏差控制器就形成了一个<strong>闭环</strong>。</p>
+<p><strong>理论上</strong>，一个理想的P控制器，只能使受控物理量无限接近目标值，因为当偏差逐渐减小，趋于零时，控制器的输入趋于零，那么无论有多大增益，输出也会趋于零，这样就会停在一个固定值。</p>
+<p>但是在<strong>实际中</strong>，我们要考虑多种因素，第一，输出趋于零，小车可不会静止在一个角度，而是迅速倒下，第二，实际上第一种情况也是不存在的，因为从控制器输出PWM给电机，到平衡车角度改变，本身就是有很长时间的<strong>延时</strong>，会有<strong>惯性</strong>，这种控制<strong>影响总是延后造成</strong>。因此，真正的情况是，平衡车的角度已经很接近机械零度了，电机的输出也已经快要停止了，然而，平衡车却有一个<strong>角速度</strong>，方向正是最初纠正平衡车的方向，这样，<strong>就算停掉电机，小车依然会越过平衡点</strong>，越过平衡点之后，<strong>偏差</strong>为负数，但是<strong>数值却很小</strong>，偏差经过控制器增益、限幅、输出给电机，<strong>电机却无法产生足够及时纠正偏离的转动</strong>，于是到小车反向倒下足够大的角度时，电机输出的转速才足够纠正，最终的结果就是，小车开始出现大幅度的<strong>震荡</strong>，根本无法平衡。</p>
+<h3 id="比例-微分控制：预测未来，控制平衡"><a href="#比例-微分控制：预测未来，控制平衡" class="headerlink" title="比例+微分控制：预测未来，控制平衡"></a>比例+微分控制：预测未来，控制平衡</h3><p>如何改善这种震荡呢，经过前面的分析，我们知道，出现震荡的根本原因是机械系统的惯性，导致输出对受控物体的影响总是延后的。问题就出在，当角度接近机械零度时，我们的P控制器不工作了，<strong>控制器认为完成了任务，然而控制器忽略了一种对下一个时刻的预测</strong>，那么这个对下一个时刻的<strong>预测</strong>，指的就是<strong>角度偏差的导数</strong>，角度变化的速率，就是<strong>角速度</strong>。</p>
+<p>有了这个认识，我们继续分析，角度偏差接近零度，但是系统<strong>存在角速度</strong>，那么<strong>下一刻就一定会有角度偏差</strong>，并且方向与角速度方向相反，通过数据，获取到角速度，就能够通过角速度，来修正这种状态，有预见性的输出给电机，让电机在下一个时刻就开始纠正偏差的倾向。</p>
+<p>于是，我们加入D控制，微分项，相当于一个阻尼力：<strong>在偏差项P占主导时，微分项D的影响相对来说非常小，然而当偏差趋于零时，微分项的作用就是，减慢受控物理量的变化速率</strong>。</p>
+<p>这样做的核心原理就是，<strong>既然控制存在滞后，那我就提前控制</strong>，就达到了抑制震荡，促进系统在平衡点稳定的目的。</p>
+<h3 id="比例-积分控制：总结过去，控制位置"><a href="#比例-积分控制：总结过去，控制位置" class="headerlink" title="比例+积分控制：总结过去，控制位置"></a>比例+积分控制：总结过去，控制位置</h3><p>上面的PD控制系统，基本上可以让平衡小车处于一个短期稳定平衡的状态，但是肯定不能长时间平衡，原因呢，要从具体的平衡控制结构来分析。</p>
+<p>我们的传感器是单一的MPU6050，通过DMP库，输出的是角度以及角速度信号，而我们控制的是电机，也就是说，我们不考虑电机的感受，只要求平衡车的角度能够保持在机械零度，那么一旦平衡车收到扰动，或者控制闭环的任何一个环节，出现了微小的干扰，平衡车就会向一个方向加速，角度还是平衡的，但是平移的速度却没有限制，这样一旦驱动电机的PWM信号达到了限幅的数值，电机不再加速旋转，小车的执行器件就失去了执行能力，就会向这个方向倒下。</p>
+<p>经过分析，我们需要再参考一个<strong>物理量</strong>，就是<strong>编码器的读数</strong>，既然使用编码电机，编码器的读数就需要纳入测量范围。然后问题又来了，如何处理读到的编码器数据呢？我们设置定时器模式为AB相编码器模式，那么每次读编码器，得到的是0-65535这个区间的一个值，电机转动，编码器的读数就会变化，我们希望小车在一个位置静止，就需要在平衡PD控制的基础上，加上一个<strong>位置控制</strong>，两种信号经过处理，输入控制器，控制器经过融合，输出给电机。</p>
+<p>现在的问题是，<strong>位置控制</strong>使用什么样的方法？显然，<strong>位置控制并不像角度的平衡控制，电机转动就能够较快地达到效果</strong>，因此，我们需要一段时间，一步一步地<strong>接近</strong>我们设定的位置，也就是说，需要使用<strong>速度控制</strong>，<strong>对速度的一步步累积</strong>，使小车的位置（编码器的读数）逐渐趋于某一个值，这就要用到PI算法，即<strong>比例+积分</strong>控制来实现速度控制。</p>
+<p>继续分析，我们假设用户输入的目标值是放下小车时刻，编码器的读数就是小车（车轮）的速度，这里可能就有点问题了，明明编码器的读数是脉冲信号，是位置啊，为什么说是速度呢？这就涉及到对编码器的数据处理，我们每隔一段时间，我们读取CNT寄存器，然后软件清零，意味着我们每次读取的数据，都是<strong>一段时间的计数值变化</strong>，不就是<strong>速度</strong>吗。弄清楚这个，我们开始分析怎么实现比例+积分的控制。</p>
+<p>每隔一定周期，我们获取一次编码器的速度，然后与用户期望的速度，得到一个偏差，这个偏差就是P（比例），很显然偏差越大，我们需要的回复力就越大。到这里，我们吧前面的平衡PD控制，加上速度P控制，经过调整三个增益的大小以及比例，在控制器中对信号进行简单的叠加（叠加式PID，另外还有串联式，这里没有用到），就能够完美的实现小车的长时间稳定了。完美的状态是，推动小车，小车会前进一段距离，然后重新进入平衡。</p>
+<p>那么，我们如果想要实现小车能够<strong>记住自己的位置，在受到外部干扰后自动回复到初始位置</strong>，该如何操作呢？注意，这里我提到了<strong>记住</strong>这么一个概念，就不难想到，这种控制，<strong>需要历史的全部速度信息</strong>，对离散的速度进行<strong>积分</strong>，得到从初始时刻，到当前时刻的<strong>位置信息</strong>。为了做到这一点，我们需要引入速度PI控制，比例+积分。具体的操作就是：从开始时刻，固定周期将速度偏差进行累加（具体可能需要滤波，这里讲解原理，略去），这个累加的值，就是偏离的距离，把这个距离，经过一个增益，也叠加进前面的3个参数，一共4个参数，共同作为输入，经过控制器输出给电机，这样就实现了在一个位置的PD+PI控制算法。</p>
+<h2 id="通过代码，分析PID的各个组成部分"><a href="#通过代码，分析PID的各个组成部分" class="headerlink" title="通过代码，分析PID的各个组成部分"></a>通过代码，分析PID的各个组成部分</h2><h3 id="比例-微分：直立环"><a href="#比例-微分：直立环" class="headerlink" title="比例+微分：直立环"></a>比例+微分：直立环</h3><h4 id="比例输入：期望角度与当前角度的偏差"><a href="#比例输入：期望角度与当前角度的偏差" class="headerlink" title="比例输入：期望角度与当前角度的偏差"></a>比例输入：期望角度与当前角度的偏差</h4><p>期望角度，就是我们通过提前测量，得到的平衡车直立时的6050的读数，因为传感器的安装是存在误差的，并且小车的质心投影也不一定在两轮中心连线上，因此有必要提前测量机械角度中值，作为期望角度。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> ZHONGZHI -4.5						<span class="comment">//平衡机械中值，与MPU6050的安装位置有关</span></span></span><br></pre></td></tr></table></figure>
+<p>然后我们通过DMP的方式，读取到小车当前的角度：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Read_DMP</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;	</span><br><span class="line">	  <span class="keyword">unsigned</span> <span class="keyword">long</span> sensor_timestamp;</span><br><span class="line">		<span class="keyword">unsigned</span> <span class="keyword">char</span> more;</span><br><span class="line">		<span class="keyword">long</span> quat[<span class="number">4</span>];</span><br><span class="line"></span><br><span class="line">				dmp_read_fifo(gyro, accel, quat, &amp;sensor_timestamp, &amp;sensors, &amp;more);		</span><br><span class="line">				<span class="keyword">if</span> (sensors &amp; INV_WXYZ_QUAT )</span><br><span class="line">				&#123;</span><br><span class="line">					q0=quat[<span class="number">0</span>] / q30;</span><br><span class="line">					q1=quat[<span class="number">1</span>] / q30;</span><br><span class="line">					q2=quat[<span class="number">2</span>] / q30;</span><br><span class="line">					q3=quat[<span class="number">3</span>] / q30;</span><br><span class="line">					Pitch = <span class="built_in">asin</span>(<span class="number">-2</span> * q1 * q3 + <span class="number">2</span> * q0* q2)* <span class="number">57.3</span>; 	</span><br><span class="line">					Roll= <span class="built_in">atan2</span>(<span class="number">2</span> * q2 * q3 + <span class="number">2</span> * q0 * q1, <span class="number">-2</span> * q1 * q1 - <span class="number">2</span> * q2* q2 + <span class="number">1</span>)* <span class="number">57.3</span>; <span class="comment">// roll</span></span><br><span class="line">				&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在这里，我们设定一个全局变量Roll，通过四元数算出的值就是小车的滚转角，与中值做差，就是角度的偏差：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Read_DMP();					  	<span class="comment">//===读取加速度、角速度、倾角</span></span><br><span class="line">Angle_Balance=-Roll;			<span class="comment">//===更新平衡倾角</span></span><br><span class="line">Bias=Angle-ZHONGZHI;			<span class="comment">//===求出平衡的角度偏差</span></span><br></pre></td></tr></table></figure>
+<h4 id="微分输入：两个周期得到的角度偏差的差值"><a href="#微分输入：两个周期得到的角度偏差的差值" class="headerlink" title="微分输入：两个周期得到的角度偏差的差值"></a>微分输入：两个周期得到的角度偏差的差值</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Gyro_Balance=-gyro[<span class="number">0</span>];			<span class="comment">//===更新滚转角速度</span></span><br></pre></td></tr></table></figure>
+<p>这里的gyro是一个DMP库自带的一个数组，存储了xyz三个轴的角速度AD值，传感器能读出角速度，我们就不需要再去自己计算微分了。</p>
+<h4 id="融合：比例-微分信号"><a href="#融合：比例-微分信号" class="headerlink" title="融合：比例+微分信号"></a>融合：比例+微分信号</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">balance=Balance_Kp*Bias+Balance_Kd*Gyro;</span><br></pre></td></tr></table></figure>
+<p>这样就得到了<strong>直立PD控制</strong>所需的PWM信号，当然，现在还没有输出，因为后面需要融合速度PI控制，之后再进行输出。</p>
+<h3 id="比例-积分：速度环"><a href="#比例-积分：速度环" class="headerlink" title="比例+积分：速度环"></a>比例+积分：速度环</h3><h4 id="比例输入：期望速度与当前速度的偏差"><a href="#比例输入：期望速度与当前速度的偏差" class="headerlink" title="比例输入：期望速度与当前速度的偏差"></a>比例输入：期望速度与当前速度的偏差</h4><p>这里先介绍最简单的，期望速度为0。我们配置定时器为编码器模式，不分频，向上计数，0-65535，CH1+CH2四倍频。这样，CNT计数寄存器中的值，就记录的小车的位置，我们每隔10ms读取一次寄存器的值，然后清零，具体的函数：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">Read_Encoder</span><span class="params">(u8 TIMX)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">int</span> Encoder_TIM;	</span><br><span class="line">	<span class="keyword">switch</span>(TIMX)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">case</span> <span class="number">2</span>:  Encoder_TIM= (short)TIM2 -&gt; CNT;  TIM2 -&gt; CNT=<span class="number">0</span>;<span class="keyword">break</span>;	</span><br><span class="line">		<span class="keyword">case</span> <span class="number">4</span>:  Encoder_TIM= (short)TIM4 -&gt; CNT;  TIM4 -&gt; CNT=<span class="number">0</span>;<span class="keyword">break</span>;	</span><br><span class="line">		<span class="keyword">default</span>:  Encoder_TIM=<span class="number">0</span>;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> Encoder_TIM;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>这里一定要注意，并且理解这个强制类型转换的作用：</strong></p>
+<p>我们设定编码器模式，向上计数，那么电机正转，T计数器从0增加，增加到65535时，就会归零，再增加，这样循环。那么一旦反转，就会从0递减到65535，这样的速度偏差就是65535，这显然不是我们想看到的。但是从底层原理解释，本来读寄存器，都是我们经过<strong>强转类型</strong>，把寄存器赋值给一个我们规定类型的变量。那这里我们<strong>把这个变量转成有符号</strong>的不就有了正负？于是，墙砖城short类型，这个计数的范围就变成了-23768到+23767循环计数，这样，偏差就有了正负之分。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Encoder_Left	=	Read_Encoder(<span class="number">2</span>);		<span class="comment">//===读取编码器1的值</span></span><br><span class="line">Encoder_Right	=	Read_Encoder(<span class="number">4</span>);		<span class="comment">//===读取编码器2的值</span></span><br></pre></td></tr></table></figure>
+<p>由于是周期性读取编码器，那么这个读取的值，就是小车的当前速度。</p>
+<h4 id="积分输入：两个周期得到的比例的累积"><a href="#积分输入：两个周期得到的比例的累积" class="headerlink" title="积分输入：两个周期得到的比例的累积"></a>积分输入：两个周期得到的比例的累积</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> <span class="keyword">float</span> Velocity,Encoder_Least,Encoder,Movement;</span><br></pre></td></tr></table></figure>
+<p>这里定义了几个<strong>static变量</strong>，可以保存上一次的变化值，是<strong>积分实现的编程基础</strong>。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Encoder_Least =(encoder_left+encoder_right)<span class="number">-0</span>;</span><br></pre></td></tr></table></figure>
+<p>这一句，左轮速度加右轮速度，就得到了小车的几何中心的速度，可以代表小车的速度。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Encoder *= <span class="number">0.7</span>;    </span><br><span class="line">Encoder += Encoder_Least*<span class="number">0.3</span>;</span><br></pre></td></tr></table></figure>
+<p>这是一个简单的<strong>低通滤波器</strong>，作用是减缓速度的变化。因为我们只是将速度环和直立环做了一个<strong>简单的线性叠加</strong>，而直立是一切的基础，我们<strong>不希望速度环对直立环造成过大的干扰</strong>，所以在这里需要做一个滤波的处理。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Encoder_Integral += Encoder;</span><br></pre></td></tr></table></figure>
+<p>这一步，就做了一个积分的操作，每执行一次，这个变量都会累加之前的速度偏差，得到速度的积分：位移。</p>
+<h4 id="融合：比例-积分信号"><a href="#融合：比例-积分信号" class="headerlink" title="融合：比例+积分信号"></a>融合：比例+积分信号</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Velocity=Encoder*Velocity_Kp+Encoder_Integral*Velocity_Ki;</span><br></pre></td></tr></table></figure>
+<p>这样就得到了<strong>速度PI控制</strong>所需的电机PWM信号，下一步就是融合两个闭环控制。</p>
+<h3 id="最终融合：直立PD-速度PI"><a href="#最终融合：直立PD-速度PI" class="headerlink" title="最终融合：直立PD+速度PI"></a>最终融合：直立PD+速度PI</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Balance_Pwm		=	Get_balance_PWM(Angle_Balance,Gyro_Balance);	<span class="comment">//===平衡PD控制	</span></span><br><span class="line">Velocity_Pwm	=	Get_velocity_PWM(Encoder_Left,Encoder_Right);	<span class="comment">//===速度环PI控制</span></span><br><span class="line">Moto1			=	Balance_Pwm - Velocity_Pwm;						<span class="comment">//===计算左轮电机最终PWM</span></span><br><span class="line">Moto2			=	Balance_Pwm - Velocity_Pwm;						<span class="comment">//===计算右轮电机最终PWM</span></span><br><span class="line">Xianfu_Pwm();						<span class="comment">//===PWM限幅</span></span><br><span class="line">Set_Pwm(Moto1,Moto2);				<span class="comment">//===赋值给PWM寄存器</span></span><br></pre></td></tr></table></figure>
+<p>这一步，就实现了控制器的信号输出，设定驱动电机工作的PWM信号，调节Kp(balance)，Kd(balance)，Kp(velocity)，Ki(velocity)，四个参数，就可以实现小车平衡在某一个位置了。</p>
+<h2 id="总结：PID总体框图"><a href="#总结：PID总体框图" class="headerlink" title="总结：PID总体框图"></a>总结：PID总体框图</h2><p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAAEsCAMAAABOo35HAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAC9UExURVlZWdPT07KysmRkZIWFhfT09JmZmWZmZm9vb39/fxkZGUxMTDMzM3p6epCQkKamppubm729venp6cjIyN7e3tbW1s/Pz8LCwnx8fLS0tFZWVoiIiI+Pj6GhoeTk5Glpabu7u93d3evr66CgoJSUlKqqqsnJyeDg4Hd3d8PDw+Xl5bi4uNHR0dvb26Ojo6urq+fn51hYWDg4OCgoKHBwcK2traenp0FBQe7u7vHx8U5OTre3t8zMzHV1df///7GrnpQAAAA/dFJOU///////////////////////////////////////////////////////////////////////////////////AI4mfBcAAAUGSURBVHja7NoJb6M4GMZxY0NCD64kve/pMZ2d3Z297+X7f6zFNmBAMUXa6URl/q9UJSWPUPzrizFWRUlNLgEBWGCBBRZYYEEAFlhggQUWWBCABRZYYIEFFgRggQUWWGCBBQFYYIEFFlhgQQAWWGCBBRZYEIAFFlhggQUWBGCBBRZYYIEFAVhggQUWWGBBABZYYIEFFlgQgAUWWGCBBRYEYIEFFlhggQUBWGCBBRZYYEEAFlhggQUWWBCABRZYYIEFFgRggQUWWGCBBQFYYIEFFlhgQQAWWGCBBRZYEIAFFlhggQUWBGCBBRZYn6cCIcRXgvX/h9qcIVBqDdbEM8RCxGCB9QqXYRwHYDHBgwXWl8eKZKiESHI3Ba1kWs3fKixcaJUl1YyeBm7Ocq+yLItUiVBGnXxenSHJolIKEcwHq6ikbOX1YGVzQCTN8LPmSLreghUl9sN4Uw7yajMrLC0TZ1ImzqY6FEop0+pIaEN5HaoOxVuwEqFyc4I46uSlzOLqgxlh6UaR9l3VYWl9Fdoxb1Q90KJtu41pwwFW/WHhTtW8i7TafLCqRsk6bsGw63L9qurXRmuIlbT9lDQnlXU+nBFW1Q2qnZbDprWa2tjR90LZFqx1/+Td/HpGWLlrLDvIwTcx6dQ1Vrntbig68cDms3JwbA5Y1azs1ger6sNV/bbIw1jU81MvNAGrl58RVn8ozW+btF08iGFoAlYvP3csfVur1gJBEIA1uBmue5dhZDOyO2epbmgCVi8/I6x0MMHH9pjsTfBhNzQBq5uPZoQlB0uH3DZG4EZqQ26fL3sZq5uf09Ih6qw3i/pm6BZO0qZX7rrUS68Xsbr5ZE4rePMk08pk9aUZugfqppvs6AM1Acvlo/StP+6EbW06z8hJqxbYp2BZPQUnFsLsKuhQdaHqn5ewbF7KXIn0jWO5MqOQ7RaNLPtbNMmmhimj0GUmYLl8Gs0Lq4wyPbTu1l2QKqHSouzs3OlDIslW5SQsnY/NXmFplyNvEuuLV/Tau9BzwiraDUSwXmysztYWWNtL1psXeumgIrDGaqXvBfUuvtqUYI3V2t1wk1e2msFluJJm6zDJXv/fIfjPP7DAAgsssCiwwAILLLDAosACCyywwAKLAgsssMACC6zt9fDz/v75tyOB+98PD2+ORgKffjw4OP1uJPDxl+Xy8v1I4MPF3t7VNyOB4/vF4uzdzrG+39f1kz/w66Guv/yBvw90KX/gZKkr8Qf+2dOV+gNHC12/7RxrabD2/a31bLAO/a11YbAO/K21MFhLf2s9Gqw9f2vdGqzFu11jnVusE2/gxmI9eQOnFuvYG7i0WH7uK4t15w2cWazrXWP9a7H8f/bQYvm/6IPF+sF/pVssf19Ii/WH/0K2WH/uGuvEWC39gSdj9Twy+Rqri5EZx1gt/IE7Y/XoD1wbq9vd3w1PlufnD2OBp+ebm/uxwPHF6emnscDR4vLy41jg7vHq6sNY4Pr27OyYdRaLUrDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssL6u+k+AAQCR9eHtLKvLfwAAAABJRU5ErkJggg==" data-original="https://img-blog.csdnimg.cn/20200605214510254.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0NhcmJvbjY=,size_16,color_FFFFFF,t_70" alt="小车平衡PID框图"></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/05/20/%E7%94%B5%E6%9C%BA/" rel="next" title="减速直流有刷电机">
+                <i class="fa fa-chevron-left"></i> 减速直流有刷电机
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2020/06/21/%E7%BA%A2%E5%A4%96%E6%8E%A5%E6%94%B6/" rel="prev" title="红外接收">
+                红外接收 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="https://img-blog.csdnimg.cn/20200419121558948.jpg?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0NhcmJvbjY=,size_16,color_FFFFFF,t_70"
+                alt="Silicon4" />
+            
+              <p class="site-author-name" itemprop="name">Silicon4</p>
+              <p class="site-description motion-element" itemprop="description">Silicon4的个人博客</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives">
+              
+                  <span class="site-state-item-count">19</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">4</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/yourname" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:yourname@gmail.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://twitter.com/yourname" target="_blank" title="Twitter">
+                      
+                        <i class="fa fa-fw fa-twitter"></i>Twitter</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="skype:yourname?call|chat" target="_blank" title="Skype">
+                      
+                        <i class="fa fa-fw fa-skype"></i>Skype</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#初步认识PID"><span class="nav-number">1.</span> <span class="nav-text">初步认识PID</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#结合平衡车，深度理解PID"><span class="nav-number">2.</span> <span class="nav-text">结合平衡车，深度理解PID</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#比例控制：把握当下"><span class="nav-number">2.1.</span> <span class="nav-text">比例控制：把握当下</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#比例-微分控制：预测未来，控制平衡"><span class="nav-number">2.2.</span> <span class="nav-text">比例+微分控制：预测未来，控制平衡</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#比例-积分控制：总结过去，控制位置"><span class="nav-number">2.3.</span> <span class="nav-text">比例+积分控制：总结过去，控制位置</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#通过代码，分析PID的各个组成部分"><span class="nav-number">3.</span> <span class="nav-text">通过代码，分析PID的各个组成部分</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#比例-微分：直立环"><span class="nav-number">3.1.</span> <span class="nav-text">比例+微分：直立环</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#比例输入：期望角度与当前角度的偏差"><span class="nav-number">3.1.1.</span> <span class="nav-text">比例输入：期望角度与当前角度的偏差</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#微分输入：两个周期得到的角度偏差的差值"><span class="nav-number">3.1.2.</span> <span class="nav-text">微分输入：两个周期得到的角度偏差的差值</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#融合：比例-微分信号"><span class="nav-number">3.1.3.</span> <span class="nav-text">融合：比例+微分信号</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#比例-积分：速度环"><span class="nav-number">3.2.</span> <span class="nav-text">比例+积分：速度环</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#比例输入：期望速度与当前速度的偏差"><span class="nav-number">3.2.1.</span> <span class="nav-text">比例输入：期望速度与当前速度的偏差</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#积分输入：两个周期得到的比例的累积"><span class="nav-number">3.2.2.</span> <span class="nav-text">积分输入：两个周期得到的比例的累积</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#融合：比例-积分信号"><span class="nav-number">3.2.3.</span> <span class="nav-text">融合：比例+积分信号</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#最终融合：直立PD-速度PI"><span class="nav-number">3.3.</span> <span class="nav-text">最终融合：直立PD+速度PI</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结：PID总体框图"><span class="nav-number">4.</span> <span class="nav-text">总结：PID总体框图</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Silicon4</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/three/three.min.js"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/three/canvas_lines.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+
+
+  
+
+  
+
+<script>!function(e){var c=Array.prototype.slice.call(document.querySelectorAll("img[data-original]"));function i(){for(var r=0;r<c.length;r++)t=c[r],0<=(n=t.getBoundingClientRect()).bottom&&0<=n.left&&n.top<=(e.innerHeight||document.documentElement.clientHeight)&&function(){var t,n,e,i,o=c[r];t=o,n=function(){c=c.filter(function(t){return o!==t})},e=new Image,i=t.getAttribute("data-original"),e.onload=function(){t.src=i,n&&n()},e.src=i}();var t,n}i(),e.addEventListener("scroll",function(){var t,n;t=i,n=e,clearTimeout(t.tId),t.tId=setTimeout(function(){t.call(n)},500)})}(this);</script><script>window.addEventListener("load",function(){var t=/\.(gif|jpg|jpeg|tiff|png)$/i,r=/^data:image\/[a-z]+;base64,/;Array.prototype.slice.call(document.querySelectorAll("img[data-original]")).forEach(function(a){var e=a.parentNode;"A"===e.tagName&&(e.href.match(t)||e.href.match(r))&&(e.href=a.dataset.original)})});</script></body>
+</html>

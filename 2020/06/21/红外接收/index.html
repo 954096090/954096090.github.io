@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.lug.ustc.edu.cn/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="title: STM32红外接收分析date: 2020-06-18 00:45:12tags:categories: STM32学习记录  红外遥控原理分析对于红外遥控，一般都不会陌生，我们身边就有很多采用红外遥控的设备，例如绝大多数的电视，空调，都使用的是红外遥控原理的遥控器，配上红外接收管接收遥控信号。 红外线（Infrared）是频率介于微波与可见光之间的电磁波，波长在1mm到760纳米">
+<meta property="og:type" content="article">
+<meta property="og:title" content="红外接收">
+<meta property="og:url" content="http://yoursite.com/2020/06/21/%E7%BA%A2%E5%A4%96%E6%8E%A5%E6%94%B6/index.html">
+<meta property="og:site_name" content="Silicon4">
+<meta property="og:description" content="title: STM32红外接收分析date: 2020-06-18 00:45:12tags:categories: STM32学习记录  红外遥控原理分析对于红外遥控，一般都不会陌生，我们身边就有很多采用红外遥控的设备，例如绝大多数的电视，空调，都使用的是红外遥控原理的遥控器，配上红外接收管接收遥控信号。 红外线（Infrared）是频率介于微波与可见光之间的电磁波，波长在1mm到760纳米">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAAEsCAMAAABOo35HAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAC9UExURVlZWdPT07KysmRkZIWFhfT09JmZmWZmZm9vb39/fxkZGUxMTDMzM3p6epCQkKamppubm729venp6cjIyN7e3tbW1s/Pz8LCwnx8fLS0tFZWVoiIiI+Pj6GhoeTk5Glpabu7u93d3evr66CgoJSUlKqqqsnJyeDg4Hd3d8PDw+Xl5bi4uNHR0dvb26Ojo6urq+fn51hYWDg4OCgoKHBwcK2traenp0FBQe7u7vHx8U5OTre3t8zMzHV1df///7GrnpQAAAA/dFJOU///////////////////////////////////////////////////////////////////////////////////AI4mfBcAAAUGSURBVHja7NoJb6M4GMZxY0NCD64kve/pMZ2d3Z297+X7f6zFNmBAMUXa6URl/q9UJSWPUPzrizFWRUlNLgEBWGCBBRZYYEEAFlhggQUWWBCABRZYYIEFFgRggQUWWGCBBQFYYIEFFlhgQQAWWGCBBRZYEIAFFlhggQUWBGCBBRZYYIEFAVhggQUWWGBBABZYYIEFFlgQgAUWWGCBBRYEYIEFFlhggQUBWGCBBRZYYEEAFlhggQUWWBCABRZYYIEFFgRggQUWWGCBBQFYYIEFFlhgQQAWWGCBBRZYEIAFFlhggQUWBGCBBRZYn6cCIcRXgvX/h9qcIVBqDdbEM8RCxGCB9QqXYRwHYDHBgwXWl8eKZKiESHI3Ba1kWs3fKixcaJUl1YyeBm7Ocq+yLItUiVBGnXxenSHJolIKEcwHq6ikbOX1YGVzQCTN8LPmSLreghUl9sN4Uw7yajMrLC0TZ1ImzqY6FEop0+pIaEN5HaoOxVuwEqFyc4I46uSlzOLqgxlh6UaR9l3VYWl9Fdoxb1Q90KJtu41pwwFW/WHhTtW8i7TafLCqRsk6bsGw63L9qurXRmuIlbT9lDQnlXU+nBFW1Q2qnZbDprWa2tjR90LZFqx1/+Td/HpGWLlrLDvIwTcx6dQ1Vrntbig68cDms3JwbA5Y1azs1ger6sNV/bbIw1jU81MvNAGrl58RVn8ozW+btF08iGFoAlYvP3csfVur1gJBEIA1uBmue5dhZDOyO2epbmgCVi8/I6x0MMHH9pjsTfBhNzQBq5uPZoQlB0uH3DZG4EZqQ26fL3sZq5uf09Ih6qw3i/pm6BZO0qZX7rrUS68Xsbr5ZE4rePMk08pk9aUZugfqppvs6AM1Acvlo/StP+6EbW06z8hJqxbYp2BZPQUnFsLsKuhQdaHqn5ewbF7KXIn0jWO5MqOQ7RaNLPtbNMmmhimj0GUmYLl8Gs0Lq4wyPbTu1l2QKqHSouzs3OlDIslW5SQsnY/NXmFplyNvEuuLV/Tau9BzwiraDUSwXmysztYWWNtL1psXeumgIrDGaqXvBfUuvtqUYI3V2t1wk1e2msFluJJm6zDJXv/fIfjPP7DAAgsssCiwwAILLLDAosACCyywwAKLAgsssMACC6zt9fDz/v75tyOB+98PD2+ORgKffjw4OP1uJPDxl+Xy8v1I4MPF3t7VNyOB4/vF4uzdzrG+39f1kz/w66Guv/yBvw90KX/gZKkr8Qf+2dOV+gNHC12/7RxrabD2/a31bLAO/a11YbAO/K21MFhLf2s9Gqw9f2vdGqzFu11jnVusE2/gxmI9eQOnFuvYG7i0WH7uK4t15w2cWazrXWP9a7H8f/bQYvm/6IPF+sF/pVssf19Ii/WH/0K2WH/uGuvEWC39gSdj9Twy+Rqri5EZx1gt/IE7Y/XoD1wbq9vd3w1PlufnD2OBp+ebm/uxwPHF6emnscDR4vLy41jg7vHq6sNY4Pr27OyYdRaLUrDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssL6u+k+AAQCR9eHtLKvLfwAAAABJRU5ErkJggg==">
+<meta property="og:image" content="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAAEsCAMAAABOo35HAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAC9UExURVlZWdPT07KysmRkZIWFhfT09JmZmWZmZm9vb39/fxkZGUxMTDMzM3p6epCQkKamppubm729venp6cjIyN7e3tbW1s/Pz8LCwnx8fLS0tFZWVoiIiI+Pj6GhoeTk5Glpabu7u93d3evr66CgoJSUlKqqqsnJyeDg4Hd3d8PDw+Xl5bi4uNHR0dvb26Ojo6urq+fn51hYWDg4OCgoKHBwcK2traenp0FBQe7u7vHx8U5OTre3t8zMzHV1df///7GrnpQAAAA/dFJOU///////////////////////////////////////////////////////////////////////////////////AI4mfBcAAAUGSURBVHja7NoJb6M4GMZxY0NCD64kve/pMZ2d3Z297+X7f6zFNmBAMUXa6URl/q9UJSWPUPzrizFWRUlNLgEBWGCBBRZYYEEAFlhggQUWWBCABRZYYIEFFgRggQUWWGCBBQFYYIEFFlhgQQAWWGCBBRZYEIAFFlhggQUWBGCBBRZYYIEFAVhggQUWWGBBABZYYIEFFlgQgAUWWGCBBRYEYIEFFlhggQUBWGCBBRZYYEEAFlhggQUWWBCABRZYYIEFFgRggQUWWGCBBQFYYIEFFlhgQQAWWGCBBRZYEIAFFlhggQUWBGCBBRZYn6cCIcRXgvX/h9qcIVBqDdbEM8RCxGCB9QqXYRwHYDHBgwXWl8eKZKiESHI3Ba1kWs3fKixcaJUl1YyeBm7Ocq+yLItUiVBGnXxenSHJolIKEcwHq6ikbOX1YGVzQCTN8LPmSLreghUl9sN4Uw7yajMrLC0TZ1ImzqY6FEop0+pIaEN5HaoOxVuwEqFyc4I46uSlzOLqgxlh6UaR9l3VYWl9Fdoxb1Q90KJtu41pwwFW/WHhTtW8i7TafLCqRsk6bsGw63L9qurXRmuIlbT9lDQnlXU+nBFW1Q2qnZbDprWa2tjR90LZFqx1/+Td/HpGWLlrLDvIwTcx6dQ1Vrntbig68cDms3JwbA5Y1azs1ger6sNV/bbIw1jU81MvNAGrl58RVn8ozW+btF08iGFoAlYvP3csfVur1gJBEIA1uBmue5dhZDOyO2epbmgCVi8/I6x0MMHH9pjsTfBhNzQBq5uPZoQlB0uH3DZG4EZqQ26fL3sZq5uf09Ih6qw3i/pm6BZO0qZX7rrUS68Xsbr5ZE4rePMk08pk9aUZugfqppvs6AM1Acvlo/StP+6EbW06z8hJqxbYp2BZPQUnFsLsKuhQdaHqn5ewbF7KXIn0jWO5MqOQ7RaNLPtbNMmmhimj0GUmYLl8Gs0Lq4wyPbTu1l2QKqHSouzs3OlDIslW5SQsnY/NXmFplyNvEuuLV/Tau9BzwiraDUSwXmysztYWWNtL1psXeumgIrDGaqXvBfUuvtqUYI3V2t1wk1e2msFluJJm6zDJXv/fIfjPP7DAAgsssCiwwAILLLDAosACCyywwAKLAgsssMACC6zt9fDz/v75tyOB+98PD2+ORgKffjw4OP1uJPDxl+Xy8v1I4MPF3t7VNyOB4/vF4uzdzrG+39f1kz/w66Guv/yBvw90KX/gZKkr8Qf+2dOV+gNHC12/7RxrabD2/a31bLAO/a11YbAO/K21MFhLf2s9Gqw9f2vdGqzFu11jnVusE2/gxmI9eQOnFuvYG7i0WH7uK4t15w2cWazrXWP9a7H8f/bQYvm/6IPF+sF/pVssf19Ii/WH/0K2WH/uGuvEWC39gSdj9Twy+Rqri5EZx1gt/IE7Y/XoD1wbq9vd3w1PlufnD2OBp+ebm/uxwPHF6emnscDR4vLy41jg7vHq6sNY4Pr27OyYdRaLUrDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssL6u+k+AAQCR9eHtLKvLfwAAAABJRU5ErkJggg==">
+<meta property="og:image" content="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAAEsCAMAAABOo35HAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAC9UExURVlZWdPT07KysmRkZIWFhfT09JmZmWZmZm9vb39/fxkZGUxMTDMzM3p6epCQkKamppubm729venp6cjIyN7e3tbW1s/Pz8LCwnx8fLS0tFZWVoiIiI+Pj6GhoeTk5Glpabu7u93d3evr66CgoJSUlKqqqsnJyeDg4Hd3d8PDw+Xl5bi4uNHR0dvb26Ojo6urq+fn51hYWDg4OCgoKHBwcK2traenp0FBQe7u7vHx8U5OTre3t8zMzHV1df///7GrnpQAAAA/dFJOU///////////////////////////////////////////////////////////////////////////////////AI4mfBcAAAUGSURBVHja7NoJb6M4GMZxY0NCD64kve/pMZ2d3Z297+X7f6zFNmBAMUXa6URl/q9UJSWPUPzrizFWRUlNLgEBWGCBBRZYYEEAFlhggQUWWBCABRZYYIEFFgRggQUWWGCBBQFYYIEFFlhgQQAWWGCBBRZYEIAFFlhggQUWBGCBBRZYYIEFAVhggQUWWGBBABZYYIEFFlgQgAUWWGCBBRYEYIEFFlhggQUBWGCBBRZYYEEAFlhggQUWWBCABRZYYIEFFgRggQUWWGCBBQFYYIEFFlhgQQAWWGCBBRZYEIAFFlhggQUWBGCBBRZYn6cCIcRXgvX/h9qcIVBqDdbEM8RCxGCB9QqXYRwHYDHBgwXWl8eKZKiESHI3Ba1kWs3fKixcaJUl1YyeBm7Ocq+yLItUiVBGnXxenSHJolIKEcwHq6ikbOX1YGVzQCTN8LPmSLreghUl9sN4Uw7yajMrLC0TZ1ImzqY6FEop0+pIaEN5HaoOxVuwEqFyc4I46uSlzOLqgxlh6UaR9l3VYWl9Fdoxb1Q90KJtu41pwwFW/WHhTtW8i7TafLCqRsk6bsGw63L9qurXRmuIlbT9lDQnlXU+nBFW1Q2qnZbDprWa2tjR90LZFqx1/+Td/HpGWLlrLDvIwTcx6dQ1Vrntbig68cDms3JwbA5Y1azs1ger6sNV/bbIw1jU81MvNAGrl58RVn8ozW+btF08iGFoAlYvP3csfVur1gJBEIA1uBmue5dhZDOyO2epbmgCVi8/I6x0MMHH9pjsTfBhNzQBq5uPZoQlB0uH3DZG4EZqQ26fL3sZq5uf09Ih6qw3i/pm6BZO0qZX7rrUS68Xsbr5ZE4rePMk08pk9aUZugfqppvs6AM1Acvlo/StP+6EbW06z8hJqxbYp2BZPQUnFsLsKuhQdaHqn5ewbF7KXIn0jWO5MqOQ7RaNLPtbNMmmhimj0GUmYLl8Gs0Lq4wyPbTu1l2QKqHSouzs3OlDIslW5SQsnY/NXmFplyNvEuuLV/Tau9BzwiraDUSwXmysztYWWNtL1psXeumgIrDGaqXvBfUuvtqUYI3V2t1wk1e2msFluJJm6zDJXv/fIfjPP7DAAgsssCiwwAILLLDAosACCyywwAKLAgsssMACC6zt9fDz/v75tyOB+98PD2+ORgKffjw4OP1uJPDxl+Xy8v1I4MPF3t7VNyOB4/vF4uzdzrG+39f1kz/w66Guv/yBvw90KX/gZKkr8Qf+2dOV+gNHC12/7RxrabD2/a31bLAO/a11YbAO/K21MFhLf2s9Gqw9f2vdGqzFu11jnVusE2/gxmI9eQOnFuvYG7i0WH7uK4t15w2cWazrXWP9a7H8f/bQYvm/6IPF+sF/pVssf19Ii/WH/0K2WH/uGuvEWC39gSdj9Twy+Rqri5EZx1gt/IE7Y/XoD1wbq9vd3w1PlufnD2OBp+ebm/uxwPHF6emnscDR4vLy41jg7vHq6sNY4Pr27OyYdRaLUrDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssL6u+k+AAQCR9eHtLKvLfwAAAABJRU5ErkJggg==">
+<meta property="og:image" content="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAAEsCAMAAABOo35HAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAC9UExURVlZWdPT07KysmRkZIWFhfT09JmZmWZmZm9vb39/fxkZGUxMTDMzM3p6epCQkKamppubm729venp6cjIyN7e3tbW1s/Pz8LCwnx8fLS0tFZWVoiIiI+Pj6GhoeTk5Glpabu7u93d3evr66CgoJSUlKqqqsnJyeDg4Hd3d8PDw+Xl5bi4uNHR0dvb26Ojo6urq+fn51hYWDg4OCgoKHBwcK2traenp0FBQe7u7vHx8U5OTre3t8zMzHV1df///7GrnpQAAAA/dFJOU///////////////////////////////////////////////////////////////////////////////////AI4mfBcAAAUGSURBVHja7NoJb6M4GMZxY0NCD64kve/pMZ2d3Z297+X7f6zFNmBAMUXa6URl/q9UJSWPUPzrizFWRUlNLgEBWGCBBRZYYEEAFlhggQUWWBCABRZYYIEFFgRggQUWWGCBBQFYYIEFFlhgQQAWWGCBBRZYEIAFFlhggQUWBGCBBRZYYIEFAVhggQUWWGBBABZYYIEFFlgQgAUWWGCBBRYEYIEFFlhggQUBWGCBBRZYYEEAFlhggQUWWBCABRZYYIEFFgRggQUWWGCBBQFYYIEFFlhgQQAWWGCBBRZYEIAFFlhggQUWBGCBBRZYn6cCIcRXgvX/h9qcIVBqDdbEM8RCxGCB9QqXYRwHYDHBgwXWl8eKZKiESHI3Ba1kWs3fKixcaJUl1YyeBm7Ocq+yLItUiVBGnXxenSHJolIKEcwHq6ikbOX1YGVzQCTN8LPmSLreghUl9sN4Uw7yajMrLC0TZ1ImzqY6FEop0+pIaEN5HaoOxVuwEqFyc4I46uSlzOLqgxlh6UaR9l3VYWl9Fdoxb1Q90KJtu41pwwFW/WHhTtW8i7TafLCqRsk6bsGw63L9qurXRmuIlbT9lDQnlXU+nBFW1Q2qnZbDprWa2tjR90LZFqx1/+Td/HpGWLlrLDvIwTcx6dQ1Vrntbig68cDms3JwbA5Y1azs1ger6sNV/bbIw1jU81MvNAGrl58RVn8ozW+btF08iGFoAlYvP3csfVur1gJBEIA1uBmue5dhZDOyO2epbmgCVi8/I6x0MMHH9pjsTfBhNzQBq5uPZoQlB0uH3DZG4EZqQ26fL3sZq5uf09Ih6qw3i/pm6BZO0qZX7rrUS68Xsbr5ZE4rePMk08pk9aUZugfqppvs6AM1Acvlo/StP+6EbW06z8hJqxbYp2BZPQUnFsLsKuhQdaHqn5ewbF7KXIn0jWO5MqOQ7RaNLPtbNMmmhimj0GUmYLl8Gs0Lq4wyPbTu1l2QKqHSouzs3OlDIslW5SQsnY/NXmFplyNvEuuLV/Tau9BzwiraDUSwXmysztYWWNtL1psXeumgIrDGaqXvBfUuvtqUYI3V2t1wk1e2msFluJJm6zDJXv/fIfjPP7DAAgsssCiwwAILLLDAosACCyywwAKLAgsssMACC6zt9fDz/v75tyOB+98PD2+ORgKffjw4OP1uJPDxl+Xy8v1I4MPF3t7VNyOB4/vF4uzdzrG+39f1kz/w66Guv/yBvw90KX/gZKkr8Qf+2dOV+gNHC12/7RxrabD2/a31bLAO/a11YbAO/K21MFhLf2s9Gqw9f2vdGqzFu11jnVusE2/gxmI9eQOnFuvYG7i0WH7uK4t15w2cWazrXWP9a7H8f/bQYvm/6IPF+sF/pVssf19Ii/WH/0K2WH/uGuvEWC39gSdj9Twy+Rqri5EZx1gt/IE7Y/XoD1wbq9vd3w1PlufnD2OBp+ebm/uxwPHF6emnscDR4vLy41jg7vHq6sNY4Pr27OyYdRaLUrDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssL6u+k+AAQCR9eHtLKvLfwAAAABJRU5ErkJggg==">
+<meta property="article:published_time" content="2020-06-20T18:48:30.994Z">
+<meta property="article:modified_time" content="2020-06-20T18:48:07.816Z">
+<meta property="article:author" content="Silicon4">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAAEsCAMAAABOo35HAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAC9UExURVlZWdPT07KysmRkZIWFhfT09JmZmWZmZm9vb39/fxkZGUxMTDMzM3p6epCQkKamppubm729venp6cjIyN7e3tbW1s/Pz8LCwnx8fLS0tFZWVoiIiI+Pj6GhoeTk5Glpabu7u93d3evr66CgoJSUlKqqqsnJyeDg4Hd3d8PDw+Xl5bi4uNHR0dvb26Ojo6urq+fn51hYWDg4OCgoKHBwcK2traenp0FBQe7u7vHx8U5OTre3t8zMzHV1df///7GrnpQAAAA/dFJOU///////////////////////////////////////////////////////////////////////////////////AI4mfBcAAAUGSURBVHja7NoJb6M4GMZxY0NCD64kve/pMZ2d3Z297+X7f6zFNmBAMUXa6URl/q9UJSWPUPzrizFWRUlNLgEBWGCBBRZYYEEAFlhggQUWWBCABRZYYIEFFgRggQUWWGCBBQFYYIEFFlhgQQAWWGCBBRZYEIAFFlhggQUWBGCBBRZYYIEFAVhggQUWWGBBABZYYIEFFlgQgAUWWGCBBRYEYIEFFlhggQUBWGCBBRZYYEEAFlhggQUWWBCABRZYYIEFFgRggQUWWGCBBQFYYIEFFlhgQQAWWGCBBRZYEIAFFlhggQUWBGCBBRZYn6cCIcRXgvX/h9qcIVBqDdbEM8RCxGCB9QqXYRwHYDHBgwXWl8eKZKiESHI3Ba1kWs3fKixcaJUl1YyeBm7Ocq+yLItUiVBGnXxenSHJolIKEcwHq6ikbOX1YGVzQCTN8LPmSLreghUl9sN4Uw7yajMrLC0TZ1ImzqY6FEop0+pIaEN5HaoOxVuwEqFyc4I46uSlzOLqgxlh6UaR9l3VYWl9Fdoxb1Q90KJtu41pwwFW/WHhTtW8i7TafLCqRsk6bsGw63L9qurXRmuIlbT9lDQnlXU+nBFW1Q2qnZbDprWa2tjR90LZFqx1/+Td/HpGWLlrLDvIwTcx6dQ1Vrntbig68cDms3JwbA5Y1azs1ger6sNV/bbIw1jU81MvNAGrl58RVn8ozW+btF08iGFoAlYvP3csfVur1gJBEIA1uBmue5dhZDOyO2epbmgCVi8/I6x0MMHH9pjsTfBhNzQBq5uPZoQlB0uH3DZG4EZqQ26fL3sZq5uf09Ih6qw3i/pm6BZO0qZX7rrUS68Xsbr5ZE4rePMk08pk9aUZugfqppvs6AM1Acvlo/StP+6EbW06z8hJqxbYp2BZPQUnFsLsKuhQdaHqn5ewbF7KXIn0jWO5MqOQ7RaNLPtbNMmmhimj0GUmYLl8Gs0Lq4wyPbTu1l2QKqHSouzs3OlDIslW5SQsnY/NXmFplyNvEuuLV/Tau9BzwiraDUSwXmysztYWWNtL1psXeumgIrDGaqXvBfUuvtqUYI3V2t1wk1e2msFluJJm6zDJXv/fIfjPP7DAAgsssCiwwAILLLDAosACCyywwAKLAgsssMACC6zt9fDz/v75tyOB+98PD2+ORgKffjw4OP1uJPDxl+Xy8v1I4MPF3t7VNyOB4/vF4uzdzrG+39f1kz/w66Guv/yBvw90KX/gZKkr8Qf+2dOV+gNHC12/7RxrabD2/a31bLAO/a11YbAO/K21MFhLf2s9Gqw9f2vdGqzFu11jnVusE2/gxmI9eQOnFuvYG7i0WH7uK4t15w2cWazrXWP9a7H8f/bQYvm/6IPF+sF/pVssf19Ii/WH/0K2WH/uGuvEWC39gSdj9Twy+Rqri5EZx1gt/IE7Y/XoD1wbq9vd3w1PlufnD2OBp+ebm/uxwPHF6emnscDR4vLy41jg7vHq6sNY4Pr27OyYdRaLUrDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssL6u+k+AAQCR9eHtLKvLfwAAAABJRU5ErkJggg==">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2020/06/21/红外接收/"/>
+
+
+
+
+
+  <title>红外接收 | Silicon4</title>
+  
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Silicon4</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">科学，就是“偶尔能解答，常常在疑惑，总是在探寻”</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/06/21/%E7%BA%A2%E5%A4%96%E6%8E%A5%E6%94%B6/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Silicon4">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="https://img-blog.csdnimg.cn/20200419121558948.jpg?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0NhcmJvbjY=,size_16,color_FFFFFF,t_70">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Silicon4">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">红外接收</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2020-06-21T02:48:30+08:00">
+                2020-06-21
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <hr>
+<p>title: STM32红外接收分析<br>date: 2020-06-18 00:45:12<br>tags:<br>categories: STM32学习记录</p>
+<hr>
+<h2 id="红外遥控原理分析"><a href="#红外遥控原理分析" class="headerlink" title="红外遥控原理分析"></a>红外遥控原理分析</h2><p>对于红外遥控，一般都不会陌生，我们身边就有很多采用红外遥控的设备，例如绝大多数的电视，空调，都使用的是红外遥控原理的遥控器，配上红外接收管接收遥控信号。</p>
+<p>红外线（Infrared）是频率介于<a href="https://baike.baidu.com/item/微波/182739" target="_blank" rel="noopener">微波</a>与<a href="https://baike.baidu.com/item/可见光/1241853" target="_blank" rel="noopener">可见光</a>之间的<a href="https://baike.baidu.com/item/电磁波/102449" target="_blank" rel="noopener">电磁波</a>，波长在1mm到760<a href="https://baike.baidu.com/item/纳米" target="_blank" rel="noopener">纳米</a>（nm）之间，频率比红光低的不可见光。</p>
+<p>红外发射端一般使用红外LED，接收端使用红外接收二极管，利用光电效应，经过滤波和功率放大，形成能够承载信号的数字量。红外线发射管在LED封装行业中主要有三个常用的波段，如下850NM、875NM、940NM。850NM波长的主要用于红外线监控设备，875NM主要用于医疗设备，940NM波段的主要用于红外线控制设备。一般的红外遥控器使用的发射管是940nm波长，当然，我们中学做实验在气垫导轨上用到的光电门，也是这种红外光，这个波长的红外光人眼虽然看不见，但是相机的CMOS传感器是可以捕捉到的，具体验证方法，用手机开启相机，对着空调或者电视遥控器的发射管，按下遥控器，就可以看见屏幕里粉色的灯珠。</p>
+<p>再来谈一谈红外遥控的方式是怎么传递信息的。大多数用于遥控的红外信号，采用NEC编码的方式。将用于驱动红外LED的电平信号，经过调制，形成某个高频信号的幅度、相位、频率等参量变化的过程，用一个信号去装载另一个信号。比如我们的红外遥控信号要发送的时候，先经过38K调制，如图所示：</p>
+<p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAAEsCAMAAABOo35HAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAC9UExURVlZWdPT07KysmRkZIWFhfT09JmZmWZmZm9vb39/fxkZGUxMTDMzM3p6epCQkKamppubm729venp6cjIyN7e3tbW1s/Pz8LCwnx8fLS0tFZWVoiIiI+Pj6GhoeTk5Glpabu7u93d3evr66CgoJSUlKqqqsnJyeDg4Hd3d8PDw+Xl5bi4uNHR0dvb26Ojo6urq+fn51hYWDg4OCgoKHBwcK2traenp0FBQe7u7vHx8U5OTre3t8zMzHV1df///7GrnpQAAAA/dFJOU///////////////////////////////////////////////////////////////////////////////////AI4mfBcAAAUGSURBVHja7NoJb6M4GMZxY0NCD64kve/pMZ2d3Z297+X7f6zFNmBAMUXa6URl/q9UJSWPUPzrizFWRUlNLgEBWGCBBRZYYEEAFlhggQUWWBCABRZYYIEFFgRggQUWWGCBBQFYYIEFFlhgQQAWWGCBBRZYEIAFFlhggQUWBGCBBRZYYIEFAVhggQUWWGBBABZYYIEFFlgQgAUWWGCBBRYEYIEFFlhggQUBWGCBBRZYYEEAFlhggQUWWBCABRZYYIEFFgRggQUWWGCBBQFYYIEFFlhgQQAWWGCBBRZYEIAFFlhggQUWBGCBBRZYn6cCIcRXgvX/h9qcIVBqDdbEM8RCxGCB9QqXYRwHYDHBgwXWl8eKZKiESHI3Ba1kWs3fKixcaJUl1YyeBm7Ocq+yLItUiVBGnXxenSHJolIKEcwHq6ikbOX1YGVzQCTN8LPmSLreghUl9sN4Uw7yajMrLC0TZ1ImzqY6FEop0+pIaEN5HaoOxVuwEqFyc4I46uSlzOLqgxlh6UaR9l3VYWl9Fdoxb1Q90KJtu41pwwFW/WHhTtW8i7TafLCqRsk6bsGw63L9qurXRmuIlbT9lDQnlXU+nBFW1Q2qnZbDprWa2tjR90LZFqx1/+Td/HpGWLlrLDvIwTcx6dQ1Vrntbig68cDms3JwbA5Y1azs1ger6sNV/bbIw1jU81MvNAGrl58RVn8ozW+btF08iGFoAlYvP3csfVur1gJBEIA1uBmue5dhZDOyO2epbmgCVi8/I6x0MMHH9pjsTfBhNzQBq5uPZoQlB0uH3DZG4EZqQ26fL3sZq5uf09Ih6qw3i/pm6BZO0qZX7rrUS68Xsbr5ZE4rePMk08pk9aUZugfqppvs6AM1Acvlo/StP+6EbW06z8hJqxbYp2BZPQUnFsLsKuhQdaHqn5ewbF7KXIn0jWO5MqOQ7RaNLPtbNMmmhimj0GUmYLl8Gs0Lq4wyPbTu1l2QKqHSouzs3OlDIslW5SQsnY/NXmFplyNvEuuLV/Tau9BzwiraDUSwXmysztYWWNtL1psXeumgIrDGaqXvBfUuvtqUYI3V2t1wk1e2msFluJJm6zDJXv/fIfjPP7DAAgsssCiwwAILLLDAosACCyywwAKLAgsssMACC6zt9fDz/v75tyOB+98PD2+ORgKffjw4OP1uJPDxl+Xy8v1I4MPF3t7VNyOB4/vF4uzdzrG+39f1kz/w66Guv/yBvw90KX/gZKkr8Qf+2dOV+gNHC12/7RxrabD2/a31bLAO/a11YbAO/K21MFhLf2s9Gqw9f2vdGqzFu11jnVusE2/gxmI9eQOnFuvYG7i0WH7uK4t15w2cWazrXWP9a7H8f/bQYvm/6IPF+sF/pVssf19Ii/WH/0K2WH/uGuvEWC39gSdj9Twy+Rqri5EZx1gt/IE7Y/XoD1wbq9vd3w1PlufnD2OBp+ebm/uxwPHF6emnscDR4vLy41jg7vHq6sNY4Pr27OyYdRaLUrDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssL6u+k+AAQCR9eHtLKvLfwAAAABJRU5ErkJggg==" data-original="http://www.elecfans.com/uploads/allimg/170803/1715185-1FP31P2101J.jpg" alt="红外遥控器通信原理_红外遥控器协议_红外通信对比无线通信的优势"></p>
+<p>经过这样的调制信号，我们就可以用它来装载我们需要的信号。比如对于NEC编码，规定发射信号有以下4种：</p>
+<ol>
+<li>起始码：用于判断起始信号</li>
+<li>逻辑0</li>
+<li>逻辑1</li>
+<li>重复码：如果遥控器有连按功能，那么发完一次完整的信号后，按键松开前都会循环发送重复码</li>
+</ol>
+<p>我们由于红外传输的是一种数字信号，所以我们可以使用脉宽调制（JPWM）的方式，用<strong>不同的电平时间</strong>区分这4种信息。具体的不同就是这样：</p>
+<ol>
+<li>起始码：9ms低电平 + 4.5ms高电平</li>
+<li>逻辑0：   560us + 560us</li>
+<li>逻辑1：   560us + 1680us</li>
+<li>重复码 ：  9ms低电平 + 2.5ms高电平</li>
+</ol>
+<p>如果按照NEC编码的<strong>功能</strong>来区分，以正常的时序，就有以下几种码：</p>
+<ol>
+<li>起始码</li>
+<li>用户地址码（8bit）+用户地址反码（8bit）</li>
+<li>数据码（8bit）+数据反码（8bit）</li>
+<li>如果连按，之后会一直发送重复码</li>
+</ol>
+<h2 id="器件准备"><a href="#器件准备" class="headerlink" title="器件准备"></a>器件准备</h2><ol>
+<li>STM32核心板或开发板，有板载红外接收管最好</li>
+<li>一个红外遥控器（可以用空调或者电视遥控器代替）</li>
+<li>一个红外接收管，最好是带有放大电路的，但是不要使用带有解调芯片的。</li>
+<li>如果可以，最好是有一个逻辑分析仪或者示波器，可以提前对未知的红外遥控设备进行直观的解码</li>
+</ol>
+<p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAAEsCAMAAABOo35HAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAC9UExURVlZWdPT07KysmRkZIWFhfT09JmZmWZmZm9vb39/fxkZGUxMTDMzM3p6epCQkKamppubm729venp6cjIyN7e3tbW1s/Pz8LCwnx8fLS0tFZWVoiIiI+Pj6GhoeTk5Glpabu7u93d3evr66CgoJSUlKqqqsnJyeDg4Hd3d8PDw+Xl5bi4uNHR0dvb26Ojo6urq+fn51hYWDg4OCgoKHBwcK2traenp0FBQe7u7vHx8U5OTre3t8zMzHV1df///7GrnpQAAAA/dFJOU///////////////////////////////////////////////////////////////////////////////////AI4mfBcAAAUGSURBVHja7NoJb6M4GMZxY0NCD64kve/pMZ2d3Z297+X7f6zFNmBAMUXa6URl/q9UJSWPUPzrizFWRUlNLgEBWGCBBRZYYEEAFlhggQUWWBCABRZYYIEFFgRggQUWWGCBBQFYYIEFFlhgQQAWWGCBBRZYEIAFFlhggQUWBGCBBRZYYIEFAVhggQUWWGBBABZYYIEFFlgQgAUWWGCBBRYEYIEFFlhggQUBWGCBBRZYYEEAFlhggQUWWBCABRZYYIEFFgRggQUWWGCBBQFYYIEFFlhgQQAWWGCBBRZYEIAFFlhggQUWBGCBBRZYn6cCIcRXgvX/h9qcIVBqDdbEM8RCxGCB9QqXYRwHYDHBgwXWl8eKZKiESHI3Ba1kWs3fKixcaJUl1YyeBm7Ocq+yLItUiVBGnXxenSHJolIKEcwHq6ikbOX1YGVzQCTN8LPmSLreghUl9sN4Uw7yajMrLC0TZ1ImzqY6FEop0+pIaEN5HaoOxVuwEqFyc4I46uSlzOLqgxlh6UaR9l3VYWl9Fdoxb1Q90KJtu41pwwFW/WHhTtW8i7TafLCqRsk6bsGw63L9qurXRmuIlbT9lDQnlXU+nBFW1Q2qnZbDprWa2tjR90LZFqx1/+Td/HpGWLlrLDvIwTcx6dQ1Vrntbig68cDms3JwbA5Y1azs1ger6sNV/bbIw1jU81MvNAGrl58RVn8ozW+btF08iGFoAlYvP3csfVur1gJBEIA1uBmue5dhZDOyO2epbmgCVi8/I6x0MMHH9pjsTfBhNzQBq5uPZoQlB0uH3DZG4EZqQ26fL3sZq5uf09Ih6qw3i/pm6BZO0qZX7rrUS68Xsbr5ZE4rePMk08pk9aUZugfqppvs6AM1Acvlo/StP+6EbW06z8hJqxbYp2BZPQUnFsLsKuhQdaHqn5ewbF7KXIn0jWO5MqOQ7RaNLPtbNMmmhimj0GUmYLl8Gs0Lq4wyPbTu1l2QKqHSouzs3OlDIslW5SQsnY/NXmFplyNvEuuLV/Tau9BzwiraDUSwXmysztYWWNtL1psXeumgIrDGaqXvBfUuvtqUYI3V2t1wk1e2msFluJJm6zDJXv/fIfjPP7DAAgsssCiwwAILLLDAosACCyywwAKLAgsssMACC6zt9fDz/v75tyOB+98PD2+ORgKffjw4OP1uJPDxl+Xy8v1I4MPF3t7VNyOB4/vF4uzdzrG+39f1kz/w66Guv/yBvw90KX/gZKkr8Qf+2dOV+gNHC12/7RxrabD2/a31bLAO/a11YbAO/K21MFhLf2s9Gqw9f2vdGqzFu11jnVusE2/gxmI9eQOnFuvYG7i0WH7uK4t15w2cWazrXWP9a7H8f/bQYvm/6IPF+sF/pVssf19Ii/WH/0K2WH/uGuvEWC39gSdj9Twy+Rqri5EZx1gt/IE7Y/XoD1wbq9vd3w1PlufnD2OBp+ebm/uxwPHF6emnscDR4vLy41jg7vHq6sNY4Pr27OyYdRaLUrDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssL6u+k+AAQCR9eHtLKvLfwAAAABJRU5ErkJggg==" data-original="https://img-blog.csdnimg.cn/20200620204033923.jpg?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0NhcmJvbjY=,size_16,color_FFFFFF,t_70" alt="准备的材料"></p>
+<h2 id="程序编写"><a href="#程序编写" class="headerlink" title="程序编写"></a>程序编写</h2><p>程序编写分为2个部分，分别是接收程序和发送程序，为了学习标准的NEC编码，我们使用标准遥控器，先通过编写接收程序，来体验红外编码的时序，有一个直观的理解之后，再尝试编写发送代码。</p>
+<p>红外接收有3个引脚，5V，GND，以及信号引脚，先将接收模块连接逻辑分析仪，注意不要忘了共地，打开逻辑分析仪，再软件中设置上升沿和下降沿捕获，然后按下遥控器（可以是空调遥控器，我这里用专用红外遥控器的数字1键演示），然后逻辑分析仪就会捕获到一次信号，如下图：</p>
+<p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAAEsCAMAAABOo35HAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAC9UExURVlZWdPT07KysmRkZIWFhfT09JmZmWZmZm9vb39/fxkZGUxMTDMzM3p6epCQkKamppubm729venp6cjIyN7e3tbW1s/Pz8LCwnx8fLS0tFZWVoiIiI+Pj6GhoeTk5Glpabu7u93d3evr66CgoJSUlKqqqsnJyeDg4Hd3d8PDw+Xl5bi4uNHR0dvb26Ojo6urq+fn51hYWDg4OCgoKHBwcK2traenp0FBQe7u7vHx8U5OTre3t8zMzHV1df///7GrnpQAAAA/dFJOU///////////////////////////////////////////////////////////////////////////////////AI4mfBcAAAUGSURBVHja7NoJb6M4GMZxY0NCD64kve/pMZ2d3Z297+X7f6zFNmBAMUXa6URl/q9UJSWPUPzrizFWRUlNLgEBWGCBBRZYYEEAFlhggQUWWBCABRZYYIEFFgRggQUWWGCBBQFYYIEFFlhgQQAWWGCBBRZYEIAFFlhggQUWBGCBBRZYYIEFAVhggQUWWGBBABZYYIEFFlgQgAUWWGCBBRYEYIEFFlhggQUBWGCBBRZYYEEAFlhggQUWWBCABRZYYIEFFgRggQUWWGCBBQFYYIEFFlhgQQAWWGCBBRZYEIAFFlhggQUWBGCBBRZYn6cCIcRXgvX/h9qcIVBqDdbEM8RCxGCB9QqXYRwHYDHBgwXWl8eKZKiESHI3Ba1kWs3fKixcaJUl1YyeBm7Ocq+yLItUiVBGnXxenSHJolIKEcwHq6ikbOX1YGVzQCTN8LPmSLreghUl9sN4Uw7yajMrLC0TZ1ImzqY6FEop0+pIaEN5HaoOxVuwEqFyc4I46uSlzOLqgxlh6UaR9l3VYWl9Fdoxb1Q90KJtu41pwwFW/WHhTtW8i7TafLCqRsk6bsGw63L9qurXRmuIlbT9lDQnlXU+nBFW1Q2qnZbDprWa2tjR90LZFqx1/+Td/HpGWLlrLDvIwTcx6dQ1Vrntbig68cDms3JwbA5Y1azs1ger6sNV/bbIw1jU81MvNAGrl58RVn8ozW+btF08iGFoAlYvP3csfVur1gJBEIA1uBmue5dhZDOyO2epbmgCVi8/I6x0MMHH9pjsTfBhNzQBq5uPZoQlB0uH3DZG4EZqQ26fL3sZq5uf09Ih6qw3i/pm6BZO0qZX7rrUS68Xsbr5ZE4rePMk08pk9aUZugfqppvs6AM1Acvlo/StP+6EbW06z8hJqxbYp2BZPQUnFsLsKuhQdaHqn5ewbF7KXIn0jWO5MqOQ7RaNLPtbNMmmhimj0GUmYLl8Gs0Lq4wyPbTu1l2QKqHSouzs3OlDIslW5SQsnY/NXmFplyNvEuuLV/Tau9BzwiraDUSwXmysztYWWNtL1psXeumgIrDGaqXvBfUuvtqUYI3V2t1wk1e2msFluJJm6zDJXv/fIfjPP7DAAgsssCiwwAILLLDAosACCyywwAKLAgsssMACC6zt9fDz/v75tyOB+98PD2+ORgKffjw4OP1uJPDxl+Xy8v1I4MPF3t7VNyOB4/vF4uzdzrG+39f1kz/w66Guv/yBvw90KX/gZKkr8Qf+2dOV+gNHC12/7RxrabD2/a31bLAO/a11YbAO/K21MFhLf2s9Gqw9f2vdGqzFu11jnVusE2/gxmI9eQOnFuvYG7i0WH7uK4t15w2cWazrXWP9a7H8f/bQYvm/6IPF+sF/pVssf19Ii/WH/0K2WH/uGuvEWC39gSdj9Twy+Rqri5EZx1gt/IE7Y/XoD1wbq9vd3w1PlufnD2OBp+ebm/uxwPHF6emnscDR4vLy41jg7vHq6sNY4Pr27OyYdRaLUrDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssL6u+k+AAQCR9eHtLKvLfwAAAABJRU5ErkJggg==" data-original="https://img-blog.csdnimg.cn/20200620233324134.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0NhcmJvbjY=,size_16,color_FFFFFF,t_70" alt="逻辑电平图"></p>
+<p>这样，我们就得到了红外遥控器上按下数字1的红外信号，根据上面的原理分析，这个信号就很容易理解了：首先是一个<strong>起始码</strong>，有9ms低电平，4.5ms高电平，紧接着是<strong>8位地址码</strong>，这里是0（0000 0000）,相应的<strong>8位地址反码</strong>就是255（1111 1111），紧接着是<strong>8位数据码</strong>，这里是162（1010 0010），相应<strong>8位数据反码</strong>93（0101 1101），然后经过一段时间高电平，接收到了<strong>重复码</strong>，有9ms低电平和2.5ms高电平，如果按住不放，之后就一直循环接收到重复码。</p>
+<p>是不是一目了然？其实对我来说，这是迫不得已，因为我买的遥控器，资料非常有限，只给了一个电气参数的PDF，编码表也没有，例程更没有，无奈我只能动用逻辑分析仪，弄清楚了每个按键的编码值，顺便分析了一下电平时间和时序，算是做一个铺垫吧。</p>
+<p>我要在小车上用红外接收，需要用到的按键，有下面一些：</p>
+<p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAAEsCAMAAABOo35HAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAC9UExURVlZWdPT07KysmRkZIWFhfT09JmZmWZmZm9vb39/fxkZGUxMTDMzM3p6epCQkKamppubm729venp6cjIyN7e3tbW1s/Pz8LCwnx8fLS0tFZWVoiIiI+Pj6GhoeTk5Glpabu7u93d3evr66CgoJSUlKqqqsnJyeDg4Hd3d8PDw+Xl5bi4uNHR0dvb26Ojo6urq+fn51hYWDg4OCgoKHBwcK2traenp0FBQe7u7vHx8U5OTre3t8zMzHV1df///7GrnpQAAAA/dFJOU///////////////////////////////////////////////////////////////////////////////////AI4mfBcAAAUGSURBVHja7NoJb6M4GMZxY0NCD64kve/pMZ2d3Z297+X7f6zFNmBAMUXa6URl/q9UJSWPUPzrizFWRUlNLgEBWGCBBRZYYEEAFlhggQUWWBCABRZYYIEFFgRggQUWWGCBBQFYYIEFFlhgQQAWWGCBBRZYEIAFFlhggQUWBGCBBRZYYIEFAVhggQUWWGBBABZYYIEFFlgQgAUWWGCBBRYEYIEFFlhggQUBWGCBBRZYYEEAFlhggQUWWBCABRZYYIEFFgRggQUWWGCBBQFYYIEFFlhgQQAWWGCBBRZYEIAFFlhggQUWBGCBBRZYn6cCIcRXgvX/h9qcIVBqDdbEM8RCxGCB9QqXYRwHYDHBgwXWl8eKZKiESHI3Ba1kWs3fKixcaJUl1YyeBm7Ocq+yLItUiVBGnXxenSHJolIKEcwHq6ikbOX1YGVzQCTN8LPmSLreghUl9sN4Uw7yajMrLC0TZ1ImzqY6FEop0+pIaEN5HaoOxVuwEqFyc4I46uSlzOLqgxlh6UaR9l3VYWl9Fdoxb1Q90KJtu41pwwFW/WHhTtW8i7TafLCqRsk6bsGw63L9qurXRmuIlbT9lDQnlXU+nBFW1Q2qnZbDprWa2tjR90LZFqx1/+Td/HpGWLlrLDvIwTcx6dQ1Vrntbig68cDms3JwbA5Y1azs1ger6sNV/bbIw1jU81MvNAGrl58RVn8ozW+btF08iGFoAlYvP3csfVur1gJBEIA1uBmue5dhZDOyO2epbmgCVi8/I6x0MMHH9pjsTfBhNzQBq5uPZoQlB0uH3DZG4EZqQ26fL3sZq5uf09Ih6qw3i/pm6BZO0qZX7rrUS68Xsbr5ZE4rePMk08pk9aUZugfqppvs6AM1Acvlo/StP+6EbW06z8hJqxbYp2BZPQUnFsLsKuhQdaHqn5ewbF7KXIn0jWO5MqOQ7RaNLPtbNMmmhimj0GUmYLl8Gs0Lq4wyPbTu1l2QKqHSouzs3OlDIslW5SQsnY/NXmFplyNvEuuLV/Tau9BzwiraDUSwXmysztYWWNtL1psXeumgIrDGaqXvBfUuvtqUYI3V2t1wk1e2msFluJJm6zDJXv/fIfjPP7DAAgsssCiwwAILLLDAosACCyywwAKLAgsssMACC6zt9fDz/v75tyOB+98PD2+ORgKffjw4OP1uJPDxl+Xy8v1I4MPF3t7VNyOB4/vF4uzdzrG+39f1kz/w66Guv/yBvw90KX/gZKkr8Qf+2dOV+gNHC12/7RxrabD2/a31bLAO/a11YbAO/K21MFhLf2s9Gqw9f2vdGqzFu11jnVusE2/gxmI9eQOnFuvYG7i0WH7uK4t15w2cWazrXWP9a7H8f/bQYvm/6IPF+sF/pVssf19Ii/WH/0K2WH/uGuvEWC39gSdj9Twy+Rqri5EZx1gt/IE7Y/XoD1wbq9vd3w1PlufnD2OBp+ebm/uxwPHF6emnscDR4vLy41jg7vHq6sNY4Pr27OyYdRaLUrDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssL6u+k+AAQCR9eHtLKvLfwAAAABJRU5ErkJggg==" data-original="https://img-blog.csdnimg.cn/20200621024633235.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0NhcmJvbjY=,size_16,color_FFFFFF,t_70" alt="红外编码"></p>
+<h3 id="接收程序思路分析"><a href="#接收程序思路分析" class="headerlink" title="接收程序思路分析"></a>接收程序思路分析</h3><p>NEC编码解码的实质，其实是对电平时间的精确读取，我不禁想到了超声波模块。对了！一切都是那么的熟悉，定时器的捕获模式，刚好满足这种需求。</p>
+<ol>
+<li>设置低电平捕获，一旦接收到信号，进入捕获中断，改为高电平捕获，捕捉到高电平时，读取计数值，再根据时基，就得到了低电平的时间，获取高电平时间的方法也是一样</li>
+<li>然后根据时间的范围，设置一些标志位，来判断数据起始位，然后获取地址码，地址反码，数据码，数据反码</li>
+<li>然后校验，将地址码与地址反码的取反进行比较，再与设定的地址码进行比较，如果都相等则表示地址数据无误，并且控制设备无误，继续下一步</li>
+<li>将数据码与数据反码的取反进行比较，相等则表示数据无误，再赋值给需要接收键值的变量。</li>
+</ol>
+<p>由于我是应用在小车上的，本来是设计成蓝牙遥控，这样就可以拓展出红外遥控了，C8T6一共有4个定时器的资源，TIM1用于PWM模式，驱动两个电机，TIM2和TIM4用于读取2个AB相编码器，TIM3用于超声波模块的输入捕获，那么要想红外遥控，只能废掉超声波避障了。</p>
+<h3 id="timer-c-amp-timer-h"><a href="#timer-c-amp-timer-h" class="headerlink" title="timer.c&amp;timer.h"></a>timer.c&amp;timer.h</h3><p>根据红外接收的工作特性，应该接收到一次低电平，程序进入中断，我们开始判断是否是起始位，因此，<strong>初始化</strong>程序应该配置为Input Capture<strong>输入捕获模式</strong>，捕获极性为<strong>低电平捕获</strong>。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"timer.h"</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"delay.h"</span></span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">TIM_HandleTypeDef htim3;      <span class="comment">//定时器3句柄</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Remote_Init</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;  </span><br><span class="line">    TIM_IC_InitTypeDef TIM3_CH3_IC_Initure;	<span class="comment">//定时器初始化句柄</span></span><br><span class="line">    </span><br><span class="line">    htim3.Instance=TIM3;                          <span class="comment">//选择定时器：定时器3</span></span><br><span class="line">    htim3.Init.Prescaler=(<span class="number">72</span><span class="number">-1</span>);                  <span class="comment">//预分频器：72分频,1M的计数频率,1um周期</span></span><br><span class="line">    htim3.Init.CounterMode=TIM_COUNTERMODE_UP;    <span class="comment">//计数方向：向上计数</span></span><br><span class="line">    htim3.Init.Period=<span class="number">10000</span>;                      <span class="comment">//自动装载值：最大计时10ms</span></span><br><span class="line">    htim3.Init.ClockDivision=TIM_CLOCKDIVISION_DIV1;<span class="comment">//时钟分频：不分频</span></span><br><span class="line">    HAL_TIM_IC_Init(&amp;htim3);						<span class="comment">//进行初始化</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">//初始化TIM1输入捕获参数</span></span><br><span class="line">    TIM3_CH3_IC_Initure.ICPolarity=TIM_ICPOLARITY_RISING;    <span class="comment">//捕获极性：上升沿捕获</span></span><br><span class="line">    TIM3_CH3_IC_Initure.ICSelection=TIM_ICSELECTION_DIRECTTI;<span class="comment">//交错映射：直接映射到TI3上</span></span><br><span class="line">    TIM3_CH3_IC_Initure.ICPrescaler=TIM_ICPSC_DIV1;          <span class="comment">//输入捕获分频：不分频</span></span><br><span class="line">    TIM3_CH3_IC_Initure.ICFilter=<span class="number">0x03</span>;                       <span class="comment">//硬件滤波：设置8个定时器时钟周期滤波</span></span><br><span class="line">    HAL_TIM_IC_ConfigChannel(&amp;htim3,&amp;TIM3_CH3_IC_Initure,TIM_CHANNEL_3);<span class="comment">//通道选择：配置TIM4通道3</span></span><br><span class="line">    HAL_TIM_IC_Start_IT(&amp;htim3,TIM_CHANNEL_3);   <span class="comment">//开始捕获TIM3的通道3</span></span><br><span class="line">    __HAL_TIM_ENABLE_IT(&amp;htim3,TIM_IT_UPDATE);   <span class="comment">//使能更新中断</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//Input Capture 输入捕获MSP函数</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">HAL_TIM_IC_MspInit</span><span class="params">(TIM_HandleTypeDef *htim)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    GPIO_InitTypeDef GPIO_Initure;</span><br><span class="line">    __HAL_RCC_TIM3_CLK_ENABLE();            <span class="comment">//使能TIM3时钟</span></span><br><span class="line">    __HAL_RCC_GPIOB_CLK_ENABLE();			<span class="comment">//开启GPIOB时钟</span></span><br><span class="line">	</span><br><span class="line">    GPIO_Initure.Pin=GPIO_PIN_0;            <span class="comment">//PB0</span></span><br><span class="line">    GPIO_Initure.Mode=GPIO_MODE_AF_INPUT;  	<span class="comment">//复用输入</span></span><br><span class="line">    GPIO_Initure.Pull=GPIO_PULLUP;          <span class="comment">//上拉</span></span><br><span class="line">    GPIO_Initure.Speed=GPIO_SPEED_FREQ_HIGH;<span class="comment">//高速</span></span><br><span class="line">    HAL_GPIO_Init(GPIOB,&amp;GPIO_Initure);</span><br><span class="line"></span><br><span class="line">    HAL_NVIC_SetPriority(TIM3_IRQn,<span class="number">1</span>,<span class="number">3</span>); 	<span class="comment">//设置中断优先级，抢占优先级1，子优先级3</span></span><br><span class="line">    HAL_NVIC_EnableIRQ(TIM3_IRQn);       	<span class="comment">//开启ITM4中断</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>接下来，我们实际上有两种中断，一种是捕获成功进入<strong>捕获中断</strong>，另一种未捕获，达到计数重装值，进入<strong>更新溢出中断</strong>，方便起见，在中断服务函数中写HAL库的中断处理总函数(HAL库就是香)，在函数内部会自动进入各自的回调函数：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">TIM3_IRQHandler</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	HAL_TIM_IRQHandler(&amp;htim3);<span class="comment">//HAL库定时器处理函数</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>由于在处理过程中需要有各种标志的判断，定义一个储存状态的8位变量会方便许多：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//[7]:收到了引导码标志</span></span><br><span class="line"><span class="comment">//[6]:得到了一个按键的所有信息</span></span><br><span class="line"><span class="comment">//[5]:保留	</span></span><br><span class="line"><span class="comment">//[4]:标记上升沿是否已经被捕获								   </span></span><br><span class="line"><span class="comment">//[3:0]:溢出计时器</span></span><br><span class="line">u8 	RmtSta=<span class="number">0</span>;	<span class="comment">//状态标志变量</span></span><br></pre></td></tr></table></figure>
+<p>然后，我们继续分析，起始码中的9ms低电平其实没有必要判断，作为一个触发的信号就好，因为我们完全可以通过后面的4.5ms<strong>高电平</strong>，就得到一个起始码，然后逻辑电平0和1的区别，也在于<strong>高电平</strong>的时间长短，甚至重复码的特征也是2.5ms的<strong>高电平</strong>，那么代码的主要思路就很确定了：<strong>上升沿捕获中断中设置计时起点，在下降沿捕获中断期间判断计数值，得到高电平持续的时间，就可以在下降沿中断期间做出判断，是起始码还是重复码，是逻辑1还是逻辑0。</strong></p>
+<p>因此有必要设置一个存储计数值的变量，表示高电平时间，本质是读取CCR4寄存器，所以是16位：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">u16 Dval;		<span class="comment">//上升沿期间,计数器增加的值</span></span><br></pre></td></tr></table></figure>
+<p>再定义一个储存所有有效逻辑电平的变量，8+8+8+8一共32位：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">u32 RmtRec=<span class="number">0</span>;	<span class="comment">//红外接收到的数据</span></span><br></pre></td></tr></table></figure>
+<p>如果需要记录连按，那么就需要一个计数变量，一般情况不是必须的：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">u8  RmtCnt=<span class="number">0</span>;	<span class="comment">//按键按下的次数</span></span><br></pre></td></tr></table></figure>
+<p>接下来就是中断回调函数：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//定时器更新（溢出）中断回调函数</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">HAL_TIM_PeriodElapsedCallback</span><span class="params">(TIM_HandleTypeDef *htim)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">if</span>(htim-&gt;Instance==TIM3)</span><br><span class="line">	&#123;</span><br><span class="line"> 		<span class="keyword">if</span>(RmtSta&amp;<span class="number">0x80</span>)<span class="comment">//检测第[7]位，如果收到引导码</span></span><br><span class="line">		&#123;</span><br><span class="line">			RmtSta&amp;=~<span class="number">0X10</span>;						<span class="comment">//清零第[4]位,清除上升沿捕获标志</span></span><br><span class="line">			<span class="keyword">if</span>((RmtSta&amp;<span class="number">0X0F</span>)==<span class="number">0X00</span>)RmtSta|=<span class="number">1</span>&lt;&lt;<span class="number">6</span>;<span class="comment">//标记已经完成一次按键的键值信息采集</span></span><br><span class="line">			<span class="keyword">if</span>((RmtSta&amp;<span class="number">0X0F</span>)&lt;<span class="number">14</span>)RmtSta++;</span><br><span class="line">			<span class="keyword">else</span></span><br><span class="line">			&#123;</span><br><span class="line">				RmtSta&amp;=~(<span class="number">0x80</span>);<span class="comment">//清空起始标识</span></span><br><span class="line">				RmtSta&amp;=~(<span class="number">0x0F</span>);<span class="comment">//清空溢出计数器</span></span><br><span class="line">			&#125;						 	   	</span><br><span class="line">		&#125;	</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//定时器输入捕获中断回调函数</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">HAL_TIM_IC_CaptureCallback</span><span class="params">(TIM_HandleTypeDef *htim)</span><span class="comment">//捕获中断发生时执行</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">if</span>(htim-&gt;Instance==TIM3)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">if</span>(DATA_PIN)<span class="comment">//读取引脚状态，如果引脚高电平，说明是上升沿捕获</span></span><br><span class="line">		&#123;</span><br><span class="line">			TIM_RESET_CAPTUREPOLARITY(&amp;htim3,TIM_CHANNEL_3);   					<span class="comment">//清除捕获极性</span></span><br><span class="line">			TIM_SET_CAPTUREPOLARITY(&amp;htim3,TIM_CHANNEL_3,TIM_ICPOLARITY_FALLING);<span class="comment">//配置捕获极性，设置为下降沿捕获</span></span><br><span class="line">			__HAL_TIM_SET_COUNTER(&amp;htim3,<span class="number">0</span>);		<span class="comment">//清空定时器计数值	  </span></span><br><span class="line">		  	RmtSta|=<span class="number">0X10</span>;							<span class="comment">//设置第[4]位，标记上升沿已经被捕获</span></span><br><span class="line">		&#125;<span class="keyword">else</span> <span class="comment">//下降沿捕获</span></span><br><span class="line">		&#123;</span><br><span class="line">			Dval=HAL_TIM_ReadCapturedValue(&amp;htim3,TIM_CHANNEL_3);<span class="comment">//读取输入捕获的计数值</span></span><br><span class="line">			TIM_RESET_CAPTUREPOLARITY(&amp;htim3,TIM_CHANNEL_3);   <span class="comment">//清除捕获极性</span></span><br><span class="line">			TIM_SET_CAPTUREPOLARITY(&amp;htim3,TIM_CHANNEL_3,TIM_ICPOLARITY_RISING);<span class="comment">//配置捕获极性，设置为上升沿捕获</span></span><br><span class="line">			<span class="keyword">if</span>(RmtSta&amp;<span class="number">0X10</span>)							<span class="comment">//完成一次上升沿捕获 </span></span><br><span class="line">			&#123;</span><br><span class="line"> 				<span class="keyword">if</span>(RmtSta&amp;<span class="number">0X80</span>)<span class="comment">//接收到了引导码</span></span><br><span class="line">				&#123;</span><br><span class="line">					</span><br><span class="line">					<span class="keyword">if</span>(Dval&gt;<span class="number">300</span>&amp;&amp;Dval&lt;<span class="number">800</span>)			<span class="comment">//收到逻辑0,560us</span></span><br><span class="line">					&#123;</span><br><span class="line">						RmtRec&lt;&lt;=<span class="number">1</span>;</span><br><span class="line">						RmtRec|=<span class="number">0</span>;   </span><br><span class="line">					&#125;<span class="keyword">else</span> <span class="keyword">if</span>(Dval&gt;<span class="number">1400</span>&amp;&amp;Dval&lt;<span class="number">1800</span>)	<span class="comment">//收到逻辑1,1680us</span></span><br><span class="line">					&#123;</span><br><span class="line">						RmtRec&lt;&lt;=<span class="number">1</span>;</span><br><span class="line">						RmtRec|=<span class="number">1</span>;</span><br><span class="line">					&#125;<span class="keyword">else</span> <span class="keyword">if</span>(Dval&gt;<span class="number">2200</span>&amp;&amp;Dval&lt;<span class="number">2600</span>)	<span class="comment">//收到重复码,2.5ms</span></span><br><span class="line">					&#123;</span><br><span class="line">						RmtCnt++; 					<span class="comment">//按键次数增加1次</span></span><br><span class="line">						RmtSta&amp;=~(<span class="number">0x0F</span>);			<span class="comment">//清空溢出计数器		</span></span><br><span class="line">					&#125;</span><br><span class="line"> 				&#125;<span class="keyword">else</span> <span class="keyword">if</span>(Dval&gt;<span class="number">4200</span>&amp;&amp;Dval&lt;<span class="number">4700</span>)		<span class="comment">//收到起始码,4.5ms</span></span><br><span class="line">				&#123;</span><br><span class="line">					RmtSta|=<span class="number">0x80</span>;					<span class="comment">//设置第[7]位，表示成功接收到了引导码</span></span><br><span class="line">					RmtCnt=<span class="number">0</span>;						<span class="comment">//清除按键次数计数器</span></span><br><span class="line">				&#125;						 </span><br><span class="line">			&#125;</span><br><span class="line">			RmtSta&amp;=~(<span class="number">0x10</span>);						<span class="comment">//清除上升沿捕获标志</span></span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>所有的操作我都打上了详细的注释，下面我按照正常接收一帧有效数据来过一遍这个时序，单片机如何读到数据，存入RmtRec变量中的：</p>
+<ol>
+<li><p>首先起始码，9ms低电平，由于是下降沿，不会触发中断，然后4.5ms高电平，触发中断，判断为上升沿捕获，标记上升沿捕获，然后重新设置下降沿捕获，计数值清零，这时便开始记录高电平的持续时间。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span>(DATA_PIN)<span class="comment">//读取引脚状态，如果引脚高电平，说明是上升沿捕获</span></span><br><span class="line">&#123;</span><br><span class="line">	TIM_RESET_CAPTUREPOLARITY(&amp;htim3,TIM_CHANNEL_3);   					<span class="comment">//清除捕获极性</span></span><br><span class="line">	TIM_SET_CAPTUREPOLARITY(&amp;htim3,TIM_CHANNEL_3,TIM_ICPOLARITY_FALLING);<span class="comment">//配置捕获极性，设置为下降沿捕获</span></span><br><span class="line">	__HAL_TIM_SET_COUNTER(&amp;htim3,<span class="number">0</span>);		<span class="comment">//清空定时器计数值	  </span></span><br><span class="line">	RmtSta|=<span class="number">0X10</span>;							<span class="comment">//设置第[4]位，标记上升沿已经被捕获</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>一旦捕获到下降沿，便重新设置上升沿捕获，然后读取CCR4寄存器，存入Dval变量，由于设置的是72分频，计数值就是1um的数量，判断这个变量的所在区间，就可以得到收到的是什么。如果是<strong>起始码</strong>，就把相应的起始码标志位置1。如果判断标志位<strong>已经收到起始码</strong>，就判断<strong>逻辑码</strong>和<strong>重复码</strong>。如果是<strong>逻辑码</strong>，就将Rec变量左移，如果是1，就进行与操作，如果是0，可以不操作，因为右移自动补0。如果是<strong>重复码</strong>，就把重复计数加1。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span>(RmtSta&amp;<span class="number">0X10</span>)							<span class="comment">//完成一次上升沿捕获 </span></span><br><span class="line">&#123;</span><br><span class="line"> 	<span class="keyword">if</span>(RmtSta&amp;<span class="number">0X80</span>)<span class="comment">//如果已经收到引导码</span></span><br><span class="line">	&#123;</span><br><span class="line">		</span><br><span class="line">		<span class="keyword">if</span>(Dval&gt;<span class="number">300</span>&amp;&amp;Dval&lt;<span class="number">800</span>)			<span class="comment">//收到逻辑0,560us</span></span><br><span class="line">		&#123;</span><br><span class="line">			RmtRec&lt;&lt;=<span class="number">1</span>;</span><br><span class="line">			RmtRec|=<span class="number">0</span>;   </span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">else</span> <span class="keyword">if</span>(Dval&gt;<span class="number">1400</span>&amp;&amp;Dval&lt;<span class="number">1800</span>)	<span class="comment">//收到逻辑1,1680us</span></span><br><span class="line">		&#123;</span><br><span class="line">			RmtRec&lt;&lt;=<span class="number">1</span>;</span><br><span class="line">			RmtRec|=<span class="number">1</span>;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">else</span> <span class="keyword">if</span>(Dval&gt;<span class="number">2200</span>&amp;&amp;Dval&lt;<span class="number">2600</span>)	<span class="comment">//收到重复码,2.5ms</span></span><br><span class="line">		&#123;</span><br><span class="line">			RmtCnt++; 					<span class="comment">//按键次数增加1次</span></span><br><span class="line">			RmtSta&amp;=~(<span class="number">0x0F</span>);			<span class="comment">//清空溢出计数器		</span></span><br><span class="line">		&#125;</span><br><span class="line"> 	&#125;</span><br><span class="line">	<span class="keyword">else</span> <span class="keyword">if</span>(Dval&gt;<span class="number">4200</span>&amp;&amp;Dval&lt;<span class="number">4700</span>)		<span class="comment">//收到引导码,4.5ms</span></span><br><span class="line">	&#123;</span><br><span class="line">		RmtSta|=<span class="number">0x80</span>;					<span class="comment">//设置第[7]位，表示成功接收到了引导码</span></span><br><span class="line">		RmtCnt=<span class="number">0</span>;						<span class="comment">//清除按键次数计数器</span></span><br><span class="line">	&#125;						 </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>如果超时，从逻辑分析仪的数据来看，只有一种可能，就是<strong>每次数据之间的上升沿时间会超过我设定的10ms自动重装时间，也就是说，会有下降沿中断无法达到，于是触发了溢出中断回调函数，这个中断就可以作为接收结束的标志</strong>，在里面进行标志位的复位操作即可。Sta变量的0-3位，作为计数位使用，可以计数0-15次，对于我的红外遥控器如果是连按的话，通常在15个重装时间150ms内会有重复码，如果15次还没有低电平出现，就视为松开了按键，需要清空起始标志和计数位，等待下一次按下按键。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//定时器更新（溢出）中断回调函数</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">HAL_TIM_PeriodElapsedCallback</span><span class="params">(TIM_HandleTypeDef *htim)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">if</span>(htim-&gt;Instance==TIM3)</span><br><span class="line">	&#123;</span><br><span class="line"> 		<span class="keyword">if</span>(RmtSta&amp;<span class="number">0x80</span>)<span class="comment">//检测第[7]位，如果收到引导码</span></span><br><span class="line">		&#123;</span><br><span class="line">			RmtSta&amp;=~<span class="number">0X10</span>;						<span class="comment">//清零第[5]位,清除上升沿捕获标志</span></span><br><span class="line">			<span class="keyword">if</span>((RmtSta&amp;<span class="number">0X0F</span>)==<span class="number">0X00</span>)RmtSta|=<span class="number">1</span>&lt;&lt;<span class="number">6</span>;<span class="comment">//标记已经完成一次按键的键值信息采集</span></span><br><span class="line">			<span class="keyword">if</span>((RmtSta&amp;<span class="number">0X0F</span>)&lt;<span class="number">14</span>)RmtSta++;</span><br><span class="line">			<span class="keyword">else</span></span><br><span class="line">			&#123;</span><br><span class="line">				RmtSta&amp;=~(<span class="number">0x80</span>);<span class="comment">//清空起始标识</span></span><br><span class="line">				RmtSta&amp;=~(<span class="number">0x0F</span>);<span class="comment">//清空溢出计数器</span></span><br><span class="line">			&#125;						 	   	</span><br><span class="line">		&#125;	</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>接下来，一共32位数据就存入了Rec变量中，由于存入数据时采用左移的方式，那么右移32-8=24位，与0xFF得到地址码，右移32-16=16位，得到地址反码，右移8位，得到数据码，直接与0xFF就是数据反码。然后，验证遥控用户码是否等于宏定义的地址码，并且取出从第24位开始的8位数据码，return返回，判断这个值，做相应的控制操作，就完成了。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">u8 <span class="title">Remote_Scan</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;        </span><br><span class="line">	u8 sta=<span class="number">0</span>;       </span><br><span class="line">	u8 temp1,temp2;</span><br><span class="line">	<span class="keyword">if</span>(RmtSta&amp;(<span class="number">1</span>&lt;&lt;<span class="number">6</span>))<span class="comment">//得到一个按键的所有信息了</span></span><br><span class="line">	&#123; </span><br><span class="line">	    temp1=RmtRec&gt;&gt;<span class="number">24</span>;			<span class="comment">//得到地址码</span></span><br><span class="line">	    temp2=(RmtRec&gt;&gt;<span class="number">16</span>)&amp;<span class="number">0xff</span>;	<span class="comment">//得到地址反码 </span></span><br><span class="line"> 	    <span class="keyword">if</span>((temp1==(u8)~temp2)&amp;&amp;temp1==REMOTE_ID)<span class="comment">//检验遥控地址码,遥控器发送的地址码要和这里宏定义的相同才匹配 </span></span><br><span class="line">	    &#123; </span><br><span class="line">	        temp1=RmtRec&gt;&gt;<span class="number">8</span>;</span><br><span class="line">	        temp2=RmtRec; 	</span><br><span class="line">	        <span class="keyword">if</span>(temp1==(u8)~temp2)sta=temp1;<span class="comment">//键值正确	 </span></span><br><span class="line">		&#125;   </span><br><span class="line">		<span class="keyword">if</span>((sta==<span class="number">0</span>)||((RmtSta&amp;<span class="number">0X80</span>)==<span class="number">0</span>))<span class="comment">//按键数据错误/遥控已经没有按下了</span></span><br><span class="line">		&#123;</span><br><span class="line">		 	RmtSta&amp;=~(<span class="number">1</span>&lt;&lt;<span class="number">6</span>);<span class="comment">//清除接收到有效按键标识</span></span><br><span class="line">			RmtCnt=<span class="number">0</span>;		<span class="comment">//清除按键次数计数器</span></span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">    <span class="keyword">return</span> sta;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">read_yaokong</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	u8 key;</span><br><span class="line">	key = Remote_Scan();</span><br><span class="line">	<span class="keyword">switch</span> (key)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">case</span> <span class="number">24</span>: Flag_Qian=<span class="number">1</span>,Flag_Hou=<span class="number">0</span>,Flag_Left=<span class="number">0</span>,Flag_Right=<span class="number">0</span>; <span class="keyword">break</span>;	<span class="comment">//前进</span></span><br><span class="line">		<span class="keyword">case</span> <span class="number">74</span>: Flag_Qian=<span class="number">0</span>,Flag_Hou=<span class="number">1</span>,Flag_Left=<span class="number">0</span>,Flag_Right=<span class="number">0</span>; <span class="keyword">break</span>;	<span class="comment">//后退</span></span><br><span class="line">		<span class="keyword">case</span> <span class="number">16</span>: Flag_Qian=<span class="number">0</span>,Flag_Hou=<span class="number">0</span>,Flag_Left=<span class="number">1</span>,Flag_Right=<span class="number">0</span>; <span class="keyword">break</span>;	<span class="comment">//左转</span></span><br><span class="line">		<span class="keyword">case</span> <span class="number">90</span>: Flag_Qian=<span class="number">1</span>,Flag_Hou=<span class="number">0</span>,Flag_Left=<span class="number">0</span>,Flag_Right=<span class="number">1</span>; <span class="keyword">break</span>;	<span class="comment">//右转</span></span><br><span class="line">		<span class="keyword">case</span> <span class="number">56</span>: Flag_Qian=<span class="number">0</span>,Flag_Hou=<span class="number">0</span>,Flag_Left=<span class="number">0</span>,Flag_Right=<span class="number">0</span>; <span class="keyword">break</span>;	<span class="comment">//停止</span></span><br><span class="line">		<span class="keyword">case</span> <span class="number">162</span>: mode_flag = <span class="number">0</span>; <span class="keyword">break</span>;	<span class="comment">//遥控模式</span></span><br><span class="line">		<span class="keyword">case</span> <span class="number">98</span>: mode_flag = <span class="number">1</span>; <span class="keyword">break</span>;	<span class="comment">//CCD循迹模式</span></span><br><span class="line">		<span class="keyword">case</span> <span class="number">226</span>: mode_flag = <span class="number">2</span>; <span class="keyword">break</span>;	<span class="comment">//超声波避障模式</span></span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>然后补上头文件即可完成全部的代码。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">ifndef</span> __TIMER_H</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> __TIMER_H</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"sys.h"</span></span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> DATA_PIN   PBin(0)		<span class="comment">//红外数据输入脚</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> REMOTE_ID 0      		   </span></span><br><span class="line"></span><br><span class="line"><span class="keyword">extern</span> u8 RmtCnt;	        <span class="comment">//按键按下的次数</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Remote_Init</span><span class="params">(<span class="keyword">void</span>)</span></span>;     <span class="comment">//红外传感器接收头引脚初始化</span></span><br><span class="line"><span class="function">u8 <span class="title">Remote_Scan</span><span class="params">(<span class="keyword">void</span>)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">read_yaokong</span><span class="params">(<span class="keyword">void</span>)</span></span>;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br></pre></td></tr></table></figure>
+<p>显然从逻辑分析仪看，我的红外遥控器发送的地址码是0x00，所以直接宏定义为0即可。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/06/04/%E5%B9%B3%E8%A1%A1%E8%BD%A6PID/" rel="next" title="平衡车PID分析">
+                <i class="fa fa-chevron-left"></i> 平衡车PID分析
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="https://img-blog.csdnimg.cn/20200419121558948.jpg?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0NhcmJvbjY=,size_16,color_FFFFFF,t_70"
+                alt="Silicon4" />
+            
+              <p class="site-author-name" itemprop="name">Silicon4</p>
+              <p class="site-description motion-element" itemprop="description">Silicon4的个人博客</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives">
+              
+                  <span class="site-state-item-count">19</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">4</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/yourname" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:yourname@gmail.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://twitter.com/yourname" target="_blank" title="Twitter">
+                      
+                        <i class="fa fa-fw fa-twitter"></i>Twitter</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="skype:yourname?call|chat" target="_blank" title="Skype">
+                      
+                        <i class="fa fa-fw fa-skype"></i>Skype</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#红外遥控原理分析"><span class="nav-number">1.</span> <span class="nav-text">红外遥控原理分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#器件准备"><span class="nav-number">2.</span> <span class="nav-text">器件准备</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#程序编写"><span class="nav-number">3.</span> <span class="nav-text">程序编写</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#接收程序思路分析"><span class="nav-number">3.1.</span> <span class="nav-text">接收程序思路分析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#timer-c-amp-timer-h"><span class="nav-number">3.2.</span> <span class="nav-text">timer.c&amp;timer.h</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Silicon4</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/three/three.min.js"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/three/canvas_lines.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+
+
+  
+
+  
+
+<script>!function(e){var c=Array.prototype.slice.call(document.querySelectorAll("img[data-original]"));function i(){for(var r=0;r<c.length;r++)t=c[r],0<=(n=t.getBoundingClientRect()).bottom&&0<=n.left&&n.top<=(e.innerHeight||document.documentElement.clientHeight)&&function(){var t,n,e,i,o=c[r];t=o,n=function(){c=c.filter(function(t){return o!==t})},e=new Image,i=t.getAttribute("data-original"),e.onload=function(){t.src=i,n&&n()},e.src=i}();var t,n}i(),e.addEventListener("scroll",function(){var t,n;t=i,n=e,clearTimeout(t.tId),t.tId=setTimeout(function(){t.call(n)},500)})}(this);</script><script>window.addEventListener("load",function(){var t=/\.(gif|jpg|jpeg|tiff|png)$/i,r=/^data:image\/[a-z]+;base64,/;Array.prototype.slice.call(document.querySelectorAll("img[data-original]")).forEach(function(a){var e=a.parentNode;"A"===e.tagName&&(e.href.match(t)||e.href.match(r))&&(e.href=a.dataset.original)})});</script></body>
+</html>

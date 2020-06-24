@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.lug.ustc.edu.cn/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="STM32的串口模块总体理解这个应该是第一次接触各种MCU串口的第一个尝试吧，我也是从这里开始的。 串口我们都不陌生，一般现在都用的TTL电平，再通过TTL转串口或者TTL转232与电脑主机进行通信，便于调试MCU程序，或者直接与其他MCU或者从设备进行通信，最少只需要3根线：RX，TX，GND(需要共地嘛)。  TX：发送数据输出引脚 RX：接收数据输入引脚 SW_RX：数据接收引脚，仅用于单线">
+<meta property="og:type" content="article">
+<meta property="og:title" content="USART模块(串口通信)">
+<meta property="og:url" content="http://yoursite.com/2020/05/05/%E4%B8%B2%E5%8F%A3%E9%80%9A%E4%BF%A1/index.html">
+<meta property="og:site_name" content="Silicon4">
+<meta property="og:description" content="STM32的串口模块总体理解这个应该是第一次接触各种MCU串口的第一个尝试吧，我也是从这里开始的。 串口我们都不陌生，一般现在都用的TTL电平，再通过TTL转串口或者TTL转232与电脑主机进行通信，便于调试MCU程序，或者直接与其他MCU或者从设备进行通信，最少只需要3根线：RX，TX，GND(需要共地嘛)。  TX：发送数据输出引脚 RX：接收数据输入引脚 SW_RX：数据接收引脚，仅用于单线">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAAEsCAMAAABOo35HAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAC9UExURVlZWdPT07KysmRkZIWFhfT09JmZmWZmZm9vb39/fxkZGUxMTDMzM3p6epCQkKamppubm729venp6cjIyN7e3tbW1s/Pz8LCwnx8fLS0tFZWVoiIiI+Pj6GhoeTk5Glpabu7u93d3evr66CgoJSUlKqqqsnJyeDg4Hd3d8PDw+Xl5bi4uNHR0dvb26Ojo6urq+fn51hYWDg4OCgoKHBwcK2traenp0FBQe7u7vHx8U5OTre3t8zMzHV1df///7GrnpQAAAA/dFJOU///////////////////////////////////////////////////////////////////////////////////AI4mfBcAAAUGSURBVHja7NoJb6M4GMZxY0NCD64kve/pMZ2d3Z297+X7f6zFNmBAMUXa6URl/q9UJSWPUPzrizFWRUlNLgEBWGCBBRZYYEEAFlhggQUWWBCABRZYYIEFFgRggQUWWGCBBQFYYIEFFlhgQQAWWGCBBRZYEIAFFlhggQUWBGCBBRZYYIEFAVhggQUWWGBBABZYYIEFFlgQgAUWWGCBBRYEYIEFFlhggQUBWGCBBRZYYEEAFlhggQUWWBCABRZYYIEFFgRggQUWWGCBBQFYYIEFFlhgQQAWWGCBBRZYEIAFFlhggQUWBGCBBRZYn6cCIcRXgvX/h9qcIVBqDdbEM8RCxGCB9QqXYRwHYDHBgwXWl8eKZKiESHI3Ba1kWs3fKixcaJUl1YyeBm7Ocq+yLItUiVBGnXxenSHJolIKEcwHq6ikbOX1YGVzQCTN8LPmSLreghUl9sN4Uw7yajMrLC0TZ1ImzqY6FEop0+pIaEN5HaoOxVuwEqFyc4I46uSlzOLqgxlh6UaR9l3VYWl9Fdoxb1Q90KJtu41pwwFW/WHhTtW8i7TafLCqRsk6bsGw63L9qurXRmuIlbT9lDQnlXU+nBFW1Q2qnZbDprWa2tjR90LZFqx1/+Td/HpGWLlrLDvIwTcx6dQ1Vrntbig68cDms3JwbA5Y1azs1ger6sNV/bbIw1jU81MvNAGrl58RVn8ozW+btF08iGFoAlYvP3csfVur1gJBEIA1uBmue5dhZDOyO2epbmgCVi8/I6x0MMHH9pjsTfBhNzQBq5uPZoQlB0uH3DZG4EZqQ26fL3sZq5uf09Ih6qw3i/pm6BZO0qZX7rrUS68Xsbr5ZE4rePMk08pk9aUZugfqppvs6AM1Acvlo/StP+6EbW06z8hJqxbYp2BZPQUnFsLsKuhQdaHqn5ewbF7KXIn0jWO5MqOQ7RaNLPtbNMmmhimj0GUmYLl8Gs0Lq4wyPbTu1l2QKqHSouzs3OlDIslW5SQsnY/NXmFplyNvEuuLV/Tau9BzwiraDUSwXmysztYWWNtL1psXeumgIrDGaqXvBfUuvtqUYI3V2t1wk1e2msFluJJm6zDJXv/fIfjPP7DAAgsssCiwwAILLLDAosACCyywwAKLAgsssMACC6zt9fDz/v75tyOB+98PD2+ORgKffjw4OP1uJPDxl+Xy8v1I4MPF3t7VNyOB4/vF4uzdzrG+39f1kz/w66Guv/yBvw90KX/gZKkr8Qf+2dOV+gNHC12/7RxrabD2/a31bLAO/a11YbAO/K21MFhLf2s9Gqw9f2vdGqzFu11jnVusE2/gxmI9eQOnFuvYG7i0WH7uK4t15w2cWazrXWP9a7H8f/bQYvm/6IPF+sF/pVssf19Ii/WH/0K2WH/uGuvEWC39gSdj9Twy+Rqri5EZx1gt/IE7Y/XoD1wbq9vd3w1PlufnD2OBp+ebm/uxwPHF6emnscDR4vLy41jg7vHq6sNY4Pr27OyYdRaLUrDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssL6u+k+AAQCR9eHtLKvLfwAAAABJRU5ErkJggg==">
+<meta property="og:image" content="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAAEsCAMAAABOo35HAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAC9UExURVlZWdPT07KysmRkZIWFhfT09JmZmWZmZm9vb39/fxkZGUxMTDMzM3p6epCQkKamppubm729venp6cjIyN7e3tbW1s/Pz8LCwnx8fLS0tFZWVoiIiI+Pj6GhoeTk5Glpabu7u93d3evr66CgoJSUlKqqqsnJyeDg4Hd3d8PDw+Xl5bi4uNHR0dvb26Ojo6urq+fn51hYWDg4OCgoKHBwcK2traenp0FBQe7u7vHx8U5OTre3t8zMzHV1df///7GrnpQAAAA/dFJOU///////////////////////////////////////////////////////////////////////////////////AI4mfBcAAAUGSURBVHja7NoJb6M4GMZxY0NCD64kve/pMZ2d3Z297+X7f6zFNmBAMUXa6URl/q9UJSWPUPzrizFWRUlNLgEBWGCBBRZYYEEAFlhggQUWWBCABRZYYIEFFgRggQUWWGCBBQFYYIEFFlhgQQAWWGCBBRZYEIAFFlhggQUWBGCBBRZYYIEFAVhggQUWWGBBABZYYIEFFlgQgAUWWGCBBRYEYIEFFlhggQUBWGCBBRZYYEEAFlhggQUWWBCABRZYYIEFFgRggQUWWGCBBQFYYIEFFlhgQQAWWGCBBRZYEIAFFlhggQUWBGCBBRZYn6cCIcRXgvX/h9qcIVBqDdbEM8RCxGCB9QqXYRwHYDHBgwXWl8eKZKiESHI3Ba1kWs3fKixcaJUl1YyeBm7Ocq+yLItUiVBGnXxenSHJolIKEcwHq6ikbOX1YGVzQCTN8LPmSLreghUl9sN4Uw7yajMrLC0TZ1ImzqY6FEop0+pIaEN5HaoOxVuwEqFyc4I46uSlzOLqgxlh6UaR9l3VYWl9Fdoxb1Q90KJtu41pwwFW/WHhTtW8i7TafLCqRsk6bsGw63L9qurXRmuIlbT9lDQnlXU+nBFW1Q2qnZbDprWa2tjR90LZFqx1/+Td/HpGWLlrLDvIwTcx6dQ1Vrntbig68cDms3JwbA5Y1azs1ger6sNV/bbIw1jU81MvNAGrl58RVn8ozW+btF08iGFoAlYvP3csfVur1gJBEIA1uBmue5dhZDOyO2epbmgCVi8/I6x0MMHH9pjsTfBhNzQBq5uPZoQlB0uH3DZG4EZqQ26fL3sZq5uf09Ih6qw3i/pm6BZO0qZX7rrUS68Xsbr5ZE4rePMk08pk9aUZugfqppvs6AM1Acvlo/StP+6EbW06z8hJqxbYp2BZPQUnFsLsKuhQdaHqn5ewbF7KXIn0jWO5MqOQ7RaNLPtbNMmmhimj0GUmYLl8Gs0Lq4wyPbTu1l2QKqHSouzs3OlDIslW5SQsnY/NXmFplyNvEuuLV/Tau9BzwiraDUSwXmysztYWWNtL1psXeumgIrDGaqXvBfUuvtqUYI3V2t1wk1e2msFluJJm6zDJXv/fIfjPP7DAAgsssCiwwAILLLDAosACCyywwAKLAgsssMACC6zt9fDz/v75tyOB+98PD2+ORgKffjw4OP1uJPDxl+Xy8v1I4MPF3t7VNyOB4/vF4uzdzrG+39f1kz/w66Guv/yBvw90KX/gZKkr8Qf+2dOV+gNHC12/7RxrabD2/a31bLAO/a11YbAO/K21MFhLf2s9Gqw9f2vdGqzFu11jnVusE2/gxmI9eQOnFuvYG7i0WH7uK4t15w2cWazrXWP9a7H8f/bQYvm/6IPF+sF/pVssf19Ii/WH/0K2WH/uGuvEWC39gSdj9Twy+Rqri5EZx1gt/IE7Y/XoD1wbq9vd3w1PlufnD2OBp+ebm/uxwPHF6emnscDR4vLy41jg7vHq6sNY4Pr27OyYdRaLUrDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssL6u+k+AAQCR9eHtLKvLfwAAAABJRU5ErkJggg==">
+<meta property="og:image" content="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAAEsCAMAAABOo35HAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAC9UExURVlZWdPT07KysmRkZIWFhfT09JmZmWZmZm9vb39/fxkZGUxMTDMzM3p6epCQkKamppubm729venp6cjIyN7e3tbW1s/Pz8LCwnx8fLS0tFZWVoiIiI+Pj6GhoeTk5Glpabu7u93d3evr66CgoJSUlKqqqsnJyeDg4Hd3d8PDw+Xl5bi4uNHR0dvb26Ojo6urq+fn51hYWDg4OCgoKHBwcK2traenp0FBQe7u7vHx8U5OTre3t8zMzHV1df///7GrnpQAAAA/dFJOU///////////////////////////////////////////////////////////////////////////////////AI4mfBcAAAUGSURBVHja7NoJb6M4GMZxY0NCD64kve/pMZ2d3Z297+X7f6zFNmBAMUXa6URl/q9UJSWPUPzrizFWRUlNLgEBWGCBBRZYYEEAFlhggQUWWBCABRZYYIEFFgRggQUWWGCBBQFYYIEFFlhgQQAWWGCBBRZYEIAFFlhggQUWBGCBBRZYYIEFAVhggQUWWGBBABZYYIEFFlgQgAUWWGCBBRYEYIEFFlhggQUBWGCBBRZYYEEAFlhggQUWWBCABRZYYIEFFgRggQUWWGCBBQFYYIEFFlhgQQAWWGCBBRZYEIAFFlhggQUWBGCBBRZYn6cCIcRXgvX/h9qcIVBqDdbEM8RCxGCB9QqXYRwHYDHBgwXWl8eKZKiESHI3Ba1kWs3fKixcaJUl1YyeBm7Ocq+yLItUiVBGnXxenSHJolIKEcwHq6ikbOX1YGVzQCTN8LPmSLreghUl9sN4Uw7yajMrLC0TZ1ImzqY6FEop0+pIaEN5HaoOxVuwEqFyc4I46uSlzOLqgxlh6UaR9l3VYWl9Fdoxb1Q90KJtu41pwwFW/WHhTtW8i7TafLCqRsk6bsGw63L9qurXRmuIlbT9lDQnlXU+nBFW1Q2qnZbDprWa2tjR90LZFqx1/+Td/HpGWLlrLDvIwTcx6dQ1Vrntbig68cDms3JwbA5Y1azs1ger6sNV/bbIw1jU81MvNAGrl58RVn8ozW+btF08iGFoAlYvP3csfVur1gJBEIA1uBmue5dhZDOyO2epbmgCVi8/I6x0MMHH9pjsTfBhNzQBq5uPZoQlB0uH3DZG4EZqQ26fL3sZq5uf09Ih6qw3i/pm6BZO0qZX7rrUS68Xsbr5ZE4rePMk08pk9aUZugfqppvs6AM1Acvlo/StP+6EbW06z8hJqxbYp2BZPQUnFsLsKuhQdaHqn5ewbF7KXIn0jWO5MqOQ7RaNLPtbNMmmhimj0GUmYLl8Gs0Lq4wyPbTu1l2QKqHSouzs3OlDIslW5SQsnY/NXmFplyNvEuuLV/Tau9BzwiraDUSwXmysztYWWNtL1psXeumgIrDGaqXvBfUuvtqUYI3V2t1wk1e2msFluJJm6zDJXv/fIfjPP7DAAgsssCiwwAILLLDAosACCyywwAKLAgsssMACC6zt9fDz/v75tyOB+98PD2+ORgKffjw4OP1uJPDxl+Xy8v1I4MPF3t7VNyOB4/vF4uzdzrG+39f1kz/w66Guv/yBvw90KX/gZKkr8Qf+2dOV+gNHC12/7RxrabD2/a31bLAO/a11YbAO/K21MFhLf2s9Gqw9f2vdGqzFu11jnVusE2/gxmI9eQOnFuvYG7i0WH7uK4t15w2cWazrXWP9a7H8f/bQYvm/6IPF+sF/pVssf19Ii/WH/0K2WH/uGuvEWC39gSdj9Twy+Rqri5EZx1gt/IE7Y/XoD1wbq9vd3w1PlufnD2OBp+ebm/uxwPHF6emnscDR4vLy41jg7vHq6sNY4Pr27OyYdRaLUrDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssL6u+k+AAQCR9eHtLKvLfwAAAABJRU5ErkJggg==">
+<meta property="og:image" content="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAAEsCAMAAABOo35HAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAC9UExURVlZWdPT07KysmRkZIWFhfT09JmZmWZmZm9vb39/fxkZGUxMTDMzM3p6epCQkKamppubm729venp6cjIyN7e3tbW1s/Pz8LCwnx8fLS0tFZWVoiIiI+Pj6GhoeTk5Glpabu7u93d3evr66CgoJSUlKqqqsnJyeDg4Hd3d8PDw+Xl5bi4uNHR0dvb26Ojo6urq+fn51hYWDg4OCgoKHBwcK2traenp0FBQe7u7vHx8U5OTre3t8zMzHV1df///7GrnpQAAAA/dFJOU///////////////////////////////////////////////////////////////////////////////////AI4mfBcAAAUGSURBVHja7NoJb6M4GMZxY0NCD64kve/pMZ2d3Z297+X7f6zFNmBAMUXa6URl/q9UJSWPUPzrizFWRUlNLgEBWGCBBRZYYEEAFlhggQUWWBCABRZYYIEFFgRggQUWWGCBBQFYYIEFFlhgQQAWWGCBBRZYEIAFFlhggQUWBGCBBRZYYIEFAVhggQUWWGBBABZYYIEFFlgQgAUWWGCBBRYEYIEFFlhggQUBWGCBBRZYYEEAFlhggQUWWBCABRZYYIEFFgRggQUWWGCBBQFYYIEFFlhgQQAWWGCBBRZYEIAFFlhggQUWBGCBBRZYn6cCIcRXgvX/h9qcIVBqDdbEM8RCxGCB9QqXYRwHYDHBgwXWl8eKZKiESHI3Ba1kWs3fKixcaJUl1YyeBm7Ocq+yLItUiVBGnXxenSHJolIKEcwHq6ikbOX1YGVzQCTN8LPmSLreghUl9sN4Uw7yajMrLC0TZ1ImzqY6FEop0+pIaEN5HaoOxVuwEqFyc4I46uSlzOLqgxlh6UaR9l3VYWl9Fdoxb1Q90KJtu41pwwFW/WHhTtW8i7TafLCqRsk6bsGw63L9qurXRmuIlbT9lDQnlXU+nBFW1Q2qnZbDprWa2tjR90LZFqx1/+Td/HpGWLlrLDvIwTcx6dQ1Vrntbig68cDms3JwbA5Y1azs1ger6sNV/bbIw1jU81MvNAGrl58RVn8ozW+btF08iGFoAlYvP3csfVur1gJBEIA1uBmue5dhZDOyO2epbmgCVi8/I6x0MMHH9pjsTfBhNzQBq5uPZoQlB0uH3DZG4EZqQ26fL3sZq5uf09Ih6qw3i/pm6BZO0qZX7rrUS68Xsbr5ZE4rePMk08pk9aUZugfqppvs6AM1Acvlo/StP+6EbW06z8hJqxbYp2BZPQUnFsLsKuhQdaHqn5ewbF7KXIn0jWO5MqOQ7RaNLPtbNMmmhimj0GUmYLl8Gs0Lq4wyPbTu1l2QKqHSouzs3OlDIslW5SQsnY/NXmFplyNvEuuLV/Tau9BzwiraDUSwXmysztYWWNtL1psXeumgIrDGaqXvBfUuvtqUYI3V2t1wk1e2msFluJJm6zDJXv/fIfjPP7DAAgsssCiwwAILLLDAosACCyywwAKLAgsssMACC6zt9fDz/v75tyOB+98PD2+ORgKffjw4OP1uJPDxl+Xy8v1I4MPF3t7VNyOB4/vF4uzdzrG+39f1kz/w66Guv/yBvw90KX/gZKkr8Qf+2dOV+gNHC12/7RxrabD2/a31bLAO/a11YbAO/K21MFhLf2s9Gqw9f2vdGqzFu11jnVusE2/gxmI9eQOnFuvYG7i0WH7uK4t15w2cWazrXWP9a7H8f/bQYvm/6IPF+sF/pVssf19Ii/WH/0K2WH/uGuvEWC39gSdj9Twy+Rqri5EZx1gt/IE7Y/XoD1wbq9vd3w1PlufnD2OBp+ebm/uxwPHF6emnscDR4vLy41jg7vHq6sNY4Pr27OyYdRaLUrDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssL6u+k+AAQCR9eHtLKvLfwAAAABJRU5ErkJggg==">
+<meta property="article:published_time" content="2020-05-05T13:46:12.000Z">
+<meta property="article:modified_time" content="2020-05-07T13:57:56.518Z">
+<meta property="article:author" content="Silicon4">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAAEsCAMAAABOo35HAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAC9UExURVlZWdPT07KysmRkZIWFhfT09JmZmWZmZm9vb39/fxkZGUxMTDMzM3p6epCQkKamppubm729venp6cjIyN7e3tbW1s/Pz8LCwnx8fLS0tFZWVoiIiI+Pj6GhoeTk5Glpabu7u93d3evr66CgoJSUlKqqqsnJyeDg4Hd3d8PDw+Xl5bi4uNHR0dvb26Ojo6urq+fn51hYWDg4OCgoKHBwcK2traenp0FBQe7u7vHx8U5OTre3t8zMzHV1df///7GrnpQAAAA/dFJOU///////////////////////////////////////////////////////////////////////////////////AI4mfBcAAAUGSURBVHja7NoJb6M4GMZxY0NCD64kve/pMZ2d3Z297+X7f6zFNmBAMUXa6URl/q9UJSWPUPzrizFWRUlNLgEBWGCBBRZYYEEAFlhggQUWWBCABRZYYIEFFgRggQUWWGCBBQFYYIEFFlhgQQAWWGCBBRZYEIAFFlhggQUWBGCBBRZYYIEFAVhggQUWWGBBABZYYIEFFlgQgAUWWGCBBRYEYIEFFlhggQUBWGCBBRZYYEEAFlhggQUWWBCABRZYYIEFFgRggQUWWGCBBQFYYIEFFlhgQQAWWGCBBRZYEIAFFlhggQUWBGCBBRZYn6cCIcRXgvX/h9qcIVBqDdbEM8RCxGCB9QqXYRwHYDHBgwXWl8eKZKiESHI3Ba1kWs3fKixcaJUl1YyeBm7Ocq+yLItUiVBGnXxenSHJolIKEcwHq6ikbOX1YGVzQCTN8LPmSLreghUl9sN4Uw7yajMrLC0TZ1ImzqY6FEop0+pIaEN5HaoOxVuwEqFyc4I46uSlzOLqgxlh6UaR9l3VYWl9Fdoxb1Q90KJtu41pwwFW/WHhTtW8i7TafLCqRsk6bsGw63L9qurXRmuIlbT9lDQnlXU+nBFW1Q2qnZbDprWa2tjR90LZFqx1/+Td/HpGWLlrLDvIwTcx6dQ1Vrntbig68cDms3JwbA5Y1azs1ger6sNV/bbIw1jU81MvNAGrl58RVn8ozW+btF08iGFoAlYvP3csfVur1gJBEIA1uBmue5dhZDOyO2epbmgCVi8/I6x0MMHH9pjsTfBhNzQBq5uPZoQlB0uH3DZG4EZqQ26fL3sZq5uf09Ih6qw3i/pm6BZO0qZX7rrUS68Xsbr5ZE4rePMk08pk9aUZugfqppvs6AM1Acvlo/StP+6EbW06z8hJqxbYp2BZPQUnFsLsKuhQdaHqn5ewbF7KXIn0jWO5MqOQ7RaNLPtbNMmmhimj0GUmYLl8Gs0Lq4wyPbTu1l2QKqHSouzs3OlDIslW5SQsnY/NXmFplyNvEuuLV/Tau9BzwiraDUSwXmysztYWWNtL1psXeumgIrDGaqXvBfUuvtqUYI3V2t1wk1e2msFluJJm6zDJXv/fIfjPP7DAAgsssCiwwAILLLDAosACCyywwAKLAgsssMACC6zt9fDz/v75tyOB+98PD2+ORgKffjw4OP1uJPDxl+Xy8v1I4MPF3t7VNyOB4/vF4uzdzrG+39f1kz/w66Guv/yBvw90KX/gZKkr8Qf+2dOV+gNHC12/7RxrabD2/a31bLAO/a11YbAO/K21MFhLf2s9Gqw9f2vdGqzFu11jnVusE2/gxmI9eQOnFuvYG7i0WH7uK4t15w2cWazrXWP9a7H8f/bQYvm/6IPF+sF/pVssf19Ii/WH/0K2WH/uGuvEWC39gSdj9Twy+Rqri5EZx1gt/IE7Y/XoD1wbq9vd3w1PlufnD2OBp+ebm/uxwPHF6emnscDR4vLy41jg7vHq6sNY4Pr27OyYdRaLUrDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssL6u+k+AAQCR9eHtLKvLfwAAAABJRU5ErkJggg==">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2020/05/05/串口通信/"/>
+
+
+
+
+
+  <title>USART模块(串口通信) | Silicon4</title>
+  
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Silicon4</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">科学，就是“偶尔能解答，常常在疑惑，总是在探寻”</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/05/05/%E4%B8%B2%E5%8F%A3%E9%80%9A%E4%BF%A1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Silicon4">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="https://img-blog.csdnimg.cn/20200419121558948.jpg?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0NhcmJvbjY=,size_16,color_FFFFFF,t_70">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Silicon4">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">USART模块(串口通信)</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2020-05-05T21:46:12+08:00">
+                2020-05-05
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/STM32%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95/" itemprop="url" rel="index">
+                    <span itemprop="name">STM32学习记录</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="STM32的串口模块总体理解"><a href="#STM32的串口模块总体理解" class="headerlink" title="STM32的串口模块总体理解"></a>STM32的串口模块总体理解</h2><p>这个应该是第一次接触各种MCU串口的第一个尝试吧，我也是从这里开始的。</p>
+<p>串口我们都不陌生，一般现在都用的TTL电平，再通过TTL转串口或者TTL转232与电脑主机进行通信，便于调试MCU程序，或者直接与其他MCU或者从设备进行通信，最少只需要3根线：RX，TX，GND(需要共地嘛)。</p>
+<p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAAEsCAMAAABOo35HAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAC9UExURVlZWdPT07KysmRkZIWFhfT09JmZmWZmZm9vb39/fxkZGUxMTDMzM3p6epCQkKamppubm729venp6cjIyN7e3tbW1s/Pz8LCwnx8fLS0tFZWVoiIiI+Pj6GhoeTk5Glpabu7u93d3evr66CgoJSUlKqqqsnJyeDg4Hd3d8PDw+Xl5bi4uNHR0dvb26Ojo6urq+fn51hYWDg4OCgoKHBwcK2traenp0FBQe7u7vHx8U5OTre3t8zMzHV1df///7GrnpQAAAA/dFJOU///////////////////////////////////////////////////////////////////////////////////AI4mfBcAAAUGSURBVHja7NoJb6M4GMZxY0NCD64kve/pMZ2d3Z297+X7f6zFNmBAMUXa6URl/q9UJSWPUPzrizFWRUlNLgEBWGCBBRZYYEEAFlhggQUWWBCABRZYYIEFFgRggQUWWGCBBQFYYIEFFlhgQQAWWGCBBRZYEIAFFlhggQUWBGCBBRZYYIEFAVhggQUWWGBBABZYYIEFFlgQgAUWWGCBBRYEYIEFFlhggQUBWGCBBRZYYEEAFlhggQUWWBCABRZYYIEFFgRggQUWWGCBBQFYYIEFFlhgQQAWWGCBBRZYEIAFFlhggQUWBGCBBRZYn6cCIcRXgvX/h9qcIVBqDdbEM8RCxGCB9QqXYRwHYDHBgwXWl8eKZKiESHI3Ba1kWs3fKixcaJUl1YyeBm7Ocq+yLItUiVBGnXxenSHJolIKEcwHq6ikbOX1YGVzQCTN8LPmSLreghUl9sN4Uw7yajMrLC0TZ1ImzqY6FEop0+pIaEN5HaoOxVuwEqFyc4I46uSlzOLqgxlh6UaR9l3VYWl9Fdoxb1Q90KJtu41pwwFW/WHhTtW8i7TafLCqRsk6bsGw63L9qurXRmuIlbT9lDQnlXU+nBFW1Q2qnZbDprWa2tjR90LZFqx1/+Td/HpGWLlrLDvIwTcx6dQ1Vrntbig68cDms3JwbA5Y1azs1ger6sNV/bbIw1jU81MvNAGrl58RVn8ozW+btF08iGFoAlYvP3csfVur1gJBEIA1uBmue5dhZDOyO2epbmgCVi8/I6x0MMHH9pjsTfBhNzQBq5uPZoQlB0uH3DZG4EZqQ26fL3sZq5uf09Ih6qw3i/pm6BZO0qZX7rrUS68Xsbr5ZE4rePMk08pk9aUZugfqppvs6AM1Acvlo/StP+6EbW06z8hJqxbYp2BZPQUnFsLsKuhQdaHqn5ewbF7KXIn0jWO5MqOQ7RaNLPtbNMmmhimj0GUmYLl8Gs0Lq4wyPbTu1l2QKqHSouzs3OlDIslW5SQsnY/NXmFplyNvEuuLV/Tau9BzwiraDUSwXmysztYWWNtL1psXeumgIrDGaqXvBfUuvtqUYI3V2t1wk1e2msFluJJm6zDJXv/fIfjPP7DAAgsssCiwwAILLLDAosACCyywwAKLAgsssMACC6zt9fDz/v75tyOB+98PD2+ORgKffjw4OP1uJPDxl+Xy8v1I4MPF3t7VNyOB4/vF4uzdzrG+39f1kz/w66Guv/yBvw90KX/gZKkr8Qf+2dOV+gNHC12/7RxrabD2/a31bLAO/a11YbAO/K21MFhLf2s9Gqw9f2vdGqzFu11jnVusE2/gxmI9eQOnFuvYG7i0WH7uK4t15w2cWazrXWP9a7H8f/bQYvm/6IPF+sF/pVssf19Ii/WH/0K2WH/uGuvEWC39gSdj9Twy+Rqri5EZx1gt/IE7Y/XoD1wbq9vd3w1PlufnD2OBp+ebm/uxwPHF6emnscDR4vLy41jg7vHq6sNY4Pr27OyYdRaLUrDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssL6u+k+AAQCR9eHtLKvLfwAAAABJRU5ErkJggg==" data-original="https://img-blog.csdnimg.cn/20200505223115328.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0NhcmJvbjY=,size_16,color_FFFFFF,t_70" alt="USART框架结构"></p>
+<p>TX：发送数据输出引脚</p>
+<p>RX：接收数据输入引脚</p>
+<p>SW_RX：数据接收引脚，仅用于单线和智能卡模式，属于内部引脚</p>
+<p>nRTS：Request To Send 请求发送，n表示低电平有效，仅用于硬件流控制。如果使能RTS硬件流控制，当USART接收器准备好接收新数据时就会将nRST硬件复位0；当接收寄存器已满时，nRTS将被硬件置位1。</p>
+<p>nCTS：Clear To Send 清除以发送，同样n表示低电平有效，仅用于硬件流控制。如果使能CTS硬件流控制，发送器在发送下一帧之前会检测nCTS引脚，如果为低电平，则表示可以发送数据，如果是高电平则在发送完当前数据帧之后就停止发送。</p>
+<p>IRDA_OUT/IRDA_IN：用于红外传输数据。</p>
+<p>SCLK：发送器时钟输出引脚，仅用于用于串口的同步模式。</p>
+<h3 id="数据寄存器"><a href="#数据寄存器" class="headerlink" title="数据寄存器"></a>数据寄存器</h3><p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAAEsCAMAAABOo35HAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAC9UExURVlZWdPT07KysmRkZIWFhfT09JmZmWZmZm9vb39/fxkZGUxMTDMzM3p6epCQkKamppubm729venp6cjIyN7e3tbW1s/Pz8LCwnx8fLS0tFZWVoiIiI+Pj6GhoeTk5Glpabu7u93d3evr66CgoJSUlKqqqsnJyeDg4Hd3d8PDw+Xl5bi4uNHR0dvb26Ojo6urq+fn51hYWDg4OCgoKHBwcK2traenp0FBQe7u7vHx8U5OTre3t8zMzHV1df///7GrnpQAAAA/dFJOU///////////////////////////////////////////////////////////////////////////////////AI4mfBcAAAUGSURBVHja7NoJb6M4GMZxY0NCD64kve/pMZ2d3Z297+X7f6zFNmBAMUXa6URl/q9UJSWPUPzrizFWRUlNLgEBWGCBBRZYYEEAFlhggQUWWBCABRZYYIEFFgRggQUWWGCBBQFYYIEFFlhgQQAWWGCBBRZYEIAFFlhggQUWBGCBBRZYYIEFAVhggQUWWGBBABZYYIEFFlgQgAUWWGCBBRYEYIEFFlhggQUBWGCBBRZYYEEAFlhggQUWWBCABRZYYIEFFgRggQUWWGCBBQFYYIEFFlhgQQAWWGCBBRZYEIAFFlhggQUWBGCBBRZYn6cCIcRXgvX/h9qcIVBqDdbEM8RCxGCB9QqXYRwHYDHBgwXWl8eKZKiESHI3Ba1kWs3fKixcaJUl1YyeBm7Ocq+yLItUiVBGnXxenSHJolIKEcwHq6ikbOX1YGVzQCTN8LPmSLreghUl9sN4Uw7yajMrLC0TZ1ImzqY6FEop0+pIaEN5HaoOxVuwEqFyc4I46uSlzOLqgxlh6UaR9l3VYWl9Fdoxb1Q90KJtu41pwwFW/WHhTtW8i7TafLCqRsk6bsGw63L9qurXRmuIlbT9lDQnlXU+nBFW1Q2qnZbDprWa2tjR90LZFqx1/+Td/HpGWLlrLDvIwTcx6dQ1Vrntbig68cDms3JwbA5Y1azs1ger6sNV/bbIw1jU81MvNAGrl58RVn8ozW+btF08iGFoAlYvP3csfVur1gJBEIA1uBmue5dhZDOyO2epbmgCVi8/I6x0MMHH9pjsTfBhNzQBq5uPZoQlB0uH3DZG4EZqQ26fL3sZq5uf09Ih6qw3i/pm6BZO0qZX7rrUS68Xsbr5ZE4rePMk08pk9aUZugfqppvs6AM1Acvlo/StP+6EbW06z8hJqxbYp2BZPQUnFsLsKuhQdaHqn5ewbF7KXIn0jWO5MqOQ7RaNLPtbNMmmhimj0GUmYLl8Gs0Lq4wyPbTu1l2QKqHSouzs3OlDIslW5SQsnY/NXmFplyNvEuuLV/Tau9BzwiraDUSwXmysztYWWNtL1psXeumgIrDGaqXvBfUuvtqUYI3V2t1wk1e2msFluJJm6zDJXv/fIfjPP7DAAgsssCiwwAILLLDAosACCyywwAKLAgsssMACC6zt9fDz/v75tyOB+98PD2+ORgKffjw4OP1uJPDxl+Xy8v1I4MPF3t7VNyOB4/vF4uzdzrG+39f1kz/w66Guv/yBvw90KX/gZKkr8Qf+2dOV+gNHC12/7RxrabD2/a31bLAO/a11YbAO/K21MFhLf2s9Gqw9f2vdGqzFu11jnVusE2/gxmI9eQOnFuvYG7i0WH7uK4t15w2cWazrXWP9a7H8f/bQYvm/6IPF+sF/pVssf19Ii/WH/0K2WH/uGuvEWC39gSdj9Twy+Rqri5EZx1gt/IE7Y/XoD1wbq9vd3w1PlufnD2OBp+ebm/uxwPHF6emnscDR4vLy41jg7vHq6sNY4Pr27OyYdRaLUrDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssL6u+k+AAQCR9eHtLKvLfwAAAABJRU5ErkJggg==" data-original="https://img-blog.csdnimg.cn/20200505220545830.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0NhcmJvbjY=,size_16,color_FFFFFF,t_70" alt="USART_DR"></p>
+<p>USART_DR(数据寄存器)只有低9位有效，第9位数据是否有效取决于USART_CR1(控制寄存器1)的M位设置，当M位为0时表示8位数据字长，当M位为1表示9位数据字长，通常使用8位数据字长。USART_DR包含了已发送的数据或者接收到的数据，实际上包含了两个寄存器，一个专门用于发送的可写TDR，另一个专门用于接收的刻度RDR。当需要发送数据，内核或者DMA外设会嘛数据从内存写入到发送数据TDR。而TDR和RDR都是处于系统总线和移位寄存器之间，发送时，TDR的数据转移到发送移位寄存器，然后从移位寄存器一位一位发送出去。接收数据就是一个逆向个过程，数据一位一位输入接收移位寄存器，然后转移到RDR，最后由内核或者DMA读取到内存中。</p>
+<h3 id="控制器"><a href="#控制器" class="headerlink" title="控制器"></a>控制器</h3><p>USART有专门的控制发送的发送器，控制接收的接收器，还有唤醒单元，中断控制等等，使用USART_CR1寄存器中的UE位置位，使能USART。</p>
+<p><strong>发送器</strong>：当TE(发送使能位)置1时，发送移位寄存器中的数据在TX引脚上输出，如果时同步模式，在SCLK引脚输出时钟脉冲。每个字符前都有一个低电平的起始，之后跟着停止位，默认有1个停止位，可以更改为0.5/1/1.5/2个停止位，默认使用1个停止位。也可以通过USART_CR2的STOP位控制停止位数，以应用智能卡，调制解调器模式等应用需求。在发送数据时，发送器对TE位置1，发送一个空闲帧作为第一次数据发送，把发送的数据写入USART_DR寄存器，写入最后一个字节后，等待TC=1，表示最后一个数据帧传输结束。如果USART_CR1寄存器的TCIE被置位，就会产生中断。</p>
+<p><strong>接收器</strong>：设置USART_CR1的RE位。激活接收器，使它开始寻找起始位。在确定到起始位后就会根据RX的电平状态把数据放在接收移位寄存器中。接收完成后将移位寄存器数据转移到RDR中，并把USART_SR寄存器中的RXNR位置1，，标明数据已经被接收并且可以被读出。如果USART_SR中的RXNEIE位被置1，表示产生中断。</p>
+<h3 id="波特率设置"><a href="#波特率设置" class="headerlink" title="波特率设置"></a>波特率设置</h3><p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAAEsCAMAAABOo35HAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAC9UExURVlZWdPT07KysmRkZIWFhfT09JmZmWZmZm9vb39/fxkZGUxMTDMzM3p6epCQkKamppubm729venp6cjIyN7e3tbW1s/Pz8LCwnx8fLS0tFZWVoiIiI+Pj6GhoeTk5Glpabu7u93d3evr66CgoJSUlKqqqsnJyeDg4Hd3d8PDw+Xl5bi4uNHR0dvb26Ojo6urq+fn51hYWDg4OCgoKHBwcK2traenp0FBQe7u7vHx8U5OTre3t8zMzHV1df///7GrnpQAAAA/dFJOU///////////////////////////////////////////////////////////////////////////////////AI4mfBcAAAUGSURBVHja7NoJb6M4GMZxY0NCD64kve/pMZ2d3Z297+X7f6zFNmBAMUXa6URl/q9UJSWPUPzrizFWRUlNLgEBWGCBBRZYYEEAFlhggQUWWBCABRZYYIEFFgRggQUWWGCBBQFYYIEFFlhgQQAWWGCBBRZYEIAFFlhggQUWBGCBBRZYYIEFAVhggQUWWGBBABZYYIEFFlgQgAUWWGCBBRYEYIEFFlhggQUBWGCBBRZYYEEAFlhggQUWWBCABRZYYIEFFgRggQUWWGCBBQFYYIEFFlhgQQAWWGCBBRZYEIAFFlhggQUWBGCBBRZYn6cCIcRXgvX/h9qcIVBqDdbEM8RCxGCB9QqXYRwHYDHBgwXWl8eKZKiESHI3Ba1kWs3fKixcaJUl1YyeBm7Ocq+yLItUiVBGnXxenSHJolIKEcwHq6ikbOX1YGVzQCTN8LPmSLreghUl9sN4Uw7yajMrLC0TZ1ImzqY6FEop0+pIaEN5HaoOxVuwEqFyc4I46uSlzOLqgxlh6UaR9l3VYWl9Fdoxb1Q90KJtu41pwwFW/WHhTtW8i7TafLCqRsk6bsGw63L9qurXRmuIlbT9lDQnlXU+nBFW1Q2qnZbDprWa2tjR90LZFqx1/+Td/HpGWLlrLDvIwTcx6dQ1Vrntbig68cDms3JwbA5Y1azs1ger6sNV/bbIw1jU81MvNAGrl58RVn8ozW+btF08iGFoAlYvP3csfVur1gJBEIA1uBmue5dhZDOyO2epbmgCVi8/I6x0MMHH9pjsTfBhNzQBq5uPZoQlB0uH3DZG4EZqQ26fL3sZq5uf09Ih6qw3i/pm6BZO0qZX7rrUS68Xsbr5ZE4rePMk08pk9aUZugfqppvs6AM1Acvlo/StP+6EbW06z8hJqxbYp2BZPQUnFsLsKuhQdaHqn5ewbF7KXIn0jWO5MqOQ7RaNLPtbNMmmhimj0GUmYLl8Gs0Lq4wyPbTu1l2QKqHSouzs3OlDIslW5SQsnY/NXmFplyNvEuuLV/Tau9BzwiraDUSwXmysztYWWNtL1psXeumgIrDGaqXvBfUuvtqUYI3V2t1wk1e2msFluJJm6zDJXv/fIfjPP7DAAgsssCiwwAILLLDAosACCyywwAKLAgsssMACC6zt9fDz/v75tyOB+98PD2+ORgKffjw4OP1uJPDxl+Xy8v1I4MPF3t7VNyOB4/vF4uzdzrG+39f1kz/w66Guv/yBvw90KX/gZKkr8Qf+2dOV+gNHC12/7RxrabD2/a31bLAO/a11YbAO/K21MFhLf2s9Gqw9f2vdGqzFu11jnVusE2/gxmI9eQOnFuvYG7i0WH7uK4t15w2cWazrXWP9a7H8f/bQYvm/6IPF+sF/pVssf19Ii/WH/0K2WH/uGuvEWC39gSdj9Twy+Rqri5EZx1gt/IE7Y/XoD1wbq9vd3w1PlufnD2OBp+ebm/uxwPHF6emnscDR4vLy41jg7vHq6sNY4Pr27OyYdRaLUrDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssL6u+k+AAQCR9eHtLKvLfwAAAABJRU5ErkJggg==" data-original="https://img-blog.csdnimg.cn/20200505220550795.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0NhcmJvbjY=,size_16,color_FFFFFF,t_70" alt="USART_BRR"></p>
+<p>波特率，每秒传输的位数，b/s(bit per second)，通过对时钟的控制可以改变波特率。配置波特率主要使用USART_BRR寄存器，修改串口时钟的分频USART_DIV。USART_BRR寄存器分为两部分，一个是DIV_Mantissa(整数部分)和DIV_Fraction(小数部分)，最终的串口波特率计算公式为，USART_DIV=DIC_Mantissa+(DIVFraction/16)</p>
+<h3 id="状态寄存器"><a href="#状态寄存器" class="headerlink" title="状态寄存器"></a>状态寄存器</h3><p>USART_SR，顾名思义，主要是根据串口的运行状态，由硬件将相应的位置位，有些位通过写0复位，有些则需要一些其他的用户操作来置位，由程序去读这个寄存器，便可以获知状态。</p>
+<h2 id="基于HAL库的入门应用"><a href="#基于HAL库的入门应用" class="headerlink" title="基于HAL库的入门应用"></a>基于HAL库的入门应用</h2><p>一个外设，虽然是片上外设，但是我们也给它单独封装一下，方便以后白嫖自己的代码。</p>
+<h3 id="USART-h"><a href="#USART-h" class="headerlink" title="USART.h"></a>USART.h</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">ifndef</span> __USART_H</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> __USART_H</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"stm32f1xx.h"</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">//串口波特率</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span>		BOUND				115200</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//引脚定义</span></span><br><span class="line"><span class="comment">/************************************************************/</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span>		USART_RX_GPIO_PORT			GPIOA</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span>		USART_RX_GPIO_CLK_ENABLE()	__HAL_RCC_GPIOA_CLK_ENABLE()</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span>		USART_RX_PIN					GPIO_PIN_10</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span>		USART_TX_GPIO_PORT			GPIOA</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span>		USART_TX_GPIO_CLK_ENABLE()	__HAL_RCC_GPIOA_CLK_ENABLE()</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span>		USART_TX_PIN					GPIO_PIN_9</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span>		USART_IRQHandler				USART1_IRQHandler</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span>		USART_IRQ						USART1_IRQn</span></span><br><span class="line"><span class="comment">/************************************************************/</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Usart_SendString</span><span class="params">(<span class="keyword">uint8_t</span> *str)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">USART_Init</span><span class="params">(<span class="keyword">void</span>)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">fputc</span><span class="params">(<span class="keyword">int</span> ch, FILE *f)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">fgetc</span><span class="params">(FILE *f)</span></span>;</span><br><span class="line"><span class="keyword">extern</span> UART_HandleTypeDef UART1_HandleStructure;</span><br><span class="line"><span class="comment">/*这一个异常重要啊，extern关键词很多人不会用，我在这之前也没用过，</span></span><br><span class="line"><span class="comment">但是这里必须保证这个变量在当前的头文件被stm32f1xx_it.c引用时，</span></span><br><span class="line"><span class="comment">里面的中断服务函数判断中断时要用到的，要保证能识别这个*/</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span> <span class="comment">/* __USART1_H */</span></span></span><br></pre></td></tr></table></figure>
+<h3 id="USART-c"><a href="#USART-c" class="headerlink" title="USART.c"></a>USART.c</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"USART.h"</span></span></span><br><span class="line"></span><br><span class="line">UART_HandleTypeDef UART1_HandleStructure;</span><br><span class="line"><span class="comment">//extern uint8_t ucTemp;  </span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">USART_Init</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123; </span><br><span class="line">  UART1_HandleStructure.Instance          = USART1;</span><br><span class="line">  </span><br><span class="line">  UART1_HandleStructure.Init.BaudRate     = BOUND;					<span class="comment">//设置波特率</span></span><br><span class="line">  UART1_HandleStructure.Init.WordLength   = UART_WORDLENGTH_8B;		<span class="comment">//8位数据输出格式</span></span><br><span class="line">  UART1_HandleStructure.Init.StopBits     = UART_STOPBITS_1;		<span class="comment">//1个停止位</span></span><br><span class="line">  UART1_HandleStructure.Init.Parity       = UART_PARITY_NONE;		<span class="comment">//无奇偶校验位</span></span><br><span class="line">  UART1_HandleStructure.Init.HwFlowCtl    = UART_HWCONTROL_NONE;	<span class="comment">//无硬件流控</span></span><br><span class="line">  UART1_HandleStructure.Init.Mode         = UART_MODE_TX_RX;		<span class="comment">//双工收发模式</span></span><br><span class="line">  </span><br><span class="line">  HAL_UART_Init(&amp;UART1_HandleStructure);							<span class="comment">//利用初始化结构体使能UART1</span></span><br><span class="line">   </span><br><span class="line"> <span class="comment">/*使能串口接收断 */</span></span><br><span class="line">  __HAL_UART_ENABLE_IT(&amp;UART1_HandleStructure,UART_IT_RXNE);  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>首先，最重要的就是<strong>串口初始化函数</strong>，可以看到和GPIO一样，使用一个初始化结构体，利用官方定义好的宏，为对应的成员写上参数，然后用HAL库的初始化函数，进行一次性的初始化。当然，这是不够初始化的，因为HAL_USART_Init函数的内部，还会跳转到另外一个函数。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">HAL_UART_MspInit</span><span class="params">(UART_HandleTypeDef *huart)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">//GPIO端口设置</span></span><br><span class="line">	GPIO_InitTypeDef GPIO_Initure;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span>(huart-&gt;Instance==USART1)<span class="comment">//如果是串口1，进行串口1 MSP初始化</span></span><br><span class="line">	&#123;</span><br><span class="line">		__HAL_RCC_GPIOA_CLK_ENABLE();			<span class="comment">//使能GPIOA时钟</span></span><br><span class="line">		__HAL_RCC_USART1_CLK_ENABLE();			<span class="comment">//使能USART1时钟</span></span><br><span class="line">		__HAL_RCC_AFIO_CLK_ENABLE();</span><br><span class="line">		<span class="comment">/**USART1 GPIO Configuration    </span></span><br><span class="line"><span class="comment">		PA9     ------&gt; USART1_TX</span></span><br><span class="line"><span class="comment">		PA10    ------&gt; USART1_RX </span></span><br><span class="line"><span class="comment">		*/</span></span><br><span class="line">		<span class="comment">/* 配置Tx引脚为复用功能  */</span></span><br><span class="line">		GPIO_Initure.Pin=GPIO_PIN_9;			<span class="comment">//PA9</span></span><br><span class="line">		GPIO_Initure.Mode=GPIO_MODE_AF_PP;		<span class="comment">//复用推挽输出</span></span><br><span class="line">		GPIO_Initure.Pull=GPIO_PULLUP;			<span class="comment">//上拉</span></span><br><span class="line">		GPIO_Initure.Speed=GPIO_SPEED_FREQ_HIGH;<span class="comment">//高速</span></span><br><span class="line">		HAL_GPIO_Init(GPIOA,&amp;GPIO_Initure);	   	<span class="comment">//初始化PA9</span></span><br><span class="line">		<span class="comment">/* 配置Rx引脚为复用功能 */</span></span><br><span class="line">		GPIO_Initure.Pin=GPIO_PIN_10;			<span class="comment">//PA10</span></span><br><span class="line">		GPIO_Initure.Mode=GPIO_MODE_AF_INPUT;	<span class="comment">//模式要设置为复用输入模式！	</span></span><br><span class="line">		HAL_GPIO_Init(GPIOA,&amp;GPIO_Initure);	   	<span class="comment">//初始化PA10</span></span><br><span class="line">		</span><br><span class="line"><span class="meta">#<span class="meta-keyword">if</span> 1</span></span><br><span class="line">		HAL_NVIC_EnableIRQ(USART1_IRQn);				<span class="comment">//使能USART1中断通道</span></span><br><span class="line">		HAL_NVIC_SetPriority(USART1_IRQn,<span class="number">3</span>,<span class="number">3</span>);			<span class="comment">//抢占优先级3，子优先级3</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span>	</span></span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这个HAL_USART_MspInit函数是系统弱定义函数，什么都不写，如果不强定义，填充内容的话，就会跳转并执行一个空函数，所以要在这里进行相关的端口复用设置。</p>
+<ul>
+<li>开启相应GPIO和USART1的<strong>时钟</strong></li>
+<li>将RX接收引脚设置为<strong>复用输入</strong></li>
+<li>将TX发送引脚设置为<strong>复用推挽输出</strong></li>
+<li>在这里我打算在主程序放之前那个按键扫描程序，因此需要用到中断，<strong>使能中断，设优先级</strong>。</li>
+</ul>
+<p>另外，再定义一些发送接收函数(这一段是白嫖的，当然还是过了脑子)</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*****************  发送字符串 **********************/</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Usart_SendString</span><span class="params">(<span class="keyword">uint8_t</span> *str)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">unsigned</span> <span class="keyword">int</span> k=<span class="number">0</span>;</span><br><span class="line">  <span class="keyword">do</span> </span><br><span class="line">  &#123;</span><br><span class="line">      HAL_UART_Transmit(&amp;UART1_HandleStructure,(<span class="keyword">uint8_t</span> *)(str + k) ,<span class="number">1</span>,<span class="number">1000</span>);</span><br><span class="line">      k++;</span><br><span class="line">  &#125; <span class="keyword">while</span>(*(str + k)!=<span class="string">'\0'</span>);</span><br><span class="line">  </span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//重定向c库函数printf到串口DEBUG_USART，重定向后可使用printf函数</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">fputc</span><span class="params">(<span class="keyword">int</span> ch, FILE *f)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="comment">/* 发送一个字节数据到串口DEBUG_USART */</span></span><br><span class="line">	HAL_UART_Transmit(&amp;UART1_HandleStructure, (<span class="keyword">uint8_t</span> *)&amp;ch, <span class="number">1</span>, <span class="number">1000</span>);	</span><br><span class="line">	</span><br><span class="line">	<span class="keyword">return</span> (ch);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//重定向c库函数scanf到串口DEBUG_USART，重写向后可使用scanf、getchar等函数</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">fgetc</span><span class="params">(FILE *f)</span></span></span><br><span class="line"><span class="function"></span>&#123;		</span><br><span class="line">	<span class="keyword">int</span> ch;</span><br><span class="line">	HAL_UART_Receive(&amp;UART1_HandleStructure, (<span class="keyword">uint8_t</span> *)&amp;ch, <span class="number">1</span>, <span class="number">1000</span>);	</span><br><span class="line">	<span class="keyword">return</span> (ch);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>那么USART.c文件到这里就写完了，直接在函数里初始化就可以了吗？不不不</p>
+<h3 id="中断服务函数"><a href="#中断服务函数" class="headerlink" title="中断服务函数"></a>中断服务函数</h3><p>都学过51吧，是不是到这里总觉得少了点什么，我一开始也纳闷，这白嫖来的发送函数怎么发不出去啊。好吧，仔细看还需要配置中断服务函数的。</p>
+<p>打开<strong>stm32f1xx_it.c</strong>，在他的包含头文件下面写上自己的用到中断的外设头文件，如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"main.h"</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"stm32f1xx_it.h"</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"USART.h"</span>							<span class="comment">//这一条是新增加的</span></span></span><br></pre></td></tr></table></figure>
+<p>……(中间省略一些原来的函数)在这个c文件的最末尾加上1个函数：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">USART1_IRQHandler</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">uint8_t</span> ch=<span class="number">0</span>; </span><br><span class="line">  </span><br><span class="line">	<span class="keyword">if</span>(__HAL_UART_GET_FLAG( &amp;UART1_HandleStructure, UART_FLAG_RXNE ) != RESET)</span><br><span class="line">	&#123;		</span><br><span class="line">    ch=( <span class="keyword">uint16_t</span>)READ_REG(UART1_HandleStructure.Instance-&gt;DR);</span><br><span class="line">    WRITE_REG(UART1_HandleStructure.Instance-&gt;DR,ch); </span><br><span class="line"> </span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这个呢，其实所有的中断服务函数，都在启动文件”startup_stm32f103xe.s”里面给我们定义好了，只不过还是个弱定义，是空的，我们在这里集中放上我们的中断服务函数，就可以在中断发生的时候顺利跳转到中断服务函数。</p>
+<p>__HAL_UART_GET_FLAG是一个判断串口状态的函数，这里再来回顾一下理论：</p>
+<ol>
+<li><p>我之前在初始化函数中手动开启了接收中断：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*使能串口接收断 */</span></span><br><span class="line">__HAL_UART_ENABLE_IT(&amp;UART1_HandleStructure,UART_IT_RXNE);</span><br></pre></td></tr></table></figure>
+<p>根据数据手册，这里是操作了USART_CR1的RXNEIE，手册里翻译为<strong>接收缓冲区非空中断使能</strong></p>
+<p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAAEsCAMAAABOo35HAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAC9UExURVlZWdPT07KysmRkZIWFhfT09JmZmWZmZm9vb39/fxkZGUxMTDMzM3p6epCQkKamppubm729venp6cjIyN7e3tbW1s/Pz8LCwnx8fLS0tFZWVoiIiI+Pj6GhoeTk5Glpabu7u93d3evr66CgoJSUlKqqqsnJyeDg4Hd3d8PDw+Xl5bi4uNHR0dvb26Ojo6urq+fn51hYWDg4OCgoKHBwcK2traenp0FBQe7u7vHx8U5OTre3t8zMzHV1df///7GrnpQAAAA/dFJOU///////////////////////////////////////////////////////////////////////////////////AI4mfBcAAAUGSURBVHja7NoJb6M4GMZxY0NCD64kve/pMZ2d3Z297+X7f6zFNmBAMUXa6URl/q9UJSWPUPzrizFWRUlNLgEBWGCBBRZYYEEAFlhggQUWWBCABRZYYIEFFgRggQUWWGCBBQFYYIEFFlhgQQAWWGCBBRZYEIAFFlhggQUWBGCBBRZYYIEFAVhggQUWWGBBABZYYIEFFlgQgAUWWGCBBRYEYIEFFlhggQUBWGCBBRZYYEEAFlhggQUWWBCABRZYYIEFFgRggQUWWGCBBQFYYIEFFlhgQQAWWGCBBRZYEIAFFlhggQUWBGCBBRZYn6cCIcRXgvX/h9qcIVBqDdbEM8RCxGCB9QqXYRwHYDHBgwXWl8eKZKiESHI3Ba1kWs3fKixcaJUl1YyeBm7Ocq+yLItUiVBGnXxenSHJolIKEcwHq6ikbOX1YGVzQCTN8LPmSLreghUl9sN4Uw7yajMrLC0TZ1ImzqY6FEop0+pIaEN5HaoOxVuwEqFyc4I46uSlzOLqgxlh6UaR9l3VYWl9Fdoxb1Q90KJtu41pwwFW/WHhTtW8i7TafLCqRsk6bsGw63L9qurXRmuIlbT9lDQnlXU+nBFW1Q2qnZbDprWa2tjR90LZFqx1/+Td/HpGWLlrLDvIwTcx6dQ1Vrntbig68cDms3JwbA5Y1azs1ger6sNV/bbIw1jU81MvNAGrl58RVn8ozW+btF08iGFoAlYvP3csfVur1gJBEIA1uBmue5dhZDOyO2epbmgCVi8/I6x0MMHH9pjsTfBhNzQBq5uPZoQlB0uH3DZG4EZqQ26fL3sZq5uf09Ih6qw3i/pm6BZO0qZX7rrUS68Xsbr5ZE4rePMk08pk9aUZugfqppvs6AM1Acvlo/StP+6EbW06z8hJqxbYp2BZPQUnFsLsKuhQdaHqn5ewbF7KXIn0jWO5MqOQ7RaNLPtbNMmmhimj0GUmYLl8Gs0Lq4wyPbTu1l2QKqHSouzs3OlDIslW5SQsnY/NXmFplyNvEuuLV/Tau9BzwiraDUSwXmysztYWWNtL1psXeumgIrDGaqXvBfUuvtqUYI3V2t1wk1e2msFluJJm6zDJXv/fIfjPP7DAAgsssCiwwAILLLDAosACCyywwAKLAgsssMACC6zt9fDz/v75tyOB+98PD2+ORgKffjw4OP1uJPDxl+Xy8v1I4MPF3t7VNyOB4/vF4uzdzrG+39f1kz/w66Guv/yBvw90KX/gZKkr8Qf+2dOV+gNHC12/7RxrabD2/a31bLAO/a11YbAO/K21MFhLf2s9Gqw9f2vdGqzFu11jnVusE2/gxmI9eQOnFuvYG7i0WH7uK4t15w2cWazrXWP9a7H8f/bQYvm/6IPF+sF/pVssf19Ii/WH/0K2WH/uGuvEWC39gSdj9Twy+Rqri5EZx1gt/IE7Y/XoD1wbq9vd3w1PlufnD2OBp+ebm/uxwPHF6emnscDR4vLy41jg7vHq6sNY4Pr27OyYdRaLUrDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssL6u+k+AAQCR9eHtLKvLfwAAAABJRU5ErkJggg==" data-original="https://img-blog.csdnimg.cn/20200506132856505.png" alt="RXNEIE"></p>
+<p>原理呢，是通过开启后，判断状态寄存器的相应的接收状态位来判断中断。</p>
+</li>
+<li><p><strong>无论</strong>发生什么串口中断，程序会立即停止主函数的执行，跳转到启动文件中断向量表中的对应中断，在这里也就是<strong>USART1_IQRHandler</strong>。</p>
+</li>
+<li><p>在中断服务函数USART1_IQRHandler中，需要判断到底是何种中断：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span>(__HAL_UART_GET_FLAG( &amp;UART1_HandleStructure, UART_FLAG_RXNE ) != RESET)</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>在这里判断的确发生了<strong>接收中断</strong>(全称叫<strong>接收缓冲区非空中断</strong>)，于是进行中断处理。</p>
+</li>
+</ol>
+<h2 id="基础应用"><a href="#基础应用" class="headerlink" title="基础应用"></a>基础应用</h2><p>上面的一个历程，我们仅仅是设置的最最基础的功能，一旦接收到字符，就触发了中断，一次只能接收一个字符，就算发送一串字符给单片机，也是一个一个接收的，这跟51单片机没什么区别啊，反而配置倒麻烦了许多。</p>
+<p>首先，HAL库是给我们提供了一个缓冲区的，先来看一下上面的入门应用中国涉及到的结构体吧</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> __<span class="title">UART_HandleTypeDef</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">  USART_TypeDef                 *Instance;</span><br><span class="line">  UART_InitTypeDef              Init;</span><br><span class="line">  <span class="keyword">uint8_t</span>                       *pTxBuffPtr;				<span class="comment">//1</span></span><br><span class="line">  <span class="keyword">uint16_t</span>                      TxXferSize;					<span class="comment">//2</span></span><br><span class="line">  __IO <span class="keyword">uint16_t</span>                 TxXferCount;				<span class="comment">//3</span></span><br><span class="line">  <span class="keyword">uint8_t</span>                       *pRxBuffPtr;				<span class="comment">//4</span></span><br><span class="line">  <span class="keyword">uint16_t</span>                      RxXferSize;					<span class="comment">//5</span></span><br><span class="line">  __IO <span class="keyword">uint16_t</span>                 RxXferCount;				<span class="comment">//6</span></span><br><span class="line">  DMA_HandleTypeDef             *hdmatx;</span><br><span class="line">  DMA_HandleTypeDef             *hdmarx;</span><br><span class="line">  HAL_LockTypeDef               Lock;</span><br><span class="line">  __IO HAL_UART_StateTypeDef    gState;</span><br><span class="line">  __IO HAL_UART_StateTypeDef    RxState;</span><br><span class="line">  __IO <span class="keyword">uint32_t</span>                 ErrorCode;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">if</span> (USE_HAL_UART_REGISTER_CALLBACKS == 1)</span></span><br><span class="line"><span class="comment">//省略</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span>  <span class="comment">/* USE_HAL_UART_REGISTER_CALLBACKS */</span></span></span><br><span class="line"></span><br><span class="line">&#125; UART_HandleTypeDef;</span><br></pre></td></tr></table></figure>
+<h3 id="嵌套的几个结构体"><a href="#嵌套的几个结构体" class="headerlink" title="嵌套的几个结构体"></a>嵌套的几个结构体</h3><ul>
+<li>Instance 是 USART_TypeDef 结构体指针类型变量，它是执行寄存器基地址，实际上这个基地址HAL 库已经定义好了，如果是串口 1，这个成员取值为 USART1 即可。</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">  __IO <span class="keyword">uint32_t</span> SR;</span><br><span class="line">  __IO <span class="keyword">uint32_t</span> DR;</span><br><span class="line">  __IO <span class="keyword">uint32_t</span> BRR;</span><br><span class="line">  __IO <span class="keyword">uint32_t</span> CR1;</span><br><span class="line">  __IO <span class="keyword">uint32_t</span> CR2;</span><br><span class="line">  __IO <span class="keyword">uint32_t</span> CR3;</span><br><span class="line">  __IO <span class="keyword">uint32_t</span> GTPR;</span><br><span class="line">&#125; USART_TypeDef;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>Init 是 UART_InitTypeDef 结构体类型变量，它是用来设置串口的各个参数，包括波特率， 停止位等</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">  <span class="keyword">uint32_t</span> BaudRate;</span><br><span class="line">  <span class="keyword">uint32_t</span> WordLength;</span><br><span class="line">  <span class="keyword">uint32_t</span> StopBits;</span><br><span class="line">  <span class="keyword">uint32_t</span> Parity;</span><br><span class="line">  <span class="keyword">uint32_t</span> Mode;</span><br><span class="line">  <span class="keyword">uint32_t</span> HwFlowCtl;</span><br><span class="line">  <span class="keyword">uint32_t</span> OverSampling;</span><br><span class="line">&#125; UART_InitTypeDef;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>hdmatx 和 hdmarx 是串口 DMA 相关的变量，这里没有使用DMA来处理，暂时不管。</li>
+</ul>
+<h3 id="6个中间变量"><a href="#6个中间变量" class="headerlink" title="6个中间变量"></a>6个中间变量</h3><ul>
+<li>串口发送：pTxBuffPtr数据缓存指针，TxXferSize发送的数据量，TxXferCount剩余未发送的数据量</li>
+<li>串口接收：pRxBuffPtr数据缓存指针，RxXferSize接收的最大数据量，RxXferCount还剩余未接收的数据量</li>
+</ul>
+<h3 id="使能串口中断函数"><a href="#使能串口中断函数" class="headerlink" title="使能串口中断函数"></a>使能串口中断函数</h3><p>上面的入门应用中，我们用了这句：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">__HAL_UART_ENABLE_IT(&amp;UART1_HandleStructure,UART_IT_RXNE);</span><br></pre></td></tr></table></figure>
+<p>实际上，这个仅仅是HAL库中另一个通用函数的一个子函数而已，这里可以通过替换成这个函数来升级功能：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">HAL_UART_Receive_IT(&amp;UART1_HandleStructure, (<span class="keyword">uint8_t</span> *)aRxBuffer, RXBUFFERSIZE);</span><br></pre></td></tr></table></figure>
+<p>这个函数的定义是</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">HAL_StatusTypeDef <span class="title">HAL_UART_Receive_IT</span><span class="params">(UART_HandleTypeDef *huart, <span class="keyword">uint8_t</span> *pData, <span class="keyword">uint16_t</span> Size)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="comment">/* Check that a Rx process is not already ongoing */</span></span><br><span class="line">  <span class="keyword">if</span> (huart-&gt;RxState == HAL_UART_STATE_READY)</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="keyword">if</span> ((pData == <span class="literal">NULL</span>) || (Size == <span class="number">0U</span>))</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="keyword">return</span> HAL_ERROR;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">/* Process Locked */</span></span><br><span class="line">    __HAL_LOCK(huart);</span><br><span class="line">    huart-&gt;pRxBuffPtr = pData;	<span class="comment">//缓冲大小</span></span><br><span class="line">    huart-&gt;RxXferSize = Size;	<span class="comment">//接收数据大小</span></span><br><span class="line">    huart-&gt;RxXferCount = Size;	<span class="comment">//接收数据计数</span></span><br><span class="line">    huart-&gt;ErrorCode = HAL_UART_ERROR_NONE;</span><br><span class="line">    huart-&gt;RxState = HAL_UART_STATE_BUSY_RX;</span><br><span class="line">    <span class="comment">/* Process Unlocked */</span></span><br><span class="line">    __HAL_UNLOCK(huart);</span><br><span class="line">    <span class="comment">/* Enable the UART Parity Error Interrupt */</span></span><br><span class="line">    __HAL_UART_ENABLE_IT(huart, UART_IT_PE);	<span class="comment">//启用奇偶校验中断</span></span><br><span class="line">    <span class="comment">/* Enable the UART Error Interrupt: (Frame error, noise error, overrun error) */</span></span><br><span class="line">    __HAL_UART_ENABLE_IT(huart, UART_IT_ERR);</span><br><span class="line">    <span class="comment">/* Enable the UART Data Register not empty Interrupt */</span></span><br><span class="line">    __HAL_UART_ENABLE_IT(huart, UART_IT_RXNE);	<span class="comment">//使能串口数据寄存器非空</span></span><br><span class="line">    <span class="keyword">return</span> HAL_OK;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">else</span></span><br><span class="line">  &#123;</span><br><span class="line">    <span class="keyword">return</span> HAL_BUSY;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里的aRxBuffer是一个uint8_t型的字符串缓冲区，由用户定义，RXBUFFERSIZE是缓冲区大小，这里如果写1，就和上面的入门应用中的函数有着相同的效果。</p>
+<p>一旦接收到1个字符，函数就会进入中断向量表中的USART1_IRQHandler函数，但是这一次，我们在中断服务函数中不自己写功能性的函数，而是借助HAL库提供的函数：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//串口1中断服务程序</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">USART1_IRQHandler</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	HAL_GPIO_TogglePin(LED0_GPIO, LED0_PIN);</span><br><span class="line">	</span><br><span class="line">	HAL_UART_IRQHandler(&amp;UART1_HandleStructure);</span><br><span class="line">	</span><br><span class="line">	HAL_UART_Receive_IT(&amp;UART1_HandleStructure,(<span class="keyword">uint8_t</span> *)&amp;aRxBuffer, RXBUFFERSIZE); <span class="comment">//重新打开串口中断</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这个函数调用了HAL库中断处理公用函数HAL_UART_IRQHandler，这大致是一个判断中断类型的HAL库函数，里面会调用<strong>回调函数 HAL_UART_RxCpltCallback</strong>：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">	<span class="keyword">if</span> (--huart-&gt;RxXferCount == <span class="number">0U</span>)</span><br><span class="line">    &#123;</span><br><span class="line">      __HAL_UART_DISABLE_IT(huart, UART_IT_RXNE);		<span class="comment">//关闭中断</span></span><br><span class="line">      __HAL_UART_DISABLE_IT(huart, UART_IT_PE);			<span class="comment">//关闭中断</span></span><br><span class="line">      __HAL_UART_DISABLE_IT(huart, UART_IT_ERR);		<span class="comment">//关闭中断</span></span><br><span class="line">      huart-&gt;RxState = HAL_UART_STATE_READY;			<span class="comment">//接收状态：就绪</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">if</span> (USE_HAL_UART_REGISTER_CALLBACKS == 1)				<span class="comment">//HAL库的宏定义，值为0x0U，用户设为1可以禁用相应的回调函数</span></span></span><br><span class="line">      huart-&gt;RxCpltCallback(huart);</span><br><span class="line"><span class="meta">#<span class="meta-keyword">else</span></span></span><br><span class="line">      HAL_UART_RxCpltCallback(huart);				<span class="comment">//回调函数</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line">      <span class="keyword">return</span> HAL_OK;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<p>也就是说，回调函数是放在中断处理函数中的</p>
+<p>然后，在USART.c文件中写上回调函数，执行时会覆盖掉系统弱定义的原函数，这里为了方便查看，把中断服务函数也复制过来。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//回调函数</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">HAL_UART_RxCpltCallback</span><span class="params">(UART_HandleTypeDef *UART1_HandleStructure)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	HAL_GPIO_TogglePin(LED1_GPIO, LED1_PIN);</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//串口1中断服务程序</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">USART1_IRQHandler</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	HAL_GPIO_TogglePin(LED0_GPIO, LED0_PIN);</span><br><span class="line">	HAL_UART_IRQHandler(&amp;UART1_HandleStructure);<span class="comment">//HAL库提供的中断处理函数，用于将字符输入缓冲区，缓冲区满进入一次回调函数</span></span><br><span class="line">	HAL_UART_Receive_IT(&amp;UART1_HandleStructure,(<span class="keyword">uint8_t</span> *)&amp;aRxBuffer, RXBUFFERSIZE); <span class="comment">//重新打开串口中断</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这样使用HAL库提供的函数，配合回调函数就有了一定的优势，那就是，只要接收一个字符，就一定会触发中断，但是在HAL_UART_IRQHandler(&amp;UART1_HandleStructure)中，每接受一个字符，就会自动装载进用户定义的缓冲区，直到装满，才会触发回调函数，就有了一定的实用意义：接收定长的字符串。</p>
+<p>这里仅仅作为一个栗子，如果RXBUFFERSIZE缓冲区大小设置为2，而不是之前的1，效果就是，每次接收一个字符，中断服务函数中LED0翻转2次，回调函数中LED1才翻转一次。</p>
+<h2 id="高级应用"><a href="#高级应用" class="headerlink" title="高级应用"></a>高级应用</h2><p>上面我们通过读取缓冲区，已经可以接收定长的字符串了。下面在学习DMA后，可以利用串口空闲中断，接收不定长的字符串，甚至可以在中断中进行数据的处理，这个也可以通过修改库文件实现，但是终究不是很稳妥。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/05/05/%E5%88%86%E5%BD%A2%E4%B8%8E%E6%B7%B7%E6%B2%8C%E7%9A%84%E6%80%9D%E8%80%83/" rel="next" title="分形与混沌的内在联系">
+                <i class="fa fa-chevron-left"></i> 分形与混沌的内在联系
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2020/05/06/EXTI/" rel="prev" title="EXTI外部中断">
+                EXTI外部中断 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="https://img-blog.csdnimg.cn/20200419121558948.jpg?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0NhcmJvbjY=,size_16,color_FFFFFF,t_70"
+                alt="Silicon4" />
+            
+              <p class="site-author-name" itemprop="name">Silicon4</p>
+              <p class="site-description motion-element" itemprop="description">Silicon4的个人博客</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives">
+              
+                  <span class="site-state-item-count">19</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">4</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/yourname" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:yourname@gmail.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://twitter.com/yourname" target="_blank" title="Twitter">
+                      
+                        <i class="fa fa-fw fa-twitter"></i>Twitter</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="skype:yourname?call|chat" target="_blank" title="Skype">
+                      
+                        <i class="fa fa-fw fa-skype"></i>Skype</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#STM32的串口模块总体理解"><span class="nav-number">1.</span> <span class="nav-text">STM32的串口模块总体理解</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#数据寄存器"><span class="nav-number">1.1.</span> <span class="nav-text">数据寄存器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#控制器"><span class="nav-number">1.2.</span> <span class="nav-text">控制器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#波特率设置"><span class="nav-number">1.3.</span> <span class="nav-text">波特率设置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#状态寄存器"><span class="nav-number">1.4.</span> <span class="nav-text">状态寄存器</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#基于HAL库的入门应用"><span class="nav-number">2.</span> <span class="nav-text">基于HAL库的入门应用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#USART-h"><span class="nav-number">2.1.</span> <span class="nav-text">USART.h</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#USART-c"><span class="nav-number">2.2.</span> <span class="nav-text">USART.c</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#中断服务函数"><span class="nav-number">2.3.</span> <span class="nav-text">中断服务函数</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#基础应用"><span class="nav-number">3.</span> <span class="nav-text">基础应用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#嵌套的几个结构体"><span class="nav-number">3.1.</span> <span class="nav-text">嵌套的几个结构体</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6个中间变量"><span class="nav-number">3.2.</span> <span class="nav-text">6个中间变量</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#使能串口中断函数"><span class="nav-number">3.3.</span> <span class="nav-text">使能串口中断函数</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#高级应用"><span class="nav-number">4.</span> <span class="nav-text">高级应用</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Silicon4</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/three/three.min.js"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/three/canvas_lines.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+
+
+  
+
+  
+
+<script>!function(e){var c=Array.prototype.slice.call(document.querySelectorAll("img[data-original]"));function i(){for(var r=0;r<c.length;r++)t=c[r],0<=(n=t.getBoundingClientRect()).bottom&&0<=n.left&&n.top<=(e.innerHeight||document.documentElement.clientHeight)&&function(){var t,n,e,i,o=c[r];t=o,n=function(){c=c.filter(function(t){return o!==t})},e=new Image,i=t.getAttribute("data-original"),e.onload=function(){t.src=i,n&&n()},e.src=i}();var t,n}i(),e.addEventListener("scroll",function(){var t,n;t=i,n=e,clearTimeout(t.tId),t.tId=setTimeout(function(){t.call(n)},500)})}(this);</script><script>window.addEventListener("load",function(){var t=/\.(gif|jpg|jpeg|tiff|png)$/i,r=/^data:image\/[a-z]+;base64,/;Array.prototype.slice.call(document.querySelectorAll("img[data-original]")).forEach(function(a){var e=a.parentNode;"A"===e.tagName&&(e.href.match(t)||e.href.match(r))&&(e.href=a.dataset.original)})});</script></body>
+</html>

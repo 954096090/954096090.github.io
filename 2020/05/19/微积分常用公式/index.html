@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.lug.ustc.edu.cn/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="极限 $$ \begin{array}{*{20}{l}} {\begin{array}{*{20}{c}} {C}&amp;{\text{常}\text{数}}\\ {f{ \left( {x} \right) }}&amp;{\text{函}\text{数}}\\ {n}&amp;{\text{正}\text{整}\text{数}}\\ { \left\{ {\mathop{{x}}\nolimits_{{n}}}">
+<meta property="og:type" content="article">
+<meta property="og:title" content="微积分常用公式">
+<meta property="og:url" content="http://yoursite.com/2020/05/19/%E5%BE%AE%E7%A7%AF%E5%88%86%E5%B8%B8%E7%94%A8%E5%85%AC%E5%BC%8F/index.html">
+<meta property="og:site_name" content="Silicon4">
+<meta property="og:description" content="极限 $$ \begin{array}{*{20}{l}} {\begin{array}{*{20}{c}} {C}&amp;{\text{常}\text{数}}\\ {f{ \left( {x} \right) }}&amp;{\text{函}\text{数}}\\ {n}&amp;{\text{正}\text{整}\text{数}}\\ { \left\{ {\mathop{{x}}\nolimits_{{n}}}">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2020-05-19T09:54:06.870Z">
+<meta property="article:modified_time" content="2020-04-19T09:30:36.962Z">
+<meta property="article:author" content="Silicon4">
+<meta name="twitter:card" content="summary">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2020/05/19/微积分常用公式/"/>
+
+
+
+
+
+  <title>微积分常用公式 | Silicon4</title>
+  
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Silicon4</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">科学，就是“偶尔能解答，常常在疑惑，总是在探寻”</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/05/19/%E5%BE%AE%E7%A7%AF%E5%88%86%E5%B8%B8%E7%94%A8%E5%85%AC%E5%BC%8F/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Silicon4">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="https://img-blog.csdnimg.cn/20200419121558948.jpg?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0NhcmJvbjY=,size_16,color_FFFFFF,t_70">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Silicon4">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">微积分常用公式</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2020-05-19T17:54:06+08:00">
+                2020-05-19
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="极限"><a href="#极限" class="headerlink" title="极限"></a>极限</h2>
+$$
+\begin{array}{*{20}{l}}
+{\begin{array}{*{20}{c}}
+{C}&{\text{常}\text{数}}\\
+{f{ \left( {x} \right) }}&{\text{函}\text{数}}\\
+{n}&{\text{正}\text{整}\text{数}}\\
+{ \left\{ {\mathop{{x}}\nolimits_{{n}}} \left\} ,{ \left\{ {\mathop{{y}}\nolimits_{{n}}} \right\} }\right. \right. }&{\text{数}\text{列}}
+\end{array}}\\
+{ \text{lim} { \left[ {Cf{ \left( {x} \right) }} \left] =C{ \left[ { \text{lim} f{ \left( {x} \right) }} \right] }\right. \right. }}\\
+{ \text{lim} {\mathop{{ \left[ {f{ \left( {x} \right) }} \right] }}\nolimits^{{n}}}={\mathop{{ \left[ { \text{lim} f{ \left( {x} \right) }} \right] }}\nolimits^{{n}}}}\\
+{\mathop{{ \text{lim} }}\limits_{{n \to + \text{ \infty } }}{ \left( {\mathop{{x}}\nolimits_{{n}} \pm \mathop{{y}}\nolimits_{{n}}} \right) }=\mathop{{ \text{lim} }}\limits_{{n \to + \text{ \infty } }}\mathop{{x}}\nolimits_{{n}} \pm \mathop{{ \text{lim} }}\limits_{{n \to + \text{ \infty } }}\mathop{{y}}\nolimits_{{n}}}\\
+{\mathop{{ \text{lim} }}\limits_{{n \to + \text{ \infty } }}{ \left( {\mathop{{x}}\nolimits_{{n}} \cdot \mathop{{y}}\nolimits_{{n}}} \right) }=\mathop{{ \text{lim} }}\limits_{{n \to + \text{ \infty } }}\mathop{{x}}\nolimits_{{n}} \cdot \mathop{{ \text{lim} }}\limits_{{n \to + \text{ \infty } }}\mathop{{y}}\nolimits_{{n}}}\\
+{\mathop{{ \text{lim} }}\limits_{{n \to + \text{ \infty } }}{ \left( {\frac{{\mathop{{x}}\nolimits_{{n}}}}{{\mathop{{y}}\nolimits_{{n}}}}} \right) }=\frac{{\mathop{{ \text{lim} }}\limits_{{n \to + \text{ \infty } }}\mathop{{x}}\nolimits_{{n}}}}{{\mathop{{ \text{lim} }}\limits_{{n \to + \text{ \infty } }}\mathop{{y}}\nolimits_{{n}}}},{ \left( {\mathop{{y}}\nolimits_{{n}} \neq 0,n=1,2,3, \cdots } \right) }}
+\end{array}
+$$
+
+<h2 id="洛必达法则"><a href="#洛必达法则" class="headerlink" title="洛必达法则"></a>洛必达法则</h2>
+$$
+\begin{array}{*{20}{l}}
+{\text{若}\text{函}\text{数}f{ \left( {x} \left) ,g{ \left( {x} \right) }\text{满}\text{足}\text{如}\text{下}\text{条}\text{件}\text{:}\right. \right. }}\\
+{\mathop{{ \text{lim} }}\limits_{{x \to a}}f{ \left( {x} \right) }=0,\mathop{{ \text{lim} }}\limits_{{x \to a}}g{ \left( {x} \right) }=0}\\
+{\text{在}\text{点}a\text{的}\text{某}\text{去}\text{邻}\text{域}\text{内}f{ \left( {x} \left) \text{和}g{ \left( {x} \right) }\text{都}\text{可}\text{导}\text{,}\text{且}{g} \prime { \left( {x} \left)  \neq 0\right. \right. }\right. \right. }}\\
+{\mathop{{ \text{lim} }}\limits_{{x \to a}}\frac{{f \prime { \left( {x} \right) }}}{{g \prime { \left( {x} \right) }}}=A,{ \left( {A\text{为}\text{实}\text{数}} \right) }}\\
+{\text{则}\text{有}}\\
+{\mathop{{ \text{lim} }}\limits_{{x \to a}}\frac{{f{ \left( {x} \right) }}}{{g{ \left( {x} \right) }}}=\mathop{{ \text{lim} }}\limits_{{x \to a}}\frac{{f \prime { \left( {x} \right) }}}{{g \prime { \left( {x} \right) }}}=A}
+\end{array}
+$$
+
+$$
+\begin{array}{*{20}{l}}
+{\text{若}\text{函}\text{数}f{ \left( {x} \left) ,g{ \left( {x} \right) }\text{满}\text{足}\text{如}\text{下}\text{条}\text{件}\text{:}\right. \right. }}\\
+{\mathop{{ \text{lim} }}\limits_{{x \to a}}f{ \left( {x} \right) }= \infty ,\mathop{{ \text{lim} }}\limits_{{x \to a}}g{ \left( {x} \right) }= \infty }\\
+{\text{在}\text{点}a\text{的}\text{某}\text{去}\text{邻}\text{域}\text{内}f{ \left( {x} \left) \text{和}g{ \left( {x} \right) }\text{都}\text{可}\text{导}\text{,}\text{且}{g} \prime { \left( {x} \left)  \neq 0\right. \right. }\right. \right. }}\\
+{\mathop{{ \text{lim} }}\limits_{{x \to a}}\frac{{f \prime { \left( {x} \right) }}}{{g \prime { \left( {x} \right) }}}=A,{ \left( {A\text{为}\text{实}\text{数}\text{,}\text{也}\text{可}\text{为} \pm  \infty \text{或} \infty } \right) }}\\
+{\text{则}\text{有}}\\
+{\mathop{{ \text{lim} }}\limits_{{x \to a}}\frac{{f{ \left( {x} \right) }}}{{g{ \left( {x} \right) }}}=\mathop{{ \text{lim} }}\limits_{{x \to a}}\frac{{f \prime { \left( {x} \right) }}}{{g \prime { \left( {x} \right) }}}=A}
+\end{array}
+$$
+
+<h2 id="基本求导法则"><a href="#基本求导法则" class="headerlink" title="基本求导法则"></a>基本求导法则</h2>
+$$
+\begin{array}{*{20}{l}}
+{ \left( {C} \left)  \prime =0\right. \right. }\\
+{ \left( {\mathop{{x}}\nolimits^{{ \mu }}} \left)  \prime = \mu \mathop{{x}}\nolimits^{{ \mu -1}}\right. \right. }\\
+
+\\
+
+{ \left( { \text{sin} x} \left)  \prime = \text{cos} x\right. \right. }\\
+{ \left( { \text{cos} x} \left)  \prime =- \text{sin} x\right. \right. }\\
+{ \left( { \text{tan} x} \left)  \prime =\mathop{{ \text{sec} }}\nolimits^{{2}}x\right. \right. }\\
+{ \left( { \text{cot} x} \left)  \prime =-\mathop{{ \text{csc} }}\nolimits^{{2}}x\right. \right. }\\
+{ \left( { \text{sec} x} \left)  \prime = \text{sec} x \text{tan} x\right. \right. }\\
+{ \left( { \text{csc} x} \left)  \prime =- \text{csc} x{ \text{cot} x}\right. \right. }\\
+
+\\
+
+{ \left( {\mathop{{a}}\nolimits^{{x}}} \left)  \prime =\mathop{{a}}\nolimits^{{x}} \text{ln} a\right. \right. }\\
+{ \left( {\mathop{{e}}\nolimits^{{x}}} \left)  \prime =\mathop{{e}}\nolimits^{{x}}\right. \right. }\\
+{ \left( {\mathop{{ \text{log} }}\nolimits_{{a}}x} \left)  \prime =\frac{{1}}{{x \text{ln} a}}\right. \right. }\\
+{ \left( { \text{ln} a} \left)  \prime =\frac{{1}}{{x}}\right. \right. }\\
+
+\\
+
+{ \left( { \text{arcsin} x} \left)  \prime =\frac{{1}}{{\sqrt{{1-\mathop{{x}}\nolimits^{{2}}}}}}\right. \right. }\\
+{ \left( { \text{arccos} x} \left)  \prime =-\frac{{1}}{{\sqrt{{1-\mathop{{x}}\nolimits^{{2}}}}}}\right. \right. }\\
+{ \left( { \text{arctan} x} \left)  \prime =\frac{{1}}{{1+\mathop{{x}}\nolimits^{{2}}}}\right. \right. }\\
+{ \left( { \text{arccot} x} \left)  \prime =-\frac{{1}}{{1+\mathop{{x}}\nolimits^{{2}}}}\right. \right. }\\
+
+\\
+
+
+
+\end{array}
+$$
+
+<h2 id="不定积分"><a href="#不定积分" class="headerlink" title="不定积分"></a>不定积分</h2>
+$$
+\begin{array}{*{20}{l}}
+{{}_{ }^{ } \int _{ }^{ }k \text{d} x=kx+C}\\
+{{}_{ }^{ } \int _{ }^{ }\mathop{{x}}\nolimits^{{ \mu }} \text{d} x=\frac{{\mathop{{x}}\nolimits^{{ \mu +1}}}}{{ \mu +1}}+C,{ \left( { \mu  \neq -1} \right) }}\\
+{{}_{ }^{ } \int _{ }^{ }\frac{{1}}{{x}} \text{d} x= \text{ln} { \left| {x} \right| }+C}\\
+{{}_{ }^{ } \int _{ }^{ }\frac{{1}}{{1+\mathop{{x}}\nolimits^{{2}}}} \text{d} x= \text{arctan} x+C}\\
+{{}_{ }^{ } \int _{ }^{ }\frac{{1}}{{\sqrt{{1-\mathop{{x}}\nolimits^{{2}}}}}} \text{d} x= \text{arcsin} x+C}\\
+
+\\
+
+{{}_{ }^{ } \int _{ }^{ } \text{cos}  \text{d} x= \text{sin} x+C}\\
+{{}_{ }^{ } \int _{ }^{ } \text{sin} x \text{d} x=- \text{cos} x+C}\\
+{{}_{ }^{ } \int _{ }^{ }\frac{{1}}{{\mathop{{ \text{cos} }}\nolimits^{{2}}x}} \text{d} x={}_{ }^{ } \int _{ }^{ }\mathop{{ \text{sec} }}\nolimits^{{2}}x \text{d} x= \text{tan} x+C}\\
+{{}_{ }^{ } \int _{ }^{ }\frac{{1}}{{\mathop{{ \text{sin} }}\nolimits^{{2}}x}} \text{d} x={}_{ }^{ } \int _{ }^{ }\mathop{{ \text{csc} }}\nolimits^{{2}}x \text{d} x=- \text{cot} x+C}\\
+{{}_{ }^{ } \int _{ }^{ } \text{sec} x \text{tan} x \text{d} x= \text{sec} x+C}\\
+{{}_{ }^{ } \int _{ }^{ } \text{csc} x \text{cot} x \text{d} x=- \text{csc} x+C}\\
+
+\\
+
+{{}_{ }^{ } \int _{ }^{ }\mathop{{e}}\nolimits^{{x}} \text{d} x=\mathop{{e}}\nolimits^{{x}}+C}\\
+{{}_{ }^{ } \int _{ }^{ }\mathop{{a}}\nolimits^{{x}} \text{d} x=\frac{{\mathop{{a}}\nolimits^{{x}}}}{{ \text{ln} a}}+C}\\
+{{}_{ }^{ } \int _{ }^{ } \text{sh} x \text{d} x= \text{ch} x+C}\\
+{{}_{ }^{ } \int _{ }^{ } \text{ch} xdx= \text{sh} x+C}\\
+
+\\
+
+{{}_{ }^{ } \int _{ }^{ } \text{tan} x \text{d} x=- \text{ln} { \left| { \text{cos} x} \right| }+C}\\
+{{}_{ }^{ } \int _{ }^{ } \text{cot} x \text{d} x= \text{ln} { \left| { \text{sin} x} \right| }+C}\\
+{{}_{ }^{ } \int _{ }^{ } \text{sec} x \text{d} x= \text{ln} { \left| { \text{sec} x+ \text{tan} x} \right| }+C}\\
+{{}_{ }^{ } \int _{ }^{ } \text{csc} x \text{d} x= \text{ln} { \left| { \text{csc} x- \text{cot} x} \right| }+C}\\
+
+\\
+
+{{}_{ }^{ } \int _{ }^{ }\frac{{1}}{{\mathop{{x}}\nolimits^{{2}}+\mathop{{a}}\nolimits^{{2}}}} \text{d} x=\frac{{1}}{{a}} \text{arctan} \frac{{x}}{{a}}+C}\\
+{{}_{ }^{ } \int _{ }^{ }\frac{{1}}{{\mathop{{x}}\nolimits^{{2}}-\mathop{{a}}\nolimits^{{2}}}} \text{d} x=\frac{{1}}{{2a}} \text{ln} { \left| {\frac{{x-a}}{{x+a}}} \right| }+C}\\
+{{}_{ }^{ } \int _{ }^{ }\frac{{1}}{{\sqrt{{\mathop{{a}}\nolimits^{{2}}-\mathop{{x}}\nolimits^{{2}}}}}} \text{d} x= \text{arcsin} \frac{{x}}{{a}}+C}\\
+{{}_{ }^{ } \int _{ }^{ }\frac{{1}}{{\sqrt{{\mathop{{x}}\nolimits^{{2}}+\mathop{{a}}\nolimits^{{2}}}}}} \text{d} x= \text{ln} { \left( {x+\sqrt{{\mathop{{x}}\nolimits^{{2}}+\mathop{{a}}\nolimits^{{2}}}}} \right) }+C}\\
+{{}_{ }^{ } \int _{ }^{ }\frac{{1}}{{\sqrt{{\mathop{{x}}\nolimits^{{2}}-\mathop{{a}}\nolimits^{{2}}}}}} \text{d} x= \text{ln} { \left( {x+\sqrt{{\mathop{{x}}\nolimits^{{2}}\mathop{{a}}\nolimits^{{2}}}}} \right) }+C}\\
+
+\end{array}
+$$
+
+<h2 id="定积分"><a href="#定积分" class="headerlink" title="定积分"></a>定积分</h2>
+$$
+\begin{array}{*{20}{l}}
+a=b \Rightarrow \mathop{ \int }\nolimits_{{a}}^{{b}}f{ \left( {x} \right) } \text{d} x=0\\
+
+\mathop{ \int }\nolimits_{{a}}^{{b}}f{ \left( {x} \right) } \text{d} x=-\mathop{ \int }\nolimits_{{b}}^{{a}}f{ \left( {x} \right) } \text{d} x\\
+
+\mathop{ \int }\nolimits_{{a}}^{{b}}{ \left[ {f{ \left( {x} \right) } \pm g{ \left( {x} \right) }} \right] } \text{d} x=\mathop{ \int }\nolimits_{{a}}^{{b}}f{ \left( {x} \right) } \text{d} x \pm \mathop{ \int }\nolimits_{{a}}^{{b}}g{ \left( {x} \right) } \text{d} x\\
+
+\mathop{ \int }\nolimits_{{a}}^{{b}}kf{ \left( {x} \right) } \text{d} x=k\mathop{ \int }\nolimits_{{a}}^{{b}}f{ \left( {x} \right) } \text{d} x\\
+
+\mathop{ \int }\nolimits_{{a}}^{{b}}f{ \left( {x} \right) } \text{d} x=\mathop{ \int }\nolimits_{{a}}^{{c}}f{ \left( {x} \right) } \text{d} x+\mathop{ \int }\nolimits_{{c}}^{{b}}f{ \left( {x} \right) } \text{d} x, \forall c \in { \left( {a,b} \right) }\\
+
+\mathop{ \int }\nolimits_{{a}}^{{b}} \text{d} x=b-a\\
+
+f{ \left( {x} \right) } \ge 0,x \in { \left[ {a,b} \right] } \Rightarrow \mathop{ \int }\nolimits_{{a}}^{{b}}f{ \left( {x} \right) } \text{d} x \ge 0\\
+
+f{ \left( {x} \right) } \ge g{ \left( {x} \right) },x \in { \left[ {a,b} \right] } \Rightarrow \mathop{ \int }\nolimits_{{a}}^{{b}}f{ \left( {x} \right) } \text{d} x \ge \mathop{ \int }\nolimits_{{a}}^{{b}}g{ \left( {x} \right) } \text{d} x\\
+
+a < b \Rightarrow { \left| {\mathop{ \int }\nolimits_{{a}}^{{b}}f{ \left( {x} \right) } \text{d} x} \right| } \le \mathop{ \int }\nolimits_{{a}}^{{b}}{ \left| {f{ \left( {x} \right) } \text{d} x} \right| }\\
+
+\\
+
+{M=\mathop{{f}}\nolimits_{{max}}{ \left( {x} \right) },m=\mathop{{f}}\nolimits_{{min}}{ \left( {x} \right) },x \in { \left[ {a,b} \right] }}\\
+{m{ \left( {b-a} \right) } \le \mathop{ \int }\nolimits_{{a}}^{{b}}f{ \left( {x} \right) } \text{d} x \le M{ \left( {b-a} \right) }}
+\end{array}
+$$
+
+$$
+{{}_{ }^{ } \int _{ }^{ }\frac{{1}}{{\sqrt{{\mathop{{x}}\nolimits^{{2}}-\mathop{{a}}\nolimits^{{2}}}}}} \text{d} x= \text{ln} { \left( {x+\sqrt{{\mathop{{x}}\nolimits^{{2}}\mathop{{a}}\nolimits^{{2}}}}} \right) }+C}
+$$
+
+$$
+\int {\frac{1}{{\sqrt {{x^2} - {a^2}} }}dx}  = {\text{ln}}\left( {x + \sqrt {{x^2}{a^2}} } \right) + C
+$$
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/05/19/hello-world/" rel="next" title="Hello World">
+                <i class="fa fa-chevron-left"></i> Hello World
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2020/05/20/%E5%AE%9A%E6%97%B6%E5%99%A8/" rel="prev" title="STM32——外设Timer定时器">
+                STM32——外设Timer定时器 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="https://img-blog.csdnimg.cn/20200419121558948.jpg?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0NhcmJvbjY=,size_16,color_FFFFFF,t_70"
+                alt="Silicon4" />
+            
+              <p class="site-author-name" itemprop="name">Silicon4</p>
+              <p class="site-description motion-element" itemprop="description">Silicon4的个人博客</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives">
+              
+                  <span class="site-state-item-count">19</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">4</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/yourname" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:yourname@gmail.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://twitter.com/yourname" target="_blank" title="Twitter">
+                      
+                        <i class="fa fa-fw fa-twitter"></i>Twitter</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="skype:yourname?call|chat" target="_blank" title="Skype">
+                      
+                        <i class="fa fa-fw fa-skype"></i>Skype</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#极限"><span class="nav-number">1.</span> <span class="nav-text">极限</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#洛必达法则"><span class="nav-number">2.</span> <span class="nav-text">洛必达法则</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#基本求导法则"><span class="nav-number">3.</span> <span class="nav-text">基本求导法则</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#不定积分"><span class="nav-number">4.</span> <span class="nav-text">不定积分</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#定积分"><span class="nav-number">5.</span> <span class="nav-text">定积分</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Silicon4</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/three/three.min.js"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/three/canvas_lines.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+<script>!function(e){var c=Array.prototype.slice.call(document.querySelectorAll("img[data-original]"));function i(){for(var r=0;r<c.length;r++)t=c[r],0<=(n=t.getBoundingClientRect()).bottom&&0<=n.left&&n.top<=(e.innerHeight||document.documentElement.clientHeight)&&function(){var t,n,e,i,o=c[r];t=o,n=function(){c=c.filter(function(t){return o!==t})},e=new Image,i=t.getAttribute("data-original"),e.onload=function(){t.src=i,n&&n()},e.src=i}();var t,n}i(),e.addEventListener("scroll",function(){var t,n;t=i,n=e,clearTimeout(t.tId),t.tId=setTimeout(function(){t.call(n)},500)})}(this);</script><script>window.addEventListener("load",function(){var t=/\.(gif|jpg|jpeg|tiff|png)$/i,r=/^data:image\/[a-z]+;base64,/;Array.prototype.slice.call(document.querySelectorAll("img[data-original]")).forEach(function(a){var e=a.parentNode;"A"===e.tagName&&(e.href.match(t)||e.href.match(r))&&(e.href=a.dataset.original)})});</script></body>
+</html>

@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.lug.ustc.edu.cn/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="STM32的外部中断结构STM32所有的IO口都支持外部中断，大致的结构呢，我画一个图：  就是每组的IO口的所有引脚都可以对应有一个中断线，但是每个中断线只能在一组引脚生效，在图像上的意思就是，每一行可以有多个交点可以设置中断，但每一列只能有一个交点可以设置中断。 这是F103所有的中断线： EXTI 线 0~15：对应外部 IO 口的输入中断。  EXTI 线 16：连接到 PVD 输出。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="EXTI外部中断">
+<meta property="og:url" content="http://yoursite.com/2020/05/06/EXTI/index.html">
+<meta property="og:site_name" content="Silicon4">
+<meta property="og:description" content="STM32的外部中断结构STM32所有的IO口都支持外部中断，大致的结构呢，我画一个图：  就是每组的IO口的所有引脚都可以对应有一个中断线，但是每个中断线只能在一组引脚生效，在图像上的意思就是，每一行可以有多个交点可以设置中断，但每一列只能有一个交点可以设置中断。 这是F103所有的中断线： EXTI 线 0~15：对应外部 IO 口的输入中断。  EXTI 线 16：连接到 PVD 输出。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAAEsCAMAAABOo35HAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAC9UExURVlZWdPT07KysmRkZIWFhfT09JmZmWZmZm9vb39/fxkZGUxMTDMzM3p6epCQkKamppubm729venp6cjIyN7e3tbW1s/Pz8LCwnx8fLS0tFZWVoiIiI+Pj6GhoeTk5Glpabu7u93d3evr66CgoJSUlKqqqsnJyeDg4Hd3d8PDw+Xl5bi4uNHR0dvb26Ojo6urq+fn51hYWDg4OCgoKHBwcK2traenp0FBQe7u7vHx8U5OTre3t8zMzHV1df///7GrnpQAAAA/dFJOU///////////////////////////////////////////////////////////////////////////////////AI4mfBcAAAUGSURBVHja7NoJb6M4GMZxY0NCD64kve/pMZ2d3Z297+X7f6zFNmBAMUXa6URl/q9UJSWPUPzrizFWRUlNLgEBWGCBBRZYYEEAFlhggQUWWBCABRZYYIEFFgRggQUWWGCBBQFYYIEFFlhgQQAWWGCBBRZYEIAFFlhggQUWBGCBBRZYYIEFAVhggQUWWGBBABZYYIEFFlgQgAUWWGCBBRYEYIEFFlhggQUBWGCBBRZYYEEAFlhggQUWWBCABRZYYIEFFgRggQUWWGCBBQFYYIEFFlhgQQAWWGCBBRZYEIAFFlhggQUWBGCBBRZYn6cCIcRXgvX/h9qcIVBqDdbEM8RCxGCB9QqXYRwHYDHBgwXWl8eKZKiESHI3Ba1kWs3fKixcaJUl1YyeBm7Ocq+yLItUiVBGnXxenSHJolIKEcwHq6ikbOX1YGVzQCTN8LPmSLreghUl9sN4Uw7yajMrLC0TZ1ImzqY6FEop0+pIaEN5HaoOxVuwEqFyc4I46uSlzOLqgxlh6UaR9l3VYWl9Fdoxb1Q90KJtu41pwwFW/WHhTtW8i7TafLCqRsk6bsGw63L9qurXRmuIlbT9lDQnlXU+nBFW1Q2qnZbDprWa2tjR90LZFqx1/+Td/HpGWLlrLDvIwTcx6dQ1Vrntbig68cDms3JwbA5Y1azs1ger6sNV/bbIw1jU81MvNAGrl58RVn8ozW+btF08iGFoAlYvP3csfVur1gJBEIA1uBmue5dhZDOyO2epbmgCVi8/I6x0MMHH9pjsTfBhNzQBq5uPZoQlB0uH3DZG4EZqQ26fL3sZq5uf09Ih6qw3i/pm6BZO0qZX7rrUS68Xsbr5ZE4rePMk08pk9aUZugfqppvs6AM1Acvlo/StP+6EbW06z8hJqxbYp2BZPQUnFsLsKuhQdaHqn5ewbF7KXIn0jWO5MqOQ7RaNLPtbNMmmhimj0GUmYLl8Gs0Lq4wyPbTu1l2QKqHSouzs3OlDIslW5SQsnY/NXmFplyNvEuuLV/Tau9BzwiraDUSwXmysztYWWNtL1psXeumgIrDGaqXvBfUuvtqUYI3V2t1wk1e2msFluJJm6zDJXv/fIfjPP7DAAgsssCiwwAILLLDAosACCyywwAKLAgsssMACC6zt9fDz/v75tyOB+98PD2+ORgKffjw4OP1uJPDxl+Xy8v1I4MPF3t7VNyOB4/vF4uzdzrG+39f1kz/w66Guv/yBvw90KX/gZKkr8Qf+2dOV+gNHC12/7RxrabD2/a31bLAO/a11YbAO/K21MFhLf2s9Gqw9f2vdGqzFu11jnVusE2/gxmI9eQOnFuvYG7i0WH7uK4t15w2cWazrXWP9a7H8f/bQYvm/6IPF+sF/pVssf19Ii/WH/0K2WH/uGuvEWC39gSdj9Twy+Rqri5EZx1gt/IE7Y/XoD1wbq9vd3w1PlufnD2OBp+ebm/uxwPHF6emnscDR4vLy41jg7vHq6sNY4Pr27OyYdRaLUrDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssL6u+k+AAQCR9eHtLKvLfwAAAABJRU5ErkJggg==">
+<meta property="article:published_time" content="2020-05-06T09:56:55.000Z">
+<meta property="article:modified_time" content="2020-05-24T01:23:34.098Z">
+<meta property="article:author" content="Silicon4">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAAEsCAMAAABOo35HAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAC9UExURVlZWdPT07KysmRkZIWFhfT09JmZmWZmZm9vb39/fxkZGUxMTDMzM3p6epCQkKamppubm729venp6cjIyN7e3tbW1s/Pz8LCwnx8fLS0tFZWVoiIiI+Pj6GhoeTk5Glpabu7u93d3evr66CgoJSUlKqqqsnJyeDg4Hd3d8PDw+Xl5bi4uNHR0dvb26Ojo6urq+fn51hYWDg4OCgoKHBwcK2traenp0FBQe7u7vHx8U5OTre3t8zMzHV1df///7GrnpQAAAA/dFJOU///////////////////////////////////////////////////////////////////////////////////AI4mfBcAAAUGSURBVHja7NoJb6M4GMZxY0NCD64kve/pMZ2d3Z297+X7f6zFNmBAMUXa6URl/q9UJSWPUPzrizFWRUlNLgEBWGCBBRZYYEEAFlhggQUWWBCABRZYYIEFFgRggQUWWGCBBQFYYIEFFlhgQQAWWGCBBRZYEIAFFlhggQUWBGCBBRZYYIEFAVhggQUWWGBBABZYYIEFFlgQgAUWWGCBBRYEYIEFFlhggQUBWGCBBRZYYEEAFlhggQUWWBCABRZYYIEFFgRggQUWWGCBBQFYYIEFFlhgQQAWWGCBBRZYEIAFFlhggQUWBGCBBRZYn6cCIcRXgvX/h9qcIVBqDdbEM8RCxGCB9QqXYRwHYDHBgwXWl8eKZKiESHI3Ba1kWs3fKixcaJUl1YyeBm7Ocq+yLItUiVBGnXxenSHJolIKEcwHq6ikbOX1YGVzQCTN8LPmSLreghUl9sN4Uw7yajMrLC0TZ1ImzqY6FEop0+pIaEN5HaoOxVuwEqFyc4I46uSlzOLqgxlh6UaR9l3VYWl9Fdoxb1Q90KJtu41pwwFW/WHhTtW8i7TafLCqRsk6bsGw63L9qurXRmuIlbT9lDQnlXU+nBFW1Q2qnZbDprWa2tjR90LZFqx1/+Td/HpGWLlrLDvIwTcx6dQ1Vrntbig68cDms3JwbA5Y1azs1ger6sNV/bbIw1jU81MvNAGrl58RVn8ozW+btF08iGFoAlYvP3csfVur1gJBEIA1uBmue5dhZDOyO2epbmgCVi8/I6x0MMHH9pjsTfBhNzQBq5uPZoQlB0uH3DZG4EZqQ26fL3sZq5uf09Ih6qw3i/pm6BZO0qZX7rrUS68Xsbr5ZE4rePMk08pk9aUZugfqppvs6AM1Acvlo/StP+6EbW06z8hJqxbYp2BZPQUnFsLsKuhQdaHqn5ewbF7KXIn0jWO5MqOQ7RaNLPtbNMmmhimj0GUmYLl8Gs0Lq4wyPbTu1l2QKqHSouzs3OlDIslW5SQsnY/NXmFplyNvEuuLV/Tau9BzwiraDUSwXmysztYWWNtL1psXeumgIrDGaqXvBfUuvtqUYI3V2t1wk1e2msFluJJm6zDJXv/fIfjPP7DAAgsssCiwwAILLLDAosACCyywwAKLAgsssMACC6zt9fDz/v75tyOB+98PD2+ORgKffjw4OP1uJPDxl+Xy8v1I4MPF3t7VNyOB4/vF4uzdzrG+39f1kz/w66Guv/yBvw90KX/gZKkr8Qf+2dOV+gNHC12/7RxrabD2/a31bLAO/a11YbAO/K21MFhLf2s9Gqw9f2vdGqzFu11jnVusE2/gxmI9eQOnFuvYG7i0WH7uK4t15w2cWazrXWP9a7H8f/bQYvm/6IPF+sF/pVssf19Ii/WH/0K2WH/uGuvEWC39gSdj9Twy+Rqri5EZx1gt/IE7Y/XoD1wbq9vd3w1PlufnD2OBp+ebm/uxwPHF6emnscDR4vLy41jg7vHq6sNY4Pr27OyYdRaLUrDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssL6u+k+AAQCR9eHtLKvLfwAAAABJRU5ErkJggg==">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2020/05/06/EXTI/"/>
+
+
+
+
+
+  <title>EXTI外部中断 | Silicon4</title>
+  
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Silicon4</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">科学，就是“偶尔能解答，常常在疑惑，总是在探寻”</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/05/06/EXTI/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Silicon4">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="https://img-blog.csdnimg.cn/20200419121558948.jpg?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0NhcmJvbjY=,size_16,color_FFFFFF,t_70">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Silicon4">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">EXTI外部中断</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2020-05-06T17:56:55+08:00">
+                2020-05-06
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/STM32%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95/" itemprop="url" rel="index">
+                    <span itemprop="name">STM32学习记录</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="STM32的外部中断结构"><a href="#STM32的外部中断结构" class="headerlink" title="STM32的外部中断结构"></a>STM32的外部中断结构</h2><p>STM32所有的IO口都支持外部中断，大致的结构呢，我画一个图：</p>
+<p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAAEsCAMAAABOo35HAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAC9UExURVlZWdPT07KysmRkZIWFhfT09JmZmWZmZm9vb39/fxkZGUxMTDMzM3p6epCQkKamppubm729venp6cjIyN7e3tbW1s/Pz8LCwnx8fLS0tFZWVoiIiI+Pj6GhoeTk5Glpabu7u93d3evr66CgoJSUlKqqqsnJyeDg4Hd3d8PDw+Xl5bi4uNHR0dvb26Ojo6urq+fn51hYWDg4OCgoKHBwcK2traenp0FBQe7u7vHx8U5OTre3t8zMzHV1df///7GrnpQAAAA/dFJOU///////////////////////////////////////////////////////////////////////////////////AI4mfBcAAAUGSURBVHja7NoJb6M4GMZxY0NCD64kve/pMZ2d3Z297+X7f6zFNmBAMUXa6URl/q9UJSWPUPzrizFWRUlNLgEBWGCBBRZYYEEAFlhggQUWWBCABRZYYIEFFgRggQUWWGCBBQFYYIEFFlhgQQAWWGCBBRZYEIAFFlhggQUWBGCBBRZYYIEFAVhggQUWWGBBABZYYIEFFlgQgAUWWGCBBRYEYIEFFlhggQUBWGCBBRZYYEEAFlhggQUWWBCABRZYYIEFFgRggQUWWGCBBQFYYIEFFlhgQQAWWGCBBRZYEIAFFlhggQUWBGCBBRZYn6cCIcRXgvX/h9qcIVBqDdbEM8RCxGCB9QqXYRwHYDHBgwXWl8eKZKiESHI3Ba1kWs3fKixcaJUl1YyeBm7Ocq+yLItUiVBGnXxenSHJolIKEcwHq6ikbOX1YGVzQCTN8LPmSLreghUl9sN4Uw7yajMrLC0TZ1ImzqY6FEop0+pIaEN5HaoOxVuwEqFyc4I46uSlzOLqgxlh6UaR9l3VYWl9Fdoxb1Q90KJtu41pwwFW/WHhTtW8i7TafLCqRsk6bsGw63L9qurXRmuIlbT9lDQnlXU+nBFW1Q2qnZbDprWa2tjR90LZFqx1/+Td/HpGWLlrLDvIwTcx6dQ1Vrntbig68cDms3JwbA5Y1azs1ger6sNV/bbIw1jU81MvNAGrl58RVn8ozW+btF08iGFoAlYvP3csfVur1gJBEIA1uBmue5dhZDOyO2epbmgCVi8/I6x0MMHH9pjsTfBhNzQBq5uPZoQlB0uH3DZG4EZqQ26fL3sZq5uf09Ih6qw3i/pm6BZO0qZX7rrUS68Xsbr5ZE4rePMk08pk9aUZugfqppvs6AM1Acvlo/StP+6EbW06z8hJqxbYp2BZPQUnFsLsKuhQdaHqn5ewbF7KXIn0jWO5MqOQ7RaNLPtbNMmmhimj0GUmYLl8Gs0Lq4wyPbTu1l2QKqHSouzs3OlDIslW5SQsnY/NXmFplyNvEuuLV/Tau9BzwiraDUSwXmysztYWWNtL1psXeumgIrDGaqXvBfUuvtqUYI3V2t1wk1e2msFluJJm6zDJXv/fIfjPP7DAAgsssCiwwAILLLDAosACCyywwAKLAgsssMACC6zt9fDz/v75tyOB+98PD2+ORgKffjw4OP1uJPDxl+Xy8v1I4MPF3t7VNyOB4/vF4uzdzrG+39f1kz/w66Guv/yBvw90KX/gZKkr8Qf+2dOV+gNHC12/7RxrabD2/a31bLAO/a11YbAO/K21MFhLf2s9Gqw9f2vdGqzFu11jnVusE2/gxmI9eQOnFuvYG7i0WH7uK4t15w2cWazrXWP9a7H8f/bQYvm/6IPF+sF/pVssf19Ii/WH/0K2WH/uGuvEWC39gSdj9Twy+Rqri5EZx1gt/IE7Y/XoD1wbq9vd3w1PlufnD2OBp+ebm/uxwPHF6emnscDR4vLy41jg7vHq6sNY4Pr27OyYdRaLUrDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssL6u+k+AAQCR9eHtLKvLfwAAAABJRU5ErkJggg==" data-original="https://img-blog.csdnimg.cn/20200507180035564.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0NhcmJvbjY=,size_16,color_FFFFFF,t_70" alt="EXTI"></p>
+<p>就是每组的IO口的所有引脚都可以对应有一个中断线，但是每个中断线只能在一组引脚生效，在图像上的意思就是，每一行可以有多个交点可以设置中断，但每一列只能有一个交点可以设置中断。</p>
+<p>这是F103所有的中断线：</p>
+<p>EXTI 线 0~15：对应外部 IO 口的输入中断。</p>
+<p> EXTI 线 16：连接到 PVD 输出。</p>
+<p> EXTI 线 17：连接到 RTC 闹钟事件。</p>
+<p>EXTI 线 18：连接到 USB 唤醒事件。 </p>
+<p>EXTI 线 19：连接到以太网唤醒事件。</p>
+<h2 id="外部中断控制LED例程"><a href="#外部中断控制LED例程" class="headerlink" title="外部中断控制LED例程"></a>外部中断控制LED例程</h2><p>和GPIO，USART，KEY，这些一样，我也单独写一个外部中断的inc和src文件，方便以后拓展。</p>
+<p>先来了解一下基于HAL库的大致操作步骤：</p>
+<ol>
+<li>使能 <strong>IO 口时钟</strong>，初始化 IO 口为输入</li>
+<li>设置 <strong>IO 口模式</strong>，触发条件，开启 SYSCFG 时钟，设置 IO 口与中断线的映射关系</li>
+<li>配置<strong>中断优先级</strong>（NVIC），并<strong>使能中断</strong></li>
+<li>编写<strong>中断服务函数</strong>。</li>
+<li>编写中断处理<strong>回调函数</strong> HAL_GPIO_EXTI_Callback</li>
+</ol>
+<h4 id="EXTI-h"><a href="#EXTI-h" class="headerlink" title="EXTI.h"></a>EXTI.h</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">ifndef</span> __EXTI_H</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span>	__EXTI_H</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"stm32f1xx.h"</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"stm32f1xx_hal.h"</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">EXTI_Init</span><span class="params">(<span class="keyword">void</span>)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br></pre></td></tr></table></figure>
+<h4 id="EXTI-c"><a href="#EXTI-c" class="headerlink" title="EXTI.c"></a>EXTI.c</h4><p>这里包含3个部分：</p>
+<p><strong>1、初始化函数</strong>：我的开发板有两个按键，分别在PE3，PE4两个口，另一端接GND，也就是说按下就是使IO口接地，因此，先<strong>使能IO口时钟</strong>，同时设置PIN_3和PIN_4为<strong>上拉输入</strong>，<strong>下降沿触发</strong>。由于是手按的按键，速度<strong>默认低速</strong>就很合适。这里相比固件库，HAL库直接就配置成了外部中断模式，很是方便，下面只要设置<strong>中断优先级</strong>，并且<strong>使能外部中断</strong>即可。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"EXTI.h"</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"KEY.h"</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"LED.h"</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"DELAY.h"</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">EXTI_Init</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	__HAL_RCC_GPIOE_CLK_ENABLE();               <span class="comment">//开启GPIOE时钟</span></span><br><span class="line">	</span><br><span class="line">	GPIO_InitTypeDef GPIO_InitStructure;</span><br><span class="line">	</span><br><span class="line">	GPIO_InitStructure.Pin = GPIO_PIN_3 | GPIO_PIN_4;</span><br><span class="line">	GPIO_InitStructure.Mode = GPIO_MODE_IT_FALLING;			<span class="comment">//外部中断下降沿触发</span></span><br><span class="line">	GPIO_InitStructure.Pull = GPIO_PULLUP;				<span class="comment">//上拉拉输入</span></span><br><span class="line">	</span><br><span class="line">	HAL_GPIO_Init(GPIOE, &amp;GPIO_InitStructure);</span><br><span class="line">	</span><br><span class="line">    <span class="comment">//中断线3-PE3</span></span><br><span class="line">    HAL_NVIC_SetPriority(EXTI3_IRQn,<span class="number">2</span>,<span class="number">2</span>);       <span class="comment">//抢占优先级为2，子优先级为2</span></span><br><span class="line">    HAL_NVIC_EnableIRQ(EXTI3_IRQn);             <span class="comment">//使能中断线2</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">//中断线4-PE4</span></span><br><span class="line">    HAL_NVIC_SetPriority(EXTI4_IRQn,<span class="number">2</span>,<span class="number">3</span>);   	<span class="comment">//抢占优先级为2，子优先级为3</span></span><br><span class="line">    HAL_NVIC_EnableIRQ(EXTI4_IRQn);         	<span class="comment">//使能中断线4</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>2、外部中断服务函数：</strong>这里也很简单，因为ST帮我们设置好了处理函数，和USART一样，在HAL库的处理函数中，先失能中断，防止再次进入中断，再判断具体是哪个中断线发生了中断，然后在处理函数中调用CallBack回调函数，而回调函数才是真正的用户函数。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">EXTI3_IRQHandler</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_3);		<span class="comment">//调用中断处理公用函数</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">EXTI4_IRQHandler</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_4);		<span class="comment">//调用中断处理公用函数</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>跳转进这个神奇的函数，可以看到其实还是很简单的，没有串口的HAL_USART_IRQHandler那么虐心：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">HAL_GPIO_EXTI_IRQHandler</span><span class="params">(<span class="keyword">uint16_t</span> GPIO_Pin)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="comment">/* EXTI line interrupt detected */</span></span><br><span class="line">  <span class="keyword">if</span> (__HAL_GPIO_EXTI_GET_IT(GPIO_Pin) != <span class="number">0x00</span>u)</span><br><span class="line">  &#123;</span><br><span class="line">    __HAL_GPIO_EXTI_CLEAR_IT(GPIO_Pin);</span><br><span class="line">    HAL_GPIO_EXTI_Callback(GPIO_Pin);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>就是再次确认有外部中断发生，清除中断标志位，然后便进入回调函数：</p>
+<p><strong>3、回调函数：</strong></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">HAL_GPIO_EXTI_Callback</span><span class="params">(<span class="keyword">uint16_t</span> GPIO_Pin)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">   HAL_Delay(<span class="number">100</span>);						<span class="comment">//延时消抖</span></span><br><span class="line">    <span class="keyword">switch</span>(GPIO_Pin)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">case</span> GPIO_PIN_3:</span><br><span class="line">            <span class="keyword">if</span>(Read_KEY1==<span class="number">0</span>)  					<span class="comment">//控制LED1反转</span></span><br><span class="line">            &#123;</span><br><span class="line">				HAL_GPIO_TogglePin(LED0_GPIO, LED0_PIN);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">case</span> GPIO_PIN_4:</span><br><span class="line">            <span class="keyword">if</span>(Read_KEY0==<span class="number">0</span>)  </span><br><span class="line">            &#123;</span><br><span class="line">				HAL_GPIO_TogglePin(LED1_GPIO, LED1_PIN);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>因为在这个文件里包含了LED.h和KEY.h所以直接使用相关的宏，完成<strong>按键的再检测</strong>，以及对LED的翻转操作，这里是一个按键操作一个LED灯。</p>
+<h2 id="新的问题"><a href="#新的问题" class="headerlink" title="　新的问题"></a>　新的问题</h2><p>重点不在这里，这里有一个坑，就这么写的话，只要按一次按键，程序就会进入中断回调函数永远也出不来，调试了半天，发现程序最后进入HAL_Delay里面，在里面死循环。┗|｀O′|┛ 嗷~~原来是HAL_Delay搞的鬼。</p>
+<p>以前从没有在中断里写HAL_Delay，这次心里觉得，既然是官方给的延时函数，应该精确又好用嘛，但是查了Bing，深究了这个延时函数的原理才发现问题的根本，该函数只有一个32位的参数，这个形参指定了延时的时间，它的单位是毫秒(<strong>ms</strong>)。</p>
+<p>系统的滴答时钟，Systick定时器每<strong>中断</strong>一次，就调用一次HAL_incTick()函数，来对变量<strong>uwTick累加</strong>。当程序进入延时函数时，就调用HAL_GetTick()获取当前uwTick的值。接着<strong>判断wait的值</strong>，若不大于可以延时的最大值，则wait自加1，最后不断的获取HAl_GetTick的值，直到这个值和初始值的差不小于等待的时间。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">__weak <span class="keyword">void</span> <span class="title">HAL_Delay</span><span class="params">(<span class="keyword">uint32_t</span> Delay)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">uint32_t</span> tickstart = HAL_GetTick();</span><br><span class="line">  <span class="keyword">uint32_t</span> wait = Delay;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/* Add a freq to guarantee minimum wait */</span></span><br><span class="line">  <span class="keyword">if</span> (wait &lt; HAL_MAX_DELAY)</span><br><span class="line">  &#123;</span><br><span class="line">    wait += (<span class="keyword">uint32_t</span>)(uwTickFreq);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">while</span> ((HAL_GetTick() - tickstart) &lt; wait)</span><br><span class="line">  &#123;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>也就是说，HAL_Delay的工作是<strong>需要中断</strong>的，既然涉及到中断，就有<strong>优先级</strong>，这个SystemTick的抢占优先级默认低于所有的核外片内外设，也就是说，SystemTick<strong>定时器中断无法打断外部中断</strong>，注意<strong>此时程序运行到CallBack函数，这个函数仍然包含在中断服务函数中</strong>，因此程序虽然进入了HAL_Delay中，但是SystemTick永远无法运行，于是就卡在了HAL_Delay中。</p>
+<p><strong>解决方法：</strong></p>
+<p>利用轮回查询法，获取延时功能：</p>
+<h4 id="DELAY-h"><a href="#DELAY-h" class="headerlink" title="DELAY.h"></a>DELAY.h</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">ifndef</span> __DELAY_H</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> __DELAY_H</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"stm32f1xx.h"</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"stm32f1xx_hal.h"</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Delay_Init</span><span class="params">(<span class="keyword">uint8_t</span> SYSCLK)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Delay_ms</span><span class="params">(<span class="keyword">uint16_t</span> nms)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Delay_us</span><span class="params">(<span class="keyword">uint32_t</span> nus)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br></pre></td></tr></table></figure>
+<h4 id="DELAY-c"><a href="#DELAY-c" class="headerlink" title="DELAY.c"></a>DELAY.c</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"DELAY.h"</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">static</span> <span class="keyword">uint32_t</span> fac_us=<span class="number">0</span>;							<span class="comment">//us延时倍乘数</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Delay_Init</span><span class="params">(<span class="keyword">uint8_t</span> SYSCLK)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    HAL_SYSTICK_CLKSourceConfig(SYSTICK_CLKSOURCE_HCLK);<span class="comment">//SysTick频率为HCLK</span></span><br><span class="line">	fac_us=SYSCLK;						<span class="comment">//不论是否使用OS,fac_us都需要使用</span></span><br><span class="line"></span><br><span class="line">&#125;								    </span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Delay_us</span><span class="params">(<span class="keyword">uint32_t</span> nus)</span></span></span><br><span class="line"><span class="function"></span>&#123;		</span><br><span class="line">	<span class="keyword">uint32_t</span> ticks;</span><br><span class="line">	<span class="keyword">uint32_t</span> told,tnow,tcnt=<span class="number">0</span>;</span><br><span class="line">	<span class="keyword">uint32_t</span> reload=SysTick-&gt;LOAD;				<span class="comment">//LOAD的值	    	 </span></span><br><span class="line">	ticks=nus*fac_us; 							<span class="comment">//需要的节拍数 </span></span><br><span class="line">	told=SysTick-&gt;VAL;        					<span class="comment">//刚进入时的计数器值</span></span><br><span class="line">	<span class="keyword">while</span>(<span class="number">1</span>)</span><br><span class="line">	&#123;</span><br><span class="line">		tnow=SysTick-&gt;VAL;	</span><br><span class="line">		<span class="keyword">if</span>(tnow!=told)</span><br><span class="line">		&#123;	    </span><br><span class="line">			<span class="keyword">if</span>(tnow&lt;told)tcnt+=told-tnow;	<span class="comment">//这里注意一下SYSTICK是一个递减的计数器就可以了.</span></span><br><span class="line">			<span class="keyword">else</span> tcnt+=reload-tnow+told;	    </span><br><span class="line">			told=tnow;</span><br><span class="line">			<span class="keyword">if</span>(tcnt&gt;=ticks)<span class="keyword">break</span>;			<span class="comment">//时间超过/等于要延迟的时间,则退出.</span></span><br><span class="line">		&#125;  </span><br><span class="line">	&#125;;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Delay_ms</span><span class="params">(<span class="keyword">uint16_t</span> nms)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">uint32_t</span> i;</span><br><span class="line">	<span class="keyword">for</span>(i=<span class="number">0</span>;i&lt;nms;i++) Delay_us(<span class="number">1000</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>下面节选正点原子对时钟摘取法的描述：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*这里我们利用的是时钟摘取法。以 delay_us 为例，比如</span></span><br><span class="line"><span class="comment">delay_us(50)，在刚进入 delay_us 的时候先计算好这段延时需要等待的 SysTick 计数次数，这里</span></span><br><span class="line"><span class="comment">为 50*9（假设系统时钟为 72Mhz，那么 SysTick 每增加 1，就是 1/72us），然后我们就一直统计</span></span><br><span class="line"><span class="comment">SysTick 的计数变化，直到这个值变化了 50*9，一旦检测到变化达到或者超过这个值，就说明</span></span><br><span class="line"><span class="comment">延时 50us 时间到了。这样，我们只是抓取 SysTick 计数器的变化，并不需要修改 SysTick 的任</span></span><br><span class="line"><span class="comment">何状态，完全不影响 SysTick 作为 UCOS 时钟节拍的功能，这就是实现 delay 和操作系统共用</span></span><br><span class="line"><span class="comment">SysTick 定时器的原理。*/</span></span><br></pre></td></tr></table></figure>
+<p><strong>这样做和HAL_Delay的本质区别就是：</strong></p>
+<p>SYSTick其实一直在跑，但是HAL_Delay的函数HAL_GetTick()需要进入中断来读取它的值，但是程序进入其他的外设中断，就永远读不到这个值了。</p>
+<p>而时钟摘取法：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tnow=SysTick-&gt;VAL;</span><br></pre></td></tr></table></figure>
+<p>而SysTick使系统的宏定义，在core_cm3.h的内核头文件中，core_cm3.h包含于stm32f103xe.h这个ST公司的HAL库头文件中，stm32f103xe.h又包含于stm32f1xx.h这个选型头文件中，而我的每个外设文件都要包含stm32f1xx.h这个选型文件和stm32f10x_hal.h。</p>
+<p>扯远了，这里就通过直接读取寄存器的方法，</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> SysTick             ((SysTick_Type   *)     SysTick_BASE  )   <span class="comment">/*!&lt; SysTick configuration struct */</span></span></span><br></pre></td></tr></table></figure>
+<p>只要计数开始，就一直在摘取SysTick的值，并与进入延时时取到的值作比较，读到需要结束的数值，就延时完毕，结束延时函数。</p>
+<p>在主函数开始进行初始化，然后就可以使用这个新的延时函数在中断中进行延时了。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/05/05/%E4%B8%B2%E5%8F%A3%E9%80%9A%E4%BF%A1/" rel="next" title="USART模块(串口通信)">
+                <i class="fa fa-chevron-left"></i> USART模块(串口通信)
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2020/05/07/IIC_OLED%E7%A7%BB%E6%A4%8D/" rel="prev" title="IIC_OLED 从51移植到STM32">
+                IIC_OLED 从51移植到STM32 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="https://img-blog.csdnimg.cn/20200419121558948.jpg?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0NhcmJvbjY=,size_16,color_FFFFFF,t_70"
+                alt="Silicon4" />
+            
+              <p class="site-author-name" itemprop="name">Silicon4</p>
+              <p class="site-description motion-element" itemprop="description">Silicon4的个人博客</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives">
+              
+                  <span class="site-state-item-count">19</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">4</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/yourname" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:yourname@gmail.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://twitter.com/yourname" target="_blank" title="Twitter">
+                      
+                        <i class="fa fa-fw fa-twitter"></i>Twitter</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="skype:yourname?call|chat" target="_blank" title="Skype">
+                      
+                        <i class="fa fa-fw fa-skype"></i>Skype</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#STM32的外部中断结构"><span class="nav-number">1.</span> <span class="nav-text">STM32的外部中断结构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#外部中断控制LED例程"><span class="nav-number">2.</span> <span class="nav-text">外部中断控制LED例程</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#EXTI-h"><span class="nav-number">2.0.1.</span> <span class="nav-text">EXTI.h</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#EXTI-c"><span class="nav-number">2.0.2.</span> <span class="nav-text">EXTI.c</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#新的问题"><span class="nav-number">3.</span> <span class="nav-text">　新的问题</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#DELAY-h"><span class="nav-number">3.0.1.</span> <span class="nav-text">DELAY.h</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#DELAY-c"><span class="nav-number">3.0.2.</span> <span class="nav-text">DELAY.c</span></a></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Silicon4</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/three/three.min.js"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/three/canvas_lines.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+
+
+  
+
+  
+
+<script>!function(e){var c=Array.prototype.slice.call(document.querySelectorAll("img[data-original]"));function i(){for(var r=0;r<c.length;r++)t=c[r],0<=(n=t.getBoundingClientRect()).bottom&&0<=n.left&&n.top<=(e.innerHeight||document.documentElement.clientHeight)&&function(){var t,n,e,i,o=c[r];t=o,n=function(){c=c.filter(function(t){return o!==t})},e=new Image,i=t.getAttribute("data-original"),e.onload=function(){t.src=i,n&&n()},e.src=i}();var t,n}i(),e.addEventListener("scroll",function(){var t,n;t=i,n=e,clearTimeout(t.tId),t.tId=setTimeout(function(){t.call(n)},500)})}(this);</script><script>window.addEventListener("load",function(){var t=/\.(gif|jpg|jpeg|tiff|png)$/i,r=/^data:image\/[a-z]+;base64,/;Array.prototype.slice.call(document.querySelectorAll("img[data-original]")).forEach(function(a){var e=a.parentNode;"A"===e.tagName&&(e.href.match(t)||e.href.match(r))&&(e.href=a.dataset.original)})});</script></body>
+</html>
