@@ -277,6 +277,161 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/05/12/HAL%E5%BA%93%E7%9A%84%E7%AC%AC1%E4%B8%AA%E5%9D%91/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Silicon4">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="https://img-blog.csdnimg.cn/20200419121558948.jpg?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0NhcmJvbjY=,size_16,color_FFFFFF,t_70">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Silicon4">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2020/05/12/HAL%E5%BA%93%E7%9A%84%E7%AC%AC1%E4%B8%AA%E5%9D%91/" itemprop="url">HAL库的第一个坑</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2020-05-12T17:22:51+08:00">
+                2020-05-12
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/STM32%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95/" itemprop="url" rel="index">
+                    <span itemprop="name">STM32学习记录</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>我居然想不到，有生之年可以遇到官方的HAL库出Bug，一个困扰我两天的问题，疯狂找手册，看寄存器，深究HAL库底层，到最后居然是一个函数宏出了问题？</p>
+<p>直接说吧，我为了用超声波模块，学基本定时器的捕获模式，要用到清除捕获极性，HAL库提供了这么一个函数：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">TIM_RESET_CAPTUREPOLARITY(A, B);</span><br><span class="line"><span class="comment">/*A：要设置捕获极性的定时器句柄    B：捕获的定时器通道*/</span></span><br></pre></td></tr></table></figure>
+<p>写到这一句，编译，就是这个样子：</p>
+<p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAAEsCAMAAABOo35HAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAC9UExURVlZWdPT07KysmRkZIWFhfT09JmZmWZmZm9vb39/fxkZGUxMTDMzM3p6epCQkKamppubm729venp6cjIyN7e3tbW1s/Pz8LCwnx8fLS0tFZWVoiIiI+Pj6GhoeTk5Glpabu7u93d3evr66CgoJSUlKqqqsnJyeDg4Hd3d8PDw+Xl5bi4uNHR0dvb26Ojo6urq+fn51hYWDg4OCgoKHBwcK2traenp0FBQe7u7vHx8U5OTre3t8zMzHV1df///7GrnpQAAAA/dFJOU///////////////////////////////////////////////////////////////////////////////////AI4mfBcAAAUGSURBVHja7NoJb6M4GMZxY0NCD64kve/pMZ2d3Z297+X7f6zFNmBAMUXa6URl/q9UJSWPUPzrizFWRUlNLgEBWGCBBRZYYEEAFlhggQUWWBCABRZYYIEFFgRggQUWWGCBBQFYYIEFFlhgQQAWWGCBBRZYEIAFFlhggQUWBGCBBRZYYIEFAVhggQUWWGBBABZYYIEFFlgQgAUWWGCBBRYEYIEFFlhggQUBWGCBBRZYYEEAFlhggQUWWBCABRZYYIEFFgRggQUWWGCBBQFYYIEFFlhgQQAWWGCBBRZYEIAFFlhggQUWBGCBBRZYn6cCIcRXgvX/h9qcIVBqDdbEM8RCxGCB9QqXYRwHYDHBgwXWl8eKZKiESHI3Ba1kWs3fKixcaJUl1YyeBm7Ocq+yLItUiVBGnXxenSHJolIKEcwHq6ikbOX1YGVzQCTN8LPmSLreghUl9sN4Uw7yajMrLC0TZ1ImzqY6FEop0+pIaEN5HaoOxVuwEqFyc4I46uSlzOLqgxlh6UaR9l3VYWl9Fdoxb1Q90KJtu41pwwFW/WHhTtW8i7TafLCqRsk6bsGw63L9qurXRmuIlbT9lDQnlXU+nBFW1Q2qnZbDprWa2tjR90LZFqx1/+Td/HpGWLlrLDvIwTcx6dQ1Vrntbig68cDms3JwbA5Y1azs1ger6sNV/bbIw1jU81MvNAGrl58RVn8ozW+btF08iGFoAlYvP3csfVur1gJBEIA1uBmue5dhZDOyO2epbmgCVi8/I6x0MMHH9pjsTfBhNzQBq5uPZoQlB0uH3DZG4EZqQ26fL3sZq5uf09Ih6qw3i/pm6BZO0qZX7rrUS68Xsbr5ZE4rePMk08pk9aUZugfqppvs6AM1Acvlo/StP+6EbW06z8hJqxbYp2BZPQUnFsLsKuhQdaHqn5ewbF7KXIn0jWO5MqOQ7RaNLPtbNMmmhimj0GUmYLl8Gs0Lq4wyPbTu1l2QKqHSouzs3OlDIslW5SQsnY/NXmFplyNvEuuLV/Tau9BzwiraDUSwXmysztYWWNtL1psXeumgIrDGaqXvBfUuvtqUYI3V2t1wk1e2msFluJJm6zDJXv/fIfjPP7DAAgsssCiwwAILLLDAosACCyywwAKLAgsssMACC6zt9fDz/v75tyOB+98PD2+ORgKffjw4OP1uJPDxl+Xy8v1I4MPF3t7VNyOB4/vF4uzdzrG+39f1kz/w66Guv/yBvw90KX/gZKkr8Qf+2dOV+gNHC12/7RxrabD2/a31bLAO/a11YbAO/K21MFhLf2s9Gqw9f2vdGqzFu11jnVusE2/gxmI9eQOnFuvYG7i0WH7uK4t15w2cWazrXWP9a7H8f/bQYvm/6IPF+sF/pVssf19Ii/WH/0K2WH/uGuvEWC39gSdj9Twy+Rqri5EZx1gt/IE7Y/XoD1wbq9vd3w1PlufnD2OBp+ebm/uxwPHF6emnscDR4vLy41jg7vHq6sNY4Pr27OyYdRaLUrDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssL6u+k+AAQCR9eHtLKvLfwAAAABJRU5ErkJggg==" data-original="https://img-blog.csdnimg.cn/2020051320253898.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0NhcmJvbjY=,size_16,color_FFFFFF,t_70" alt="HAL库报错"></p>
+<p>按照编译器的提示加冒号：和分号；简直是智障行为，肯定是函数有问题。</p>
+<p>跳转到函数定义处，一段包含于<strong>stm32f1xx_hal_tim.h</strong>：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> TIM_SET_CAPTUREPOLARITY(__HANDLE__, __CHANNEL__, __POLARITY__) \</span></span><br><span class="line">  (((__CHANNEL__) == TIM_CHANNEL_1) ? ((__HANDLE__)-&gt;Instance-&gt;CCER |= (__POLARITY__)) :\</span><br><span class="line">   ((__CHANNEL__) == TIM_CHANNEL_2) ? ((__HANDLE__)-&gt;Instance-&gt;CCER |= ((__POLARITY__) &lt;&lt; <span class="number">4U</span>)) :\</span><br><span class="line">   ((__CHANNEL__) == TIM_CHANNEL_3) ? ((__HANDLE__)-&gt;Instance-&gt;CCER |= ((__POLARITY__) &lt;&lt; <span class="number">8U</span>)) :\</span><br><span class="line">   ((__HANDLE__)-&gt;Instance-&gt;CCER |= (((__POLARITY__) &lt;&lt; <span class="number">12U</span>))))</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> TIM_RESET_CAPTUREPOLARITY(__HANDLE__, __CHANNEL__) \</span></span><br><span class="line">  (((__CHANNEL__) == TIM_CHANNEL_1) ? ((__HANDLE__)-&gt;Instance-&gt;CCER &amp;= ~(TIM_CCER_CC1P | TIM_CCER_CC1NP))) :\</span><br><span class="line">   ((__CHANNEL__) == TIM_CHANNEL_2) ? ((__HANDLE__)-&gt;Instance-&gt;CCER &amp;= ~(TIM_CCER_CC2P | TIM_CCER_CC2NP)) :\</span><br><span class="line">   ((__CHANNEL__) == TIM_CHANNEL_3) ? ((__HANDLE__)-&gt;Instance-&gt;CCER &amp;= ~(TIM_CCER_CC3P | TIM_CCER_CC3NP)) :\</span><br><span class="line">   ((__HANDLE__)-&gt;Instance-&gt;CCER &amp;= ~(TIM_CCER_CC4P))</span><br></pre></td></tr></table></figure>
+<p>居然是个宏函数。。。按照报错提示，设置函数是没有问题的，但是清除函数有bug，才导致使用函数时异常报错。</p>
+<p>我们参考正常的设置极性函数，比较一下清除极性函数问题在哪里：</p>
+<p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAAEsCAMAAABOo35HAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAC9UExURVlZWdPT07KysmRkZIWFhfT09JmZmWZmZm9vb39/fxkZGUxMTDMzM3p6epCQkKamppubm729venp6cjIyN7e3tbW1s/Pz8LCwnx8fLS0tFZWVoiIiI+Pj6GhoeTk5Glpabu7u93d3evr66CgoJSUlKqqqsnJyeDg4Hd3d8PDw+Xl5bi4uNHR0dvb26Ojo6urq+fn51hYWDg4OCgoKHBwcK2traenp0FBQe7u7vHx8U5OTre3t8zMzHV1df///7GrnpQAAAA/dFJOU///////////////////////////////////////////////////////////////////////////////////AI4mfBcAAAUGSURBVHja7NoJb6M4GMZxY0NCD64kve/pMZ2d3Z297+X7f6zFNmBAMUXa6URl/q9UJSWPUPzrizFWRUlNLgEBWGCBBRZYYEEAFlhggQUWWBCABRZYYIEFFgRggQUWWGCBBQFYYIEFFlhgQQAWWGCBBRZYEIAFFlhggQUWBGCBBRZYYIEFAVhggQUWWGBBABZYYIEFFlgQgAUWWGCBBRYEYIEFFlhggQUBWGCBBRZYYEEAFlhggQUWWBCABRZYYIEFFgRggQUWWGCBBQFYYIEFFlhgQQAWWGCBBRZYEIAFFlhggQUWBGCBBRZYn6cCIcRXgvX/h9qcIVBqDdbEM8RCxGCB9QqXYRwHYDHBgwXWl8eKZKiESHI3Ba1kWs3fKixcaJUl1YyeBm7Ocq+yLItUiVBGnXxenSHJolIKEcwHq6ikbOX1YGVzQCTN8LPmSLreghUl9sN4Uw7yajMrLC0TZ1ImzqY6FEop0+pIaEN5HaoOxVuwEqFyc4I46uSlzOLqgxlh6UaR9l3VYWl9Fdoxb1Q90KJtu41pwwFW/WHhTtW8i7TafLCqRsk6bsGw63L9qurXRmuIlbT9lDQnlXU+nBFW1Q2qnZbDprWa2tjR90LZFqx1/+Td/HpGWLlrLDvIwTcx6dQ1Vrntbig68cDms3JwbA5Y1azs1ger6sNV/bbIw1jU81MvNAGrl58RVn8ozW+btF08iGFoAlYvP3csfVur1gJBEIA1uBmue5dhZDOyO2epbmgCVi8/I6x0MMHH9pjsTfBhNzQBq5uPZoQlB0uH3DZG4EZqQ26fL3sZq5uf09Ih6qw3i/pm6BZO0qZX7rrUS68Xsbr5ZE4rePMk08pk9aUZugfqppvs6AM1Acvlo/StP+6EbW06z8hJqxbYp2BZPQUnFsLsKuhQdaHqn5ewbF7KXIn0jWO5MqOQ7RaNLPtbNMmmhimj0GUmYLl8Gs0Lq4wyPbTu1l2QKqHSouzs3OlDIslW5SQsnY/NXmFplyNvEuuLV/Tau9BzwiraDUSwXmysztYWWNtL1psXeumgIrDGaqXvBfUuvtqUYI3V2t1wk1e2msFluJJm6zDJXv/fIfjPP7DAAgsssCiwwAILLLDAosACCyywwAKLAgsssMACC6zt9fDz/v75tyOB+98PD2+ORgKffjw4OP1uJPDxl+Xy8v1I4MPF3t7VNyOB4/vF4uzdzrG+39f1kz/w66Guv/yBvw90KX/gZKkr8Qf+2dOV+gNHC12/7RxrabD2/a31bLAO/a11YbAO/K21MFhLf2s9Gqw9f2vdGqzFu11jnVusE2/gxmI9eQOnFuvYG7i0WH7uK4t15w2cWazrXWP9a7H8f/bQYvm/6IPF+sF/pVssf19Ii/WH/0K2WH/uGuvEWC39gSdj9Twy+Rqri5EZx1gt/IE7Y/XoD1wbq9vd3w1PlufnD2OBp+ebm/uxwPHF6emnscDR4vLy41jg7vHq6sNY4Pr27OyYdRaLUrDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssMCiwAILLLDAAosCCyywwAILLAossMACCyywKLDAAgsssL6u+k+AAQCR9eHtLKvLfwAAAABJRU5ErkJggg==" data-original="https://img-blog.csdnimg.cn/20200513204403956.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0NhcmJvbjY=,size_16,color_FFFFFF,t_70" alt="bug"></p>
+<p>问题一目了然了吧，就是这个括号的位置，应该放到函数最后：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> TIM_RESET_CAPTUREPOLARITY(__HANDLE__, __CHANNEL__) \</span></span><br><span class="line">  (((__CHANNEL__) == TIM_CHANNEL_1) ? ((__HANDLE__)-&gt;Instance-&gt;CCER &amp;= ~(TIM_CCER_CC1P | TIM_CCER_CC1NP)) :\</span><br><span class="line">   ((__CHANNEL__) == TIM_CHANNEL_2) ? ((__HANDLE__)-&gt;Instance-&gt;CCER &amp;= ~(TIM_CCER_CC2P | TIM_CCER_CC2NP)) :\</span><br><span class="line">   ((__CHANNEL__) == TIM_CHANNEL_3) ? ((__HANDLE__)-&gt;Instance-&gt;CCER &amp;= ~(TIM_CCER_CC3P | TIM_CCER_CC3NP)) :\</span><br><span class="line">   ((__HANDLE__)-&gt;Instance-&gt;CCER &amp;= ~(TIM_CCER_CC4P)))</span><br></pre></td></tr></table></figure>
+<p>唉，听说HAL库还有很多bug呢，遇到一个收录一个吧，又要踩坑了哈哈哈。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/05/09/%E5%9F%BA%E4%BA%8ECubeMX%E7%9A%84%E4%B8%B2%E5%8F%A3%E9%80%9A%E4%BF%A1/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1868,173 +2023,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/15/STM32%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%951%E7%82%B9%E7%81%AF/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Silicon4">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="https://img-blog.csdnimg.cn/20200419121558948.jpg?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0NhcmJvbjY=,size_16,color_FFFFFF,t_70">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Silicon4">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2020/04/15/STM32%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%951%E7%82%B9%E7%81%AF/" itemprop="url">STM32学习记录——第一步——点灯</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2020-04-15T19:45:22+08:00">
-                2020-04-15
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/STM32%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95/" itemprop="url" rel="index">
-                    <span itemprop="name">STM32学习记录</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="Hello-world"><a href="#Hello-world" class="headerlink" title="Hello world"></a>Hello world</h1><p>实践操作很多MCU的第一步应该都是点灯吧，硬件界的Hello World，故曰点灯工程师。</p>
-<p>下面来看看如何让开发板上的一个LED亮起来。</p>
-<h2 id="1、自己写一个简陋版的标准固件库"><a href="#1、自己写一个简陋版的标准固件库" class="headerlink" title="1、自己写一个简陋版的标准固件库"></a>1、自己写一个简陋版的标准固件库</h2><p>权衡CPU的运算能力和官方固件库带来的便捷，可以知道，在大多数对CPU性能无需太多优化的情况下，使用固件库编程都会是主流，因此，我想参考ST官方的<strong>标准固件库</strong>来写一段点灯用得上的迷你库，为什么不是参考HAL库？因为看起来更复杂，在硬件层到用户层的距离比较远，说到底是我现在看不懂，太菜呗。</p>
-<h3 id="下面先编写”stm32f10x-gpio-h”"><a href="#下面先编写”stm32f10x-gpio-h”" class="headerlink" title="下面先编写”stm32f10x_gpio.h”"></a>下面先编写”stm32f10x_gpio.h”</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">ifndef</span> _STM32F10X_GPIO_H</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> _STM32F10X_GPIO_H</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> __IO				volatile	<span class="comment">//防止编译器优化</span></span></span><br><span class="line"><span class="keyword">typedef</span> <span class="keyword">unsigned</span> <span class="keyword">int</span>		u32;</span><br><span class="line"><span class="keyword">typedef</span> <span class="keyword">unsigned</span> short <span class="keyword">int</span>	u16;</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> PERIPH_BASE			0x40000000U</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> APB2PERIPH_BASE		(PERIPH_BASE + 0x00010000U)</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> AHBPERIPH_BASE		(PERIPH_BASE + 0x00020000U)</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> RCC_BASE			(AHBPERIPH_BASE + 0x00001000U)</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// GPIO 寄存器结构体定义</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">	__IO u32 CRL; <span class="comment">// 端口配置低寄存器， 地址偏移 0X00</span></span><br><span class="line">	__IO u32 CRH; <span class="comment">// 端口配置高寄存器， 地址偏移 0X04</span></span><br><span class="line">	__IO u32 IDR; <span class="comment">// 端口数据输入寄存器， 地址偏移 0X08</span></span><br><span class="line">	__IO u32 ODR; <span class="comment">// 端口数据输出寄存器， 地址偏移 0X0C</span></span><br><span class="line">	__IO u32 BSRR; <span class="comment">// 端口位设置/清除寄存器，地址偏移 0X10</span></span><br><span class="line">	__IO u32 BRR; <span class="comment">// 端口位清除寄存器， 地址偏移 0X14</span></span><br><span class="line">	__IO u32 LCKR; <span class="comment">// 端口配置锁定寄存器， 地址偏移 0X18</span></span><br><span class="line">&#125; GPIO_TypeDef;</span><br><span class="line"></span><br><span class="line"><span class="comment">//分别求出各组IO端口的基地址映射</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> GPIOA_BASE			(APB2PERIPH_BASE + 0x00000800U)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> GPIOB_BASE			(APB2PERIPH_BASE + 0x00000C00U)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> GPIOC_BASE			(APB2PERIPH_BASE + 0x00001000U)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> GPIOD_BASE			(APB2PERIPH_BASE + 0x00001400U)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> GPIOE_BASE			(APB2PERIPH_BASE + 0x00001800U)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> GPIOF_ASE			(APB2PERIPH_BASE + 0x00001C00U)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> GPIOG_BASE			(APB2PERIPH_BASE + 0x00002000U)</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// GPIO 外设声明</span></span><br><span class="line"><span class="comment">/*强制类型转换，将GPIOA转换为从GPIOA的基地址开始的结构体指针，</span></span><br><span class="line"><span class="comment">通过访问其中的成员，就是操作这一块内存中的对应的32位,</span></span><br><span class="line"><span class="comment">访问成员就相当于之前的第一个*,是解地址的过程*/</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> GPIOA				((GPIO_TypeDef *) GPIOA_BASE)		</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> GPIOB				((GPIO_TypeDef *) GPIOB_BASE)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> GPIOC				((GPIO_TypeDef *) GPIOC_BASE)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> GPIOD				((GPIO_TypeDef *) GPIOD_BASE)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> GPIOE				((GPIO_TypeDef *) GPIOE_BASE)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> GPIOF				((GPIO_TypeDef *) GPIOF_BASE)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> GPIOG				((GPIO_TypeDef *) GPIOG_BASE)</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//RCC 结构体定义</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">	__IO u32 CR;</span><br><span class="line">	__IO u32 CFGR;</span><br><span class="line">	__IO u32 CIR;</span><br><span class="line">	__IO u32 APB2RSTR;</span><br><span class="line">	__IO u32 APB1RSTR;</span><br><span class="line">	__IO u32 AHBENR;</span><br><span class="line">	__IO u32 APB2ENR;</span><br><span class="line">	__IO u32 APB1ENR;</span><br><span class="line">	__IO u32 BDCR;</span><br><span class="line">	__IO u32 CSR;</span><br><span class="line">	__IO u32 AHBRSTR;</span><br><span class="line">	__IO u32 CFGR2;</span><br><span class="line">&#125; RCC_TypeDef;</span><br><span class="line"></span><br><span class="line"><span class="comment">// RCC 外设声明</span></span><br><span class="line"><span class="comment">/*强制类型转换，将GPIOA转换为从GPIOA的基地址开始的结构体指针，</span></span><br><span class="line"><span class="comment">通过访问其中的成员，就是操作这一块内存中的对应的32位,</span></span><br><span class="line"><span class="comment">访问成员就相当于之前的第一个*,是解地址的过程*/</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> RCC					((RCC_TypeDef *) RCC_BASE)</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br></pre></td></tr></table></figure>
-<p>怎么去理解呢，先看这里面所有的<strong>#define</strong>语句，可以看到STM32的硬件地址具有严格的分级结构，我们可以利用<strong>宏定义的嵌套</strong>来轻松的完成从<strong>外设基地址</strong>，到<strong>APB2总线地址</strong>，再到APB2外设<strong>GPIO基地址</strong>，最后到<strong>GPIO寄存器</strong>的映射，最后一步<strong>解地址</strong>的环节，在定义<strong>GPIOx</strong>的时候完成的，这样，当我们包含这个头文件，在main函数或者GPIO外设函数中写<strong>GPIOx</strong>，都会被直接翻译为GPIOx的基地址，这里主要应用了<strong>地址偏移</strong>的概念。</p>
-<p>翻手册，发现GPIO和RCC的寄存器竟然都是32为的，这一看就得用结构体啊，这样就把GPIOx这一块地址，又分成了一个个寄存器地址，下面的GPIO外设头文件就能用到。</p>
-<p>如果不包含这个头文件，我们的点灯程序主体是这样的：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//前面的地址宏定义略去，一样通过地址偏移实现</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	RCC_APB2ENR |= (<span class="number">0x01</span> &lt;&lt; (<span class="number">1</span>*<span class="number">4</span>));			<span class="comment">//开启PC的时钟</span></span><br><span class="line">	GPIOC_CRH &amp;= ~(<span class="number">0x0F</span> &lt;&lt; (<span class="number">4</span>*<span class="number">5</span>));			<span class="comment">//13 - 8 = 5</span></span><br><span class="line">	GPIOC_CRH |= (<span class="number">0x01</span> &lt;&lt; (<span class="number">4</span>*<span class="number">5</span>));			<span class="comment">//设置PC13推挽输出 低速模式</span></span><br><span class="line">	GPIOC_ODR &amp;= ~(<span class="number">0x01</span> &lt;&lt; (<span class="number">1</span>*<span class="number">13</span>));			<span class="comment">//端口数据输出寄存器，PC13输出</span></span><br><span class="line">	<span class="keyword">while</span>(<span class="number">1</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>包含了这个头文件，我们可以这样写：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	RCC-&gt;APB2ENR |= (<span class="number">0x01</span> &lt;&lt; (<span class="number">1</span>*<span class="number">4</span>));			<span class="comment">//开启PC的时钟</span></span><br><span class="line">	GPIOC-&gt;CRH &amp;= ~(<span class="number">0x0F</span> &lt;&lt; (<span class="number">4</span>*<span class="number">5</span>));				<span class="comment">//13 - 8 = 5</span></span><br><span class="line">	GPIOC-&gt;CRH |= (<span class="number">0x01</span> &lt;&lt; (<span class="number">4</span>*<span class="number">5</span>));				<span class="comment">//设置PC13推挽输出 低速模式</span></span><br><span class="line">	GPIOC-&gt;ODR &amp;= ~(<span class="number">0x01</span> &lt;&lt; (<span class="number">1</span>*<span class="number">13</span>));			<span class="comment">//端口数据输出寄存器，PC13输出</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>使用感觉变化不大？感觉确实啊，不就是个结构体成员吗？我开始也是这么想的，但现在却认为这是同向硬件可移植性的重要一步。</p>
-<p>什么？想要一个函数实现LED亮灭？继续看。</p>
-<h3 id="“stm32f10x-GPIO-h”"><a href="#“stm32f10x-GPIO-h”" class="headerlink" title="“stm32f10x_GPIO.h”"></a>“stm32f10x_GPIO.h”</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">ifndef</span> __STM32F10X_GPIO_H</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> __STM32F10X_GPIO_H</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"stm32f10x.h"</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> GPIO_PIN_0                 ((u16)0x0001)  <span class="comment">/* Pin 0 selected    */</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> GPIO_PIN_1                 ((u16)0x0002)  <span class="comment">/* Pin 1 selected    */</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> GPIO_PIN_2                 ((u16)0x0004)  <span class="comment">/* Pin 2 selected    */</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> GPIO_PIN_3                 ((u16)0x0008)  <span class="comment">/* Pin 3 selected    */</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> GPIO_PIN_4                 ((u16)0x0010)  <span class="comment">/* Pin 4 selected    */</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> GPIO_PIN_5                 ((u16)0x0020)  <span class="comment">/* Pin 5 selected    */</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> GPIO_PIN_6                 ((u16)0x0040)  <span class="comment">/* Pin 6 selected    */</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> GPIO_PIN_7                 ((u16)0x0080)  <span class="comment">/* Pin 7 selected    */</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> GPIO_PIN_8                 ((u16)0x0100)  <span class="comment">/* Pin 8 selected    */</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> GPIO_PIN_9                 ((u16)0x0200)  <span class="comment">/* Pin 9 selected    */</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> GPIO_PIN_10                ((u16)0x0400)  <span class="comment">/* Pin 10 selected   */</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> GPIO_PIN_11                ((u16)0x0800)  <span class="comment">/* Pin 11 selected   */</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> GPIO_PIN_12                ((u16)0x1000)  <span class="comment">/* Pin 12 selected   */</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> GPIO_PIN_13                ((u16)0x2000)  <span class="comment">/* Pin 13 selected   */</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> GPIO_PIN_14                ((u16)0x4000)  <span class="comment">/* Pin 14 selected   */</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> GPIO_PIN_15                ((u16)0x8000)  <span class="comment">/* Pin 15 selected   */</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> GPIO_PIN_All               ((u16)0xFFFF)  <span class="comment">/* All pins selected */</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">	u16 GPIO_Pin;</span><br><span class="line">	u16 GPIO_Speed;</span><br><span class="line">	u16 GPIO_Mode;</span><br><span class="line">&#125;GPIO_InitTypeDef;</span><br><span class="line"><span class="comment">//但是Speed只有3种，Mode只有8种，远远不到16种，为防止引用结构体时出错，运用枚举定义</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="keyword">enum</span></span><br><span class="line">&#123;</span><br><span class="line">	GPIO_Speed_10MHz = <span class="number">1</span>,</span><br><span class="line">	GPIO_Speed_2MHz,</span><br><span class="line">	GPIO_Speed_50MHz</span><br><span class="line">&#125;GPIOSpeed_TypeDef;</span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="keyword">enum</span></span><br><span class="line">&#123;</span><br><span class="line">	GPIO_Mode_AIN = <span class="number">0x0</span>,					<span class="comment">//模拟输入		(0000 0000)b</span></span><br><span class="line">	GPIO_Mode_IN_FLOATING = <span class="number">0x04</span>,			<span class="comment">//浮空输入		(0000 0100)b</span></span><br><span class="line">	GPIO_Mode_IPD = <span class="number">0x28</span>,					<span class="comment">//下拉输入		(0010 1000)b</span></span><br><span class="line">	GPIO_Mode_IPU = <span class="number">0x48</span>,					<span class="comment">//上拉输入		(0100 1000)b</span></span><br><span class="line">	</span><br><span class="line">	GPIOA_Mode_Out_OD = <span class="number">0x14</span>,				<span class="comment">//开漏输出		(0001 0100)b</span></span><br><span class="line">	GPIOA_Mode_Out_PP = <span class="number">0x10</span>,				<span class="comment">//推挽输出		(0001 0000)b</span></span><br><span class="line">	GPIOA_Mode_AF_OD = <span class="number">0x1C</span>,				<span class="comment">//复用开漏输出	(0001 1100)b</span></span><br><span class="line">	GPIOA_Mode_AF_PP = <span class="number">0x18</span>					<span class="comment">//复用推挽输出	(0001 1000)b</span></span><br><span class="line">&#125; GPIOMode_TypeDef;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">GPIO_SetBit</span><span class="params">(GPIO_TypeDef *GPIOx, u16 GPIO_Pin)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">GPIO_ResetBit</span><span class="params">(GPIO_TypeDef *GPIOx, u16 GPIO_Pin)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">GPIO_Init</span><span class="params">(GPIO_TypeDef* GPIOx, GPIO_InitTypeDef* GPIO_InitStruct)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br></pre></td></tr></table></figure>
-<p>有了包含基本外设基地址的头文件，开始编写GPIO头文件，这里的关键有两个：</p>
-<ul>
-<li>16位无符号二进制位来宏定义GPIO_PIN_x，这个源于各个各个GPIO寄存器的配置方式，都可以用这个16位二进制进行变换后赋给寄存器，达到配置的目的。</li>
-<li>对于功能性的配置关键词，使用枚举定义( 这个我们C语言竟然没学，害，卑微的非计算机专业 )。</li>
-</ul>
-<h3 id="“stm32f10x-GPIO-c”"><a href="#“stm32f10x-GPIO-c”" class="headerlink" title="“stm32f10x_GPIO.c”"></a>“stm32f10x_GPIO.c”</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"stm32f10x_gpio.h"</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">GPIO_SetBit</span><span class="params">(GPIO_TypeDef *GPIOx, u16 GPIO_Pin)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	GPIOx-&gt;BSRR |= GPIO_Pin;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">GPIO_ResetBit</span><span class="params">(GPIO_TypeDef *GPIOx, u16 GPIO_Pin)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	GPIOx-&gt;BRR |= GPIO_Pin;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">GPIO_Init</span><span class="params">(GPIO_TypeDef* GPIOx, GPIO_InitTypeDef* GPIO_InitStruct)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  u32 currentmode = <span class="number">0x00</span>, currentpin = <span class="number">0x00</span>, pinpos = <span class="number">0x00</span>, pos = <span class="number">0x00</span>;</span><br><span class="line">  u32 tmpreg = <span class="number">0x00</span>, pinmask = <span class="number">0x00</span>;</span><br><span class="line">  <span class="comment">/* Check the parameters */</span></span><br><span class="line">  </span><br><span class="line"><span class="comment">/*---------------------------- GPIO Mode Configuration -----------------------*/</span></span><br><span class="line">  currentmode = ((u32)GPIO_InitStruct-&gt;GPIO_Mode) &amp; ((u32)<span class="number">0x0F</span>);		<span class="comment">//把输入参数GPIO_Mode的低四位暂存在currentmode中</span></span><br><span class="line">  <span class="keyword">if</span> ((((u32)GPIO_InitStruct-&gt;GPIO_Mode) &amp; ((u32)<span class="number">0x10</span>)) != <span class="number">0x00</span>)		<span class="comment">//判断GPIO_Mode的第四位(0001 0000)，判断输入(0)还是输出(1)</span></span><br><span class="line">  &#123; </span><br><span class="line">    <span class="comment">/* Check the parameters */</span></span><br><span class="line">    <span class="comment">/* Output mode */</span></span><br><span class="line">    currentmode |= (u32)GPIO_InitStruct-&gt;GPIO_Speed;			<span class="comment">//输出模式，则需要设置输出速度</span></span><br><span class="line">  &#125;</span><br><span class="line"><span class="comment">/*---------------------------- GPIO CRL Configuration ------------------------*/</span></span><br><span class="line">  <span class="comment">/* Configure the eight low port pins */</span></span><br><span class="line">  <span class="keyword">if</span> (((u32)GPIO_InitStruct-&gt;GPIO_Pin &amp; ((u32)<span class="number">0x00FF</span>)) != <span class="number">0x00</span>)			<span class="comment">//CRL第八位端口配置，PIN0-PIN7</span></span><br><span class="line">  &#123;</span><br><span class="line">    tmpreg = GPIOx-&gt;CRL;										<span class="comment">//tmpreg暂存CRL的值</span></span><br><span class="line">    <span class="keyword">for</span> (pinpos = <span class="number">0x00</span>; pinpos &lt; <span class="number">0x08</span>; pinpos++)				<span class="comment">//for循环查找具体的端口</span></span><br><span class="line">    &#123;</span><br><span class="line">      pos = ((u32)<span class="number">0x01</span>) &lt;&lt; pinpos;								<span class="comment">//pos为1左移pinpos位</span></span><br><span class="line">      <span class="comment">/* Get the port pins position */</span></span><br><span class="line">      currentpin = (GPIO_InitStruct-&gt;GPIO_Pin) &amp; pos;</span><br><span class="line">      <span class="keyword">if</span> (currentpin == pos)</span><br><span class="line">      &#123;</span><br><span class="line">        pos = pinpos &lt;&lt; <span class="number">2</span>;										<span class="comment">//pinpos左移2位，二进制相当于乘4，由于4位配置一个端口</span></span><br><span class="line">        <span class="comment">/* Clear the corresponding low control register bits */</span></span><br><span class="line">        pinmask = ((u32)<span class="number">0x0F</span>) &lt;&lt; pos;							<span class="comment">//清除对应端口的4位配置信息</span></span><br><span class="line">        tmpreg &amp;= ~pinmask;										</span><br><span class="line">        <span class="comment">/* Write the mode configuration in the corresponding bits */</span></span><br><span class="line">        tmpreg |= (currentmode &lt;&lt; pos);							<span class="comment">//tmpreg本来备份了CRL的原始信息，现在或上需要配置的端口的4位的置位信息</span></span><br><span class="line">        <span class="comment">/* Reset the corresponding ODR bit */</span></span><br><span class="line">        <span class="keyword">if</span> (GPIO_InitStruct-&gt;GPIO_Mode == GPIO_Mode_IPD)		<span class="comment">//判断是否为下拉输入模式，如果时下拉模式</span></span><br><span class="line">        &#123;</span><br><span class="line">          GPIOx-&gt;BRR = (((u32)<span class="number">0x01</span>) &lt;&lt; pinpos);					<span class="comment">//操作BRR对应的位置位，即实现下拉</span></span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span>													<span class="comment">//else为上拉模式</span></span><br><span class="line">        &#123;</span><br><span class="line">          <span class="comment">/* Set the corresponding ODR bit */</span></span><br><span class="line">          <span class="keyword">if</span> (GPIO_InitStruct-&gt;GPIO_Mode == GPIO_Mode_IPU)</span><br><span class="line">          &#123;</span><br><span class="line">            GPIOx-&gt;BSRR = (((u32)<span class="number">0x01</span>) &lt;&lt; pinpos);				<span class="comment">//操作BSRR对应的位置位，即实现上拉</span></span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    GPIOx-&gt;CRL = tmpreg;</span><br><span class="line">  &#125;</span><br><span class="line"><span class="comment">/*---------------------------- GPIO CRH Configuration ------------------------*/</span></span><br><span class="line">  <span class="comment">/* Configure the eight high port pins */</span></span><br><span class="line">  <span class="keyword">if</span> (GPIO_InitStruct-&gt;GPIO_Pin &gt; <span class="number">0x00FF</span>)</span><br><span class="line">  &#123;</span><br><span class="line">      <span class="comment">//这里一坨跟上面一样的代码，是配置高8位端口的，博客空间有限，略</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>不解释(解释都在注释里)。</p>
-<h2 id="2、使用自己的简陋版本固件库编程"><a href="#2、使用自己的简陋版本固件库编程" class="headerlink" title="2、使用自己的简陋版本固件库编程"></a>2、使用自己的简陋版本固件库编程</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"stm32f10x_gpio.h"</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	GPIO_InitTypeDef GPIO_InitStructure;		<span class="comment">//给变量GPIO_InitStructure定义GPIO初始化结构体</span></span><br><span class="line">	RCC-&gt;APB2ENR |= (<span class="number">0x01</span> &lt;&lt; (<span class="number">1</span>*<span class="number">4</span>));			<span class="comment">//开启PC的时钟</span></span><br><span class="line">	</span><br><span class="line">	GPIO_InitStructure.GPIO_Mode = GPIOA_Mode_Out_PP;		<span class="comment">//为初始化结构体成员GPIO_Mode赋值</span></span><br><span class="line">	GPIO_InitStructure.GPIO_Pin = GPIO_PIN_13;				<span class="comment">//为初始化结构体成员GPIO_PIN赋值</span></span><br><span class="line">	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_10MHz;		<span class="comment">//为初始化结构体成员GPIO_Speed赋值</span></span><br><span class="line">	</span><br><span class="line">	GPIO_Init(GPIOC, &amp;GPIO_InitStructure);		<span class="comment">//两个形参，前一个是端口寄存器结构体定义，已经在stm32f10x.h中define成了绝对地址，</span></span><br><span class="line">												<span class="comment">//后一个是端口初始化结构体定义，需要填写结构体地址</span></span><br><span class="line">	GPIO_ResetBit(GPIOC, GPIO_PIN_13);</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">SystemInit</span><span class="params">(<span class="keyword">void</span>)</span>		<span class="comment">//startup.s中有经过这一段函数的预编译指令，空，避免编译器报错</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>什么？更复杂了？</p>
-<p>你细品。。。</p>
-<p>有没有发现这个结构体很灵性？是不是很直观，都不需要查手册了吧，知道自己想干嘛，直接往结构体里塞对应功能的宏名就行了，地址啥的在头文件里呢。</p>
-<p>这个其实可以另外新建一个LED.c，放在另一个独立的硬件包里，起一个名字<strong>“GPIO_Init()”</strong>，里面放GPIO的RCC和寄存器初始化，在主函数中，就能实现一句话初始化，这里就不演示了。</p>
-<p>另外这个<strong>“GPIO_Setbit”</strong>函数也是同样的道理，让你编程的时候甚至忘掉了底层。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2089,7 +2077,7 @@
               
                 <a href="/archives">
               
-                  <span class="site-state-item-count">21</span>
+                  <span class="site-state-item-count">22</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
